@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function getPostById(postId) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data: post, error: postError } = await supabase
     .from("posts")
     .select(
       `
@@ -23,15 +23,34 @@ export async function getPostById(postId) {
     .eq("is_deleted", false)
     .single();
 
-  if (error) {
+  if (postError || !post) {
     return {
       post: null,
-      error,
+      error: postError,
     };
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select(
+      `
+      id,
+      username,
+      first_name
+    `
+    )
+    .eq("id", post.user_id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("GET POST AUTHOR ERROR:", profileError);
+  }
+
   return {
-    post: data,
+    post: {
+      ...post,
+      author: profile || null,
+    },
     error: null,
   };
 }

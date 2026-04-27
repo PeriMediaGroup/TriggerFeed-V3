@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function getPosts() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data: posts, error: postsError } = await supabase
     .from("posts")
     .select(
       `
@@ -23,15 +23,58 @@ export async function getPosts() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  if (error) {
+  if (postsError) {
+    console.error("GET POSTS ERROR:", postsError);
+
     return {
       posts: [],
-      error,
+      error: postsError,
     };
   }
 
+  const safePosts = posts || [];
+
+  if (!safePosts.length) {
+    return {
+      posts: [],
+      error: null,
+    };
+  }
+
+  const userIds = [...new Set(safePosts.map((post) => post.user_id))];
+
+  const { data: profiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select(
+      `
+      id,
+      username,
+      first_name
+    `
+    )
+    .in("id", userIds);
+
+  if (profilesError) {
+    console.error("GET POST PROFILES ERROR:", profilesError);
+
+    return {
+      posts: safePosts.map((post) => ({
+        ...post,
+        author: null,
+      })),
+      error: null,
+    };
+  }
+
+  const profileMap = new Map((profiles || []).map((profile) => [profile.id, profile]));
+
+  const postsWithAuthors = safePosts.map((post) => ({
+    ...post,
+    author: profileMap.get(post.user_id) || null,
+  }));
+
   return {
-    posts: data || [],
+    posts: postsWithAuthors,
     error: null,
   };
 }
