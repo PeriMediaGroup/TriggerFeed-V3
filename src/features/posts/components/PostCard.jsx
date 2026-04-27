@@ -1,5 +1,3 @@
-// src/features/posts/components/PostCard.jsx
-
 import Link from "next/link";
 
 export default function PostCard({ post }) {
@@ -18,7 +16,7 @@ export default function PostCard({ post }) {
       {post.body && <p className="post-card__body">{post.body}</p>}
 
       <footer className="post-card__footer">
-        <span className="post-card__visibility">{post.visibility}</span>
+        <span>{post.visibility}</span>
       </footer>
     </article>
   );

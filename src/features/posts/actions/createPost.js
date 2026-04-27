@@ -60,7 +60,14 @@ export async function createPost(formData) {
     .single();
 
   if (error) {
-    await supabase.from("post_audit_logs").insert({
+    console.error("CREATE POST INSERT ERROR:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+
+    const { error: auditError } = await supabase.from("post_audit_logs").insert({
       user_id: user.id,
       event_type: "post_create_failed",
       success: false,
@@ -68,8 +75,19 @@ export async function createPost(formData) {
       error_message: error.message,
       metadata: {
         source: "createPost",
+        details: error.details,
+        hint: error.hint,
       },
     });
+
+    if (auditError) {
+      console.error("POST AUDIT LOG ERROR:", {
+        code: auditError.code,
+        message: auditError.message,
+        details: auditError.details,
+        hint: auditError.hint,
+      });
+    }
 
     return {
       success: false,

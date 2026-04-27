@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabase/client";
 
 export async function logAuthEvent({
   userId = null,
@@ -9,6 +9,8 @@ export async function logAuthEvent({
   errorMessage = null,
   metadata = {},
 }) {
+  const supabase = createClient();
+  
   const { error } = await supabase.from("auth_events").insert({
     user_id: userId,
     email,
