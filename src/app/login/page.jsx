@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 
 export default function LoginPage() {
   const router = useRouter();
+  const supabase = createClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -122,8 +123,11 @@ export default function LoginPage() {
       router.replace("/onboarding");
       return;
     }
-
-    router.replace("/feed");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    
+    router.replace("/posts");
   }
 
   return (
