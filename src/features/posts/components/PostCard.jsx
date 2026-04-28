@@ -14,7 +14,10 @@ export default function PostCard({ post }) {
       <article className="post-card">
         <header className="post-card__header">
           <p>
-            Posted by <strong>{authorName}</strong>
+            Posted by{" "}
+            <Link href={`/users/${post.user_id}`}>
+              <strong>{authorName}</strong>
+            </Link>
           </p>
 
           <h2 className="post-card__title">

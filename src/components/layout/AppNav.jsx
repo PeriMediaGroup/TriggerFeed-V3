@@ -26,6 +26,8 @@ export default async function AppNav() {
             <strong>{username || "Unknown user"}</strong>
           </span>
           {" | "}
+          <Link href={`/users/${user.id}`}>Profile</Link>
+          {" | "}
           <a href="/logout">Log out</a>
         </>
       ) : (

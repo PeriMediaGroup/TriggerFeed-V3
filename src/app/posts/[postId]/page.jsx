@@ -30,12 +30,16 @@ export default async function PostDetailPage({ params }) {
 
   return (
     <main className="post-detail-page">
-      <Link href="/posts" className="post-detail-page__back-link">
-        ← Back to posts
+      <Link href="/" className="post-detail-page__back-link">
+        ← Back to Feed
       </Link>
       <article className="post-detail">
         <header className="post-detail__header">
-          <p className="post-detail__author">{authorName}</p>
+          <p className="post-detail__author">
+            <Link href={`/users/${post.user_id}`}>
+              <strong>{authorName}</strong>
+            </Link>
+          </p>
           <h1 className="post-detail__title">{post.title}</h1>
         </header>
 
