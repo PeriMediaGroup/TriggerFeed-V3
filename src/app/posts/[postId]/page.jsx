@@ -1,54 +1,63 @@
 // src/app/posts/[postId]/page.jsx
-
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Image from "next/image";
 import { getPostById } from "@/features/posts/data/getPostById";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-import PostActions from "@/features/posts/components/PostActions";
+
+import { getCommentsByPostId } from "@/features/comments/queries";
+import CommentForm from "@/features/comments/components/CommentForm";
+import CommentList from "@/features/comments/components/CommentList";
 
 export default async function PostDetailPage({ params }) {
   const { postId } = await params;
 
   const user = await getCurrentUser();
+
   const { post, error } = await getPostById(postId);
+
+  if (error || !post) {
+    return (
+      <main className="post-detail-page">
+        <p>Post not found.</p>
+      </main>
+    );
+  }
+
   const authorName =
     post.author?.username || post.author?.first_name || "Unknown user";
 
-  if (error || !post) {
-    notFound();
-  }
-
-  const isOwner = user?.id === post.user_id;
+  const { comments, error: commentsError } = await getCommentsByPostId(postId);
 
   return (
-    <main className="tf-page post-detail-page">
-      <section className="tf-section post-detail">
-        <p className="post-detail__back">
-          <Link href="/posts">← Back to Posts</Link>
-        </p>
+    <main className="post-detail-page">
+      <article className="post-detail">
+        <header className="post-detail__header">
+          <p className="post-detail__author">{authorName}</p>
+          <h1 className="post-detail__title">{post.title}</h1>
+        </header>
 
-        <article className="post-detail__card">
-          <header className="post-detail__header">
-            <p>
-              Posted by <strong>{authorName}</strong>
-            </p>
-            <h1>{post.title}</h1>
+        {post.description && (
+          <p className="post-detail__description">{post.description}</p>
+        )}
 
-            <p className="post-detail__meta">
-              Posted {new Date(post.created_at).toLocaleDateString()}
-            </p>
-          </header>
+        {post.image_url && (
+          <Image
+            className="post-detail__image"
+            src={post.image_url}
+            alt={post.title || "Post image"}
+          />
+        )}
+      </article>
 
-          {post.body && <p className="post-detail__body">{post.body}</p>}
+      <section className="post-detail__comments">
+        <CommentForm postId={postId} isLoggedIn={!!user} />
 
-          <footer className="post-detail__footer">
-            <span className="post-detail__visibility">
-              Visibility: {post.visibility}
-            </span>
+        {commentsError && (
+          <p className="post-detail__comments-error">
+            Could not load comments: {commentsError}
+          </p>
+        )}
 
-            {isOwner && <PostActions postId={post.id} />}
-          </footer>
-        </article>
+        <CommentList comments={comments} />
       </section>
     </main>
   );
