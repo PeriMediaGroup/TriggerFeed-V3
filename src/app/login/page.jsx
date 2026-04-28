@@ -121,13 +121,12 @@ export default function LoginPage() {
 
     if (!profile.username) {
       router.replace("/onboarding");
+      router.refresh();
       return;
     }
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    
-    router.replace("/posts");
+
+    router.replace("/");
+    router.refresh();
   }
 
   return (
