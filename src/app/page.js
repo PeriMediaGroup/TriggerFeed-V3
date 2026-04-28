@@ -1,4 +1,5 @@
 import styles from "./page.module.css";
+import PostsPage from "./posts/page";
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
           <p>
             Let&apos;s do it right this time.
           </p>
+          <PostsPage />
         </div>
       </main>
     </div>

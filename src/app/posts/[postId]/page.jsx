@@ -1,5 +1,6 @@
 // src/app/posts/[postId]/page.jsx
 import Image from "next/image";
+import Link from "next/link";
 import { getPostById } from "@/features/posts/data/getPostById";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
@@ -29,6 +30,9 @@ export default async function PostDetailPage({ params }) {
 
   return (
     <main className="post-detail-page">
+      <Link href="/posts" className="post-detail-page__back-link">
+        ← Back to posts
+      </Link>
       <article className="post-detail">
         <header className="post-detail__header">
           <p className="post-detail__author">{authorName}</p>
