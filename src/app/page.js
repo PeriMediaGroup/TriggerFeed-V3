@@ -7,7 +7,7 @@ export default function Home() {
         <div className={styles.intro}>
           <h1>TriggerFeed V3.0</h1>
           <p>
-            Let's do it right this time.
+            Let&apos;s do it right this time.
           </p>
         </div>
       </main>
