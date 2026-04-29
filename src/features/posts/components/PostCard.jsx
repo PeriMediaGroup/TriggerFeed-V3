@@ -32,6 +32,7 @@ export default function PostCard({ post }) {
           <h2 className="post-card__title">
             <Link href={`/posts/${post.id}`}>{post.title}</Link>
           </h2>
+          <p>{post.body}</p>
 
           <p className="post-card__meta">
             {new Date(post.created_at).toLocaleDateString()}

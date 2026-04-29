@@ -1,68 +1,64 @@
-// src/features/posts/actions/deletePost.js
-
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 export async function deletePost(postId) {
+  if (!postId) {
+    return {
+      success: false,
+      error: "Missing post id",
+    };
+  }
+
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return {
+      success: false,
+      error: "You must be logged in to delete a post.",
+    };
+  }
+
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return {
-      success: false,
-      message: "You must be logged in to delete a post.",
-    };
-  }
-
-  const { error } = await supabase
+  const { data: post, error: postError } = await supabase
     .from("posts")
-    .update({
-      is_deleted: true,
-      deleted_at: new Date().toISOString(),
-      deleted_by: user.id,
-    })
+    .select("id, user_id")
     .eq("id", postId)
-    .eq("user_id", user.id)
-    .eq("is_deleted", false);
+    .maybeSingle();
 
-  if (error) {
-    await supabase.from("post_audit_logs").insert({
-      post_id: postId,
-      user_id: user.id,
-      event_type: "post_delete_failed",
-      success: false,
-      error_code: error.code,
-      error_message: error.message,
-      metadata: {
-        source: "deletePost",
-      },
-    });
-
+  if (postError || !post) {
     return {
       success: false,
-      message: "Post could not be deleted.",
+      error: "Post not found.",
     };
   }
 
-  await supabase.from("post_audit_logs").insert({
-    post_id: postId,
-    user_id: user.id,
-    event_type: "post_delete_success",
-    success: true,
-    metadata: {
-      source: "deletePost",
-    },
-  });
+  if (post.user_id !== user.id) {
+    return {
+      success: false,
+      error: "You can only delete your own posts.",
+    };
+  }
 
+  const { error: deleteError } = await supabase
+    .from("posts")
+    .delete()
+    .eq("id", postId)
+    .eq("user_id", user.id);
+
+  if (deleteError) {
+    return {
+      success: false,
+      error: deleteError.message,
+    };
+  }
+
+  revalidatePath("/");
   revalidatePath("/posts");
-  revalidatePath(`/posts/${postId}`);
 
   redirect("/posts");
 }
