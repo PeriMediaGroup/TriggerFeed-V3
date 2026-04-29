@@ -105,6 +105,7 @@ export async function createPost(formData) {
     },
   });
 
+  revalidatePath("/");
   revalidatePath("/posts");
 
   return {
