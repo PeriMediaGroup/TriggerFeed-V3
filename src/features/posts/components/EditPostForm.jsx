@@ -55,17 +55,10 @@ export default function EditPostForm({ post }) {
         {errors.body && <p className="post-form__error">{errors.body}</p>}
       </div>
 
-      <div className="post-form__field">
-        <label htmlFor="visibility">Visibility</label>
-        <select id="visibility" name="visibility" defaultValue={post.visibility}>
-          <option value="public">Public</option>
-          <option value="friends">Friends</option>
-          <option value="private">Private</option>
-        </select>
-        {errors.visibility && (
-          <p className="post-form__error">{errors.visibility}</p>
-        )}
-      </div>
+      <input type="hidden" name="visibility" value="public" />
+      {errors.visibility && (
+        <p className="post-form__error">{errors.visibility}</p>
+      )}
 
       <button type="submit" disabled={isPending}>
         {isPending ? "Saving..." : "Save Changes"}

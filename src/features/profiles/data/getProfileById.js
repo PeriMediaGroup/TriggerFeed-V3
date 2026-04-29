@@ -1,5 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 
+function normalizeProfile(profile) {
+  if (!profile) {
+    return null;
+  }
+
+  return {
+    ...profile,
+    profile_image_url: profile.avatar_cloudinary_url,
+  };
+}
+
 export async function getProfileById(userId) {
   if (!userId) {
     return {
@@ -43,7 +54,7 @@ export async function getProfileById(userId) {
   }
 
   return {
-    profile: data,
+    profile: normalizeProfile(data),
     error: null,
   };
 }

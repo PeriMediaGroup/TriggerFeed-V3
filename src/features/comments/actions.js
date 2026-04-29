@@ -20,6 +20,13 @@ export async function createComment({ postId, body }) {
     };
   }
 
+  if (cleanBody.length > 5000) {
+    return {
+      success: false,
+      error: "Comment must be 5000 characters or less",
+    };
+  }
+
   const supabase = await createClient();
 
   const {

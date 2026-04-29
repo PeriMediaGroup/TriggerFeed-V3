@@ -46,7 +46,10 @@ export async function deletePost(postId) {
 
   const { error: deleteError } = await supabase
     .from("posts")
-    .delete()
+    .update({
+      is_deleted: true,
+      deleted_at: new Date().toISOString(),
+    })
     .eq("id", postId)
     .eq("user_id", user.id);
 
@@ -59,6 +62,7 @@ export async function deletePost(postId) {
 
   revalidatePath("/");
   revalidatePath("/posts");
+  revalidatePath(`/posts/${postId}`);
 
-  redirect("/posts");
+  redirect("/");
 }

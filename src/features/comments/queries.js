@@ -1,5 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 
+function normalizeAuthor(profile) {
+  if (!profile) {
+    return null;
+  }
+
+  return {
+    ...profile,
+    profile_image_url: profile.avatar_cloudinary_url,
+  };
+}
+
 export async function getCommentsByPostId(postId) {
   if (!postId) {
     return {
@@ -23,6 +34,7 @@ export async function getCommentsByPostId(postId) {
     `
     )
     .eq("post_id", postId)
+    .eq("is_deleted", false)
     .order("created_at", { ascending: true });
 
   if (commentsError) {
@@ -49,7 +61,8 @@ export async function getCommentsByPostId(postId) {
       `
       id,
       username,
-      first_name
+      first_name,
+      avatar_cloudinary_url
     `
     )
     .in("id", userIds);
@@ -67,7 +80,7 @@ export async function getCommentsByPostId(postId) {
   }
 
   const profilesById = new Map(
-    (profiles || []).map((profile) => [profile.id, profile])
+    (profiles || []).map((profile) => [profile.id, normalizeAuthor(profile)])
   );
 
   const commentsWithAuthors = comments.map((comment) => ({

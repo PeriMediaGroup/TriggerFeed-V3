@@ -1,6 +1,6 @@
 // src/features/posts/utils/validatePost.js
 
-const VALID_VISIBILITIES = ["public", "friends", "private"];
+const VALID_VISIBILITIES = ["public"];
 
 export function validatePostInput({ title, body, visibility }) {
   const errors = {};
