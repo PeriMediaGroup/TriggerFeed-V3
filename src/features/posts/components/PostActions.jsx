@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { deletePost } from "@/features/posts/actions/deletePost";
 
 export default function PostActions({ postId, isOwner }) {
+  const router = useRouter();
+  const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
   if (!isOwner) {
@@ -20,8 +23,18 @@ export default function PostActions({ postId, isOwner }) {
       return;
     }
 
+    setError("");
+
     startTransition(async () => {
-      await deletePost(postId);
+      const result = await deletePost(postId);
+
+      if (!result.success) {
+        setError(result.error || "Could not delete post.");
+        return;
+      }
+
+      router.replace("/");
+      router.refresh();
     });
   }
 
@@ -32,6 +45,8 @@ export default function PostActions({ postId, isOwner }) {
       <button type="button" onClick={handleDelete} disabled={isPending}>
         {isPending ? "Deleting..." : "Delete Post"}
       </button>
+
+      {error && <p className="post-actions__error">{error}</p>}
     </div>
   );
 }

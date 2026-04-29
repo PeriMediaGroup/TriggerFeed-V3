@@ -29,7 +29,9 @@ export default async function EditPostPage({ params }) {
     <main className="tf-page post-edit-page">
       <section className="tf-section">
         <p>
-          <Link href={`/posts/${post.id}`}>← Back to Post</Link>
+          <Link href={`/posts/${post.id}`} replace>
+            ← Back to post
+          </Link>
         </p>
 
         <h1>Edit Post</h1>

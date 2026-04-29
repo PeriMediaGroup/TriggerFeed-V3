@@ -1,11 +1,12 @@
 // src/features/posts/components/CreatePostForm.jsx
 
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createPost } from "../actions/createPost";
 
 export default function CreatePostForm() {
+  const router = useRouter();
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -29,6 +30,9 @@ export default function CreatePostForm() {
 
       event.target.reset();
       setStatus("Post created.");
+
+      router.replace(`/posts/${result.postId}`);
+      router.refresh();
     });
   }
 
