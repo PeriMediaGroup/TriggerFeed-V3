@@ -1,8 +1,11 @@
+import Link from "next/link";
 import Image from "next/image";
 
 export default function CommentItem({ comment }) {
   const authorName =
     comment.author?.username || comment.author?.first_name || "Unknown user";
+
+  const authorId = comment.user_id || comment.author?.id;
 
   const createdAt = comment.created_at
     ? new Date(comment.created_at).toLocaleString()
@@ -23,12 +26,21 @@ export default function CommentItem({ comment }) {
               {/* TODO: Replace fallback initial with default avatar image */}
               {authorName.charAt(0).toUpperCase()}
             </div>
-          )} 
+          )}
 
           <div>
-            <p className="comment-item__name">{authorName}</p>
+            <p className="comment-item__name">
+              {authorId ? (
+                <Link href={`/users/${authorId}`}>{authorName}</Link>
+              ) : (
+                authorName
+              )}
+            </p>
             {createdAt && (
-              <time className="comment-item__date" dateTime={comment.created_at}>
+              <time
+                className="comment-item__date"
+                dateTime={comment.created_at}
+              >
                 {createdAt}
               </time>
             )}

@@ -4,7 +4,12 @@ import Link from "next/link";
 
 export default function PostCard({ post }) {
   const authorName =
-    post.author?.username || post.author?.first_name || "Unknown user";
+    post.author?.username ||
+    post.author?.first_name ||
+    post.author?.email ||
+    "Unknown user";
+
+  const authorId = post.user_id || post.author?.id;
 
   return (
     <>
@@ -14,7 +19,14 @@ export default function PostCard({ post }) {
       <article className="post-card">
         <header className="post-card__header">
           <p>
-            Posted by <strong>{authorName}</strong>
+            Posted by{" "}
+            {authorId ? (
+              <Link href={`/users/${authorId}`}>
+                <strong>{authorName}</strong>
+              </Link>
+            ) : (
+              <strong>{authorName}</strong>
+            )}
           </p>
 
           <h2 className="post-card__title">
