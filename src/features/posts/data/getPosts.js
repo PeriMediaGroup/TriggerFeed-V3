@@ -41,6 +41,25 @@ export async function getPosts() {
     };
   }
 
+  const postIds = safePosts.map((post) => post.id);
+
+  const { data: comments, error: commentsError } = await supabase
+    .from("comments")
+    .select("post_id")
+    .in("post_id", postIds)
+    .eq("is_deleted", false);
+
+  if (commentsError) {
+    console.error("GET POST COMMENT COUNTS ERROR:", commentsError);
+  }
+
+  const commentCountMap = new Map();
+
+  for (const comment of comments || []) {
+    const currentCount = commentCountMap.get(comment.post_id) || 0;
+    commentCountMap.set(comment.post_id, currentCount + 1);
+  }
+
   const userIds = [...new Set(safePosts.map((post) => post.user_id))];
 
   const { data: profiles, error: profilesError } = await supabase
@@ -71,6 +90,7 @@ export async function getPosts() {
   const postsWithAuthors = safePosts.map((post) => ({
     ...post,
     author: profileMap.get(post.user_id) || null,
+    comment_count: commentCountMap.get(post.id) || 0,
   }));
 
   return {

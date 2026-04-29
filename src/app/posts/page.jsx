@@ -13,8 +13,8 @@ export default async function PostsPage() {
     <main className="tf-page posts-page">
       <section className="tf-section">
         <div className="posts-page__header">
-          <h1>Posts</h1>
-          {user && <Link href="/posts/new">Create Post</Link>}
+          <h1>Feed</h1>
+          {user && <button href="/posts/new">Create Post</button>}
         </div>
 
         {error && <p>Posts could not be loaded.</p>}

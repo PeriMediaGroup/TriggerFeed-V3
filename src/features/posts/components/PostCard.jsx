@@ -29,18 +29,22 @@ export default function PostCard({ post }) {
             )}
           </p>
 
-          <h2 className="post-card__title">
-            <Link href={`/posts/${post.id}`}>{post.title}</Link>
-          </h2>
-          <p>{post.body}</p>
-
           <p className="post-card__meta">
             {new Date(post.created_at).toLocaleDateString()}
           </p>
+
+          <h2 className="post-card__title">
+            <Link href={`/posts/${post.id}`}>{post.title}</Link>
+          </h2>
         </header>
 
         {post.body && <p className="post-card__body">{post.body}</p>}
 
+        {post.comment_count > 0 && (
+          <Link href={`/posts/${post.id}`} className="post-card__comments">
+            Comments ({post.comment_count})
+          </Link>
+        )}
         <footer className="post-card__footer">
           <span>{post.visibility}</span>
         </footer>
