@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
@@ -30,7 +29,16 @@ export async function deletePost(postId) {
     .eq("id", postId)
     .maybeSingle();
 
-  if (postError || !post) {
+  if (postError) {
+    console.error("Error checking post before delete:", postError);
+
+    return {
+      success: false,
+      error: postError.message,
+    };
+  }
+
+  if (!post) {
     return {
       success: false,
       error: "Post not found.",
@@ -51,6 +59,8 @@ export async function deletePost(postId) {
     .eq("user_id", user.id);
 
   if (deleteError) {
+    console.error("Error deleting post:", deleteError);
+
     return {
       success: false,
       error: deleteError.message,
@@ -58,7 +68,11 @@ export async function deletePost(postId) {
   }
 
   revalidatePath("/");
-  revalidatePath("/posts");
+  // revalidatePath("/posts");
+  revalidatePath(`/posts/${postId}`);
 
-  redirect("/posts");
+  return {
+    success: true,
+    error: null,
+  };
 }
