@@ -1,20 +1,24 @@
-// src/features/posts/components/PostActions.jsx
-
 "use client";
 
 import Link from "next/link";
 import { useTransition } from "react";
-import { deletePost } from "../actions/deletePost";
+import { deletePost } from "@/features/posts/actions/deletePost";
 
-export default function PostActions({ postId }) {
+export default function PostActions({ postId, isOwner }) {
   const [isPending, startTransition] = useTransition();
+
+  if (!isOwner) {
+    return null;
+  }
 
   function handleDelete() {
     const confirmed = window.confirm(
-      "Delete this post? This will hide it from the feed."
+      "Delete this post? This cannot be undone."
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     startTransition(async () => {
       await deletePost(postId);
@@ -23,17 +27,10 @@ export default function PostActions({ postId }) {
 
   return (
     <div className="post-actions">
-      <Link className="post-actions__edit" href={`/posts/${postId}/edit`}>
-        Edit
-      </Link>
-
-      <button
-        className="post-actions__delete"
-        type="button"
-        onClick={handleDelete}
-        disabled={isPending}
-      >
-        {isPending ? "Deleting..." : "Delete"}
+      <Link href={`/posts/${postId}/edit`}>Edit Post</Link>
+      {" | "}
+      <button type="button" onClick={handleDelete} disabled={isPending}>
+        {isPending ? "Deleting..." : "Delete Post"}
       </button>
     </div>
   );
