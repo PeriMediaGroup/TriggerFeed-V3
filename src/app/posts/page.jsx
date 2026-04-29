@@ -1,10 +1,12 @@
 // src/app/posts/page.jsx
 
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getPosts } from "@/features/posts/data/getPosts";
 import PostFeed from "@/features/posts/components/PostFeed";
 
 export default async function PostsPage() {
+  const user = await getCurrentUser();
   const { posts, error } = await getPosts();
 
   return (
@@ -12,7 +14,7 @@ export default async function PostsPage() {
       <section className="tf-section">
         <div className="posts-page__header">
           <h1>Posts</h1>
-          <Link  href="/posts/new">Create Post</Link>
+          {user && <Link href="/posts/new">Create Post</Link>}
         </div>
 
         {error && <p>Posts could not be loaded.</p>}
