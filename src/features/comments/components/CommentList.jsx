@@ -13,9 +13,7 @@ export default function CommentList({ comments = [] }) {
 
   return (
     <section className="comments-list" aria-label="Comments">
-      <h2 className="comments-list__title">
-        Comments <span>({comments.length})</span>
-      </h2>
+      <h3 className="comments-list__title">Comments :</h3>
 
       <div className="comments-list__items">
         {comments.map((comment) => (
