@@ -66,6 +66,35 @@ export default function EditTopFriends({
     (friend) => !selectedIds.includes(friend.id),
   );
 
+  function moveFriend(friendId, direction) {
+    setSelectedIds((current) => {
+      const currentIndex = current.indexOf(friendId);
+
+      if (currentIndex === -1) {
+        return current;
+      }
+
+      const targetIndex =
+        direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+      if (targetIndex < 0 || targetIndex >= current.length) {
+        return current;
+      }
+
+      const next = [...current];
+      [next[currentIndex], next[targetIndex]] = [
+        next[targetIndex],
+        next[currentIndex],
+      ];
+
+      return next;
+    });
+  }
+
+  function removeFriend(friendId) {
+    setSelectedIds((current) => current.filter((id) => id !== friendId));
+  }
+
   return (
     <section className="edit-top-friends">
       <h2>Top Friends</h2>
@@ -83,23 +112,52 @@ export default function EditTopFriends({
             <h3>Selected</h3>
 
             {selectedFriends.length > 0 ? (
-              <ol>
-                {selectedFriends.map((friend) => (
-                  <li key={friend.id}>
-                    <span>
-                      {getDisplayName(friend)}
-                      {friend.username && <small> @{friend.username}</small>}
-                    </span>
+              <ol className="edit-top-friends__selected-list">
+                {selectedFriends.map((friend, index) => {
+                  const displayName = getDisplayName(friend);
+                  const isFirst = index === 0;
+                  const isLast = index === selectedFriends.length - 1;
 
-                    <button
-                      type="button"
-                      aria-label={`Remove ${getDisplayName(friend)} from top friends`}
-                      onClick={() => toggleFriend(friend.id)}
+                  return (
+                    <li
+                      key={friend.id}
+                      className="edit-top-friends__selected-item"
                     >
-                      ×
-                    </button>
-                  </li>
-                ))}
+                      <span className="edit-top-friends__selected-name">
+                        {displayName}
+                        {friend.username && <small> @{friend.username}</small>}
+                      </span>
+
+                      <div className="edit-top-friends__selected-actions">
+                        <button
+                          type="button"
+                          disabled={isFirst}
+                          onClick={() => moveFriend(friend.id, "up")}
+                          aria-label={`Move ${displayName} up`}
+                        >
+                          ↑
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={isLast}
+                          onClick={() => moveFriend(friend.id, "down")}
+                          aria-label={`Move ${displayName} down`}
+                        >
+                          ↓
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => removeFriend(friend.id)}
+                          aria-label={`Remove ${displayName} from top friends`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ol>
             ) : (
               <p>No top friends selected.</p>
@@ -120,7 +178,7 @@ export default function EditTopFriends({
               const isDisabled = selectedIds.length >= 4;
 
               return (
-                <div>
+                <div key={friend.id} className="temp">
                   <button
                     key={friend.id}
                     type="button"
