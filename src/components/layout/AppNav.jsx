@@ -29,7 +29,7 @@ export default async function AppNav() {
           {" | "}
           <Link href="/posts/new">Create Post</Link>
           {" | "}
-          <Link href={`/users/${user.id}`}>Profile</Link>
+          <Link href={`/profile/`}>Profile</Link>
           {" | "}
           <span>
             Logged in as <strong>{username || "Unknown user"}</strong>

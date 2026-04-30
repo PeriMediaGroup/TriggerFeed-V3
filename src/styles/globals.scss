@@ -1,0 +1,13 @@
+@use "./tokens";
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body), var(--font-fallback);
+}
+
+h1,
+.logo,
+.brand {
+  font-family: var(--font-brand), var(--font-fallback);
+}

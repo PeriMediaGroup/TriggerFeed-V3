@@ -21,7 +21,7 @@ export default function PostCard({ post }) {
           <p>
             Posted by{" "}
             {authorId ? (
-              <Link href={`/users/${authorId}`}>
+              <Link href={`/profiles/${authorId}`}>
                 <strong>{authorName}</strong>
               </Link>
             ) : (

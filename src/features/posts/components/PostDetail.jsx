@@ -15,7 +15,7 @@ export default function PostDetail({ post, currentUser }) {
         <p>
           Posted by{" "}
           {authorId ? (
-            <Link href={`/users/${authorId}`}>
+            <Link href={`/profiles/${authorId}`}>
               <strong>{authorName}</strong>
             </Link>
           ) : (

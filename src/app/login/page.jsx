@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -161,6 +162,8 @@ export default function LoginPage() {
           {isLoading ? "Logging in..." : "Log in"}
         </button>
       </form>
+
+      <Link href="/signup">Sign Up</Link>
 
       {status ? <p style={{ marginTop: "1rem" }}>{status}</p> : null}
     </main>
