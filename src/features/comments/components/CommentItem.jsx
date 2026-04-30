@@ -31,7 +31,7 @@ export default function CommentItem({ comment }) {
           <div>
             <p className="comment-item__name">
               {authorId ? (
-                <Link href={`/users/${authorId}`}>{authorName}</Link>
+                <Link href={`/profiles/${authorId}`}>{authorName}</Link>
               ) : (
                 authorName
               )}

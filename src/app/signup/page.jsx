@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { logAuthEvent } from "@/lib/authEvents";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -81,8 +83,7 @@ export default function SignupPage() {
       },
     });
 
-    setStatus("Account created. Check your email to verify your account.");
-    setIsLoading(false);
+    router.push(`/signup/check-email?email=${encodeURIComponent(cleanEmail)}`);
   }
 
   return (

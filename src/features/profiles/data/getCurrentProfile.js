@@ -1,27 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 
-function normalizeProfile(profile) {
-  if (!profile) {
-    return null;
-  }
+export async function getCurrentProfile() {
+  const supabase = await createClient();
 
-  return {
-    ...profile,
-    profile_image_url: profile.avatar_cloudinary_url,
-  };
-}
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-export async function getProfileById(userId) {
-  if (!userId) {
+  if (userError || !user) {
     return {
       profile: null,
-      error: "Missing user id",
+      error: userError || new Error("No authenticated user found."),
     };
   }
 
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
       `
@@ -42,21 +36,21 @@ export async function getProfileById(userId) {
       updated_at
     `
     )
-    .eq("id", userId)
+    .eq("id", user.id)
     .eq("is_deleted", false)
-    .maybeSingle();
+    .single();
 
-  if (error) {
-    console.error("Error fetching profile:", error);
+  if (profileError) {
+    console.error("GET CURRENT PROFILE ERROR:", profileError);
 
     return {
       profile: null,
-      error: error.message,
+      error: profileError,
     };
   }
 
   return {
-    profile: normalizeProfile(data),
+    profile,
     error: null,
   };
 }

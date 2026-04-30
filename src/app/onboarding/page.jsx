@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -94,13 +95,13 @@ export default function OnboardingPage() {
       },
     });
 
-    router.replace("/feed");
+    router.replace("/onboarding/complete");
   }
 
   return (
     <main style={{ padding: "2rem", maxWidth: "520px", margin: "0 auto" }}>
-      <h1>Finish setting up your profile</h1>
-      <p>Choose a username so people can recognize you on TriggerFeed.</p>
+      <h1>Choose a username</h1>
+      <p>So people can recognize you on TriggerFeed.</p>
 
       <form onSubmit={handleSubmit} style={{ display: "grid", gap: "1rem" }}>
         <label>
@@ -113,6 +114,8 @@ export default function OnboardingPage() {
             style={{ display: "block", width: "100%", padding: "0.75rem" }}
           />
         </label>
+
+        <Link href="/profile/edit">Edit Full Profile</Link>
 
         <button type="submit" disabled={isLoading || !user}>
           {isLoading ? "Saving..." : "Save username"}
