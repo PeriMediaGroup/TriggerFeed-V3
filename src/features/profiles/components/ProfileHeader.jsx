@@ -15,6 +15,7 @@ export default function ProfileHeader({
     "Your Name";
 
   const username = profile?.username || "your_username";
+  const email = profile?.email || "your_email";
 
   const location = [profile?.city, profile?.state].filter(Boolean).join(", ");
 
@@ -59,6 +60,7 @@ export default function ProfileHeader({
         <div className="profile-header__identity">
           <h1 className="profile-header__name">{displayName}</h1>
           <p className="profile-header__username">@{username}</p>
+          <p>{email}</p>
 
           {(profile?.profile_badge || profile?.role) && (
             <p className="profile-header__badge">
@@ -72,9 +74,15 @@ export default function ProfileHeader({
         </div>
 
         {isCurrentUser && (
-          <Link href="/profile/edit" className="profile-header__edit">
-            Edit Profile
-          </Link>
+          <div>
+            <Link href="/profile/edit" className="profile-header__edit">
+              Edit Profile
+            </Link>
+
+            <Link href="/profile/friends" className="profile__action-link">
+              Find Friends
+            </Link>
+          </div>
         )}
       </div>
 

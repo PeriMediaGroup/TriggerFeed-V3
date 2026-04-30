@@ -10,6 +10,8 @@ import { getTopGuns } from "@/features/profiles/data/getTopGuns";
 import ProfileHeader from "@/features/profiles/components/ProfileHeader";
 import ProfileShowcase from "@/features/profiles/components/ProfileShowcase";
 import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost";
+import { getFriendStatus } from "@/features/friends/data/getFriendStatus";
+import ProfileFriendAction from "@/features/friends/components/ProfileFriendAction";
 
 export default async function PublicProfilePage({ params }) {
   const { userId } = await params;
@@ -20,26 +22,31 @@ export default async function PublicProfilePage({ params }) {
     notFound();
   }
 
-  const [{ stats }, { latestPost }, { topFriends }, { topGuns }] =
-    await Promise.all([
-      getProfileStats(profile.id),
-      getLatestPost(profile.id),
-      getTopFriends(profile.id),
-      getTopGuns(profile.id),
-    ]);
+  const [
+    { stats },
+    { latestPost },
+    { topFriends },
+    { topGuns },
+    { friendStatus, friendship },
+  ] = await Promise.all([
+    getProfileStats(profile.id),
+    getLatestPost(profile.id),
+    getTopFriends(profile.id),
+    getTopGuns(profile.id),
+    getFriendStatus(profile.id),
+  ]);
 
   return (
     <main className="profile">
-      <ProfileHeader
-        profile={profile}
-        stats={stats}
-        isCurrentUser={false}
+      <ProfileHeader profile={profile} stats={stats} isCurrentUser={false} />
+
+      <ProfileFriendAction
+        profileUserId={profile.id}
+        initialFriendStatus={friendStatus}
+        friendship={friendship}
       />
 
-      <ProfileShowcase
-        topFriends={topFriends}
-        topGuns={topGuns}
-      />
+      <ProfileShowcase topFriends={topFriends} topGuns={topGuns} />
 
       <ProfileLatestPost latestPost={latestPost} />
     </main>
