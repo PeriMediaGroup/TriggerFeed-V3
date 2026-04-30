@@ -78,7 +78,7 @@ export default function ProfileHeader({
             <Link href="/profile/edit" className="profile-header__edit">
               Edit Profile
             </Link>
-<br/>
+            <br/>
             <Link href="/profile/friends" className="profile__action-link">
               Manage Friends
             </Link>
