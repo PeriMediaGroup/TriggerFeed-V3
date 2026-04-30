@@ -25,8 +25,6 @@ export default async function AppNav() {
       {user ? (
         <>
           {" | "}
-          <Link href="/friends">Friends</Link>
-          {" | "}
           <Link href="/posts/new">Create Post</Link>
           {" | "}
           <Link href={`/profile/`}>Profile</Link>

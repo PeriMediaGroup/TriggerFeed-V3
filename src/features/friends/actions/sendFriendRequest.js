@@ -79,7 +79,8 @@ export async function sendFriendRequest(addresseeId) {
     };
   }
 
-  revalidatePath("/friends");
+  revalidatePath("/profile/friends");
+  revalidatePath(`/profiles/${addresseeId}`);
 
   return {
     success: true,
