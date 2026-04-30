@@ -120,7 +120,7 @@ export default function EditTopFriends({
               const isDisabled = selectedIds.length >= 4;
 
               return (
-                <div>
+                <div key={friend.id}>
                   <button
                     key={friend.id}
                     type="button"

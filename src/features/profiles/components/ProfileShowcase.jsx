@@ -16,12 +16,17 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
 
               const displayName =
                 friend?.display_name ||
-                [friend?.first_name, friend?.last_name].filter(Boolean).join(" ") ||
+                [friend?.first_name, friend?.last_name]
+                  .filter(Boolean)
+                  .join(" ") ||
                 friend?.username ||
                 "Unknown Friend";
 
               return (
-                <li key={item.id || friend.id} className="profile-showcase__item">
+                <li
+                  key={item.id || friend.id}
+                  className="profile-showcase__item"
+                >
                   <Link
                     href={`/profiles/${friend.id}`}
                     className="profile-showcase__link"
@@ -60,48 +65,21 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
         </div>
 
         {topGuns.length > 0 ? (
-          <ul className="profile-showcase__grid">
-            {topGuns.map((item) => {
-              const gun = item.gun || item;
+          <ol className="profile-showcase__grid">
+            {topGuns.map((gun) => (
+              <li key={gun.id} className="profile-showcase__item">
+                <div className="profile-showcase__gun">
+                  <span className="profile-showcase__rank">
+                    #{gun.display_order + 1} &nbsp;
+                  </span>
 
-              const gunName =
-                gun?.nickname ||
-                [gun?.manufacturer, gun?.model].filter(Boolean).join(" ") ||
-                "Unnamed Gun";
-
-              return (
-                <li key={item.id || gun.id} className="profile-showcase__item">
-                  <div className="profile-showcase__gun">
-                    <div className="profile-showcase__gun-image">
-                      {gun?.image_url ? (
-                        <img
-                          src={gun.image_url}
-                          alt={gunName}
-                          className="profile-showcase__gun-img"
-                        />
-                      ) : (
-                        <span>TF</span>
-                      )}
-                    </div>
-
-                    <span className="profile-showcase__name">
-                      {gunName}
-                    </span>
-
-                    {gun?.caliber && (
-                      <span className="profile-showcase__meta">
-                        {gun.caliber}
-                      </span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                  <span className="profile-showcase__name">{gun.name}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
         ) : (
-          <p className="profile-showcase__empty">
-            No top guns added yet.
-          </p>
+          <p className="profile-showcase__empty">No top guns added yet.</p>
         )}
       </div>
     </section>
