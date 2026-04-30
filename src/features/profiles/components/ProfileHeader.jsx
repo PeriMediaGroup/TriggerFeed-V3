@@ -80,8 +80,11 @@ export default function ProfileHeader({
             </Link>
             <br/>
             <Link href="/profile/friends" className="profile__action-link">
-              Find Friends
+              Manage Friends
             </Link>
+            <br/><Link href="/profile/guns" className="profile__action-link">
+  Edit Top Guns
+</Link>
           </div>
         )}
       </div>
