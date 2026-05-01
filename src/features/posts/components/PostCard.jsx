@@ -40,7 +40,7 @@ export default function PostCard({ post }) {
 
         {post.body && <p className="post-card__body">{post.body}</p>}
 
-        {post.comment_count > 0 && (
+        {Number(post.comment_count) > 0 && (
           <Link href={`/posts/${post.id}`} className="post-card__comments">
             Comments ({post.comment_count})
           </Link>

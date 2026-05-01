@@ -1,6 +1,5 @@
 // src/app/posts/page.jsx
 
-import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getPosts } from "@/features/posts/data/getPosts";
 import PostFeed from "@/features/posts/components/PostFeed";
