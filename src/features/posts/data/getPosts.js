@@ -47,7 +47,8 @@ export async function getPosts() {
     .from("comments")
     .select("post_id")
     .in("post_id", postIds)
-    .eq("is_deleted", false);
+    .eq("is_deleted", false)
+    .is("parent_comment_id", null);
 
   if (commentsError) {
     console.error("GET POST COMMENT COUNTS ERROR:", commentsError);

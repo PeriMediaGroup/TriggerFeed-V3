@@ -25,16 +25,18 @@ export async function getCommentsByPostId(postId) {
     .from("comments")
     .select(
       `
-      id,
-      post_id,
-      user_id,
-      body,
-      created_at,
-      updated_at
-    `
+    id,
+    post_id,
+    user_id,
+    parent_comment_id,
+    body,
+    is_deleted,
+    deleted_at,
+    created_at,
+    updated_at
+    `,
     )
     .eq("post_id", postId)
-    .eq("is_deleted", false)
     .order("created_at", { ascending: true });
 
   if (commentsError) {
@@ -59,11 +61,13 @@ export async function getCommentsByPostId(postId) {
     .from("profiles")
     .select(
       `
-      id,
-      username,
-      first_name,
-      avatar_cloudinary_url
-    `
+        id,
+        username,
+        display_name,
+        first_name,
+        last_name,
+        avatar_cloudinary_url
+    `,
     )
     .in("id", userIds);
 
@@ -80,7 +84,7 @@ export async function getCommentsByPostId(postId) {
   }
 
   const profilesById = new Map(
-    (profiles || []).map((profile) => [profile.id, normalizeAuthor(profile)])
+    (profiles || []).map((profile) => [profile.id, normalizeAuthor(profile)]),
   );
 
   const commentsWithAuthors = comments.map((comment) => ({

@@ -31,7 +31,7 @@ export default async function PostDetailPage({ params }) {
       <PostDetail post={post} currentUser={user} />
 
       <section className="post-detail__comments">
-        <CommentForm postId={postId} isLoggedIn={!!user} />
+        <CommentForm postId={post.id} isLoggedIn={Boolean(user)} />
 
         {commentsError && (
           <p className="post-detail__comments-error">
@@ -39,7 +39,11 @@ export default async function PostDetailPage({ params }) {
           </p>
         )}
 
-        <CommentList comments={comments} />
+        <CommentList
+          comments={comments}
+          currentUserId={user?.id || null}
+          postId={post.id}
+        />
       </section>
     </main>
   );
