@@ -133,7 +133,15 @@ export default function SignupPage() {
             checked={acceptedTerms}
             onChange={(event) => setAcceptedTerms(event.target.checked)}
           />
-          I accept the terms.
+          I agree to TriggerFeed&apos;s{" "}
+          <a
+            href="https://www.triggerfeed.com/legal"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            legal terms and policies
+          </a>
+          .
         </label>
 
         <button type="submit" disabled={isLoading}>
