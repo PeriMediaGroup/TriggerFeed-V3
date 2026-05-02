@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { formatShortDate } from "@/lib/formatDate";
+import { Pencil, Users, CalendarDays, MapPin } from "lucide-react";
 
 export default function ProfileHeader({
   profile,
@@ -68,23 +70,33 @@ export default function ProfileHeader({
             </p>
           )}
 
-          {location && <p className="profile-header__location">{location}</p>}
+          {location && (
+            <p className="profile-header__location">
+              <MapPin size={15} strokeWidth={2} aria-hidden="true" />
+              {location}
+            </p>
+          )}
 
-          <p className="profile-header__joined">Joined {joinedDate}</p>
+          <p className="profile-header__joined">
+            <CalendarDays size={15} strokeWidth={2} aria-hidden="true" /> Joined{" "}
+            {formatShortDate(profile.created_at)}
+          </p>
         </div>
 
         {isCurrentUser && (
           <div>
             <Link href="/profile/edit" className="profile-header__edit">
+              <Pencil size={16} strokeWidth={2} aria-hidden="true" />
               Edit Profile
             </Link>
-            <br/>
+            <br />
             <Link href="/profile/friends" className="profile__action-link">
               Manage Friends
             </Link>
-            <br/><Link href="/profile/guns" className="profile__action-link">
-  Edit Top Guns
-</Link>
+            <br />
+            <Link href="/profile/guns" className="profile__action-link">
+              Edit Top Guns
+            </Link>
           </div>
         )}
       </div>

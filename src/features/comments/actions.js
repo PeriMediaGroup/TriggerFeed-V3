@@ -256,12 +256,14 @@ export async function deleteComment({ commentId }) {
     };
   }
 
+  const now = new Date().toISOString();
+
   const { error: deleteError } = await supabase
     .from("comments")
     .update({
       is_deleted: true,
-      deleted_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      deleted_at: now,
+      updated_at: now,
     })
     .eq("id", commentId)
     .eq("user_id", user.id);

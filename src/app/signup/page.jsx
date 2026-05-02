@@ -87,13 +87,10 @@ export default function SignupPage() {
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "520px", margin: "0 auto" }}>
-      <h1>Create your TriggerFeed account</h1>
-      <p>
-        Stage One signup test. Ugly on purpose. The glamour goblin can wait.
-      </p>
+    <main>
+      <h1>Start your TriggerFeed account</h1>
 
-      <form onSubmit={handleSignup} style={{ display: "grid", gap: "1rem" }}>
+      <form onSubmit={handleSignup}>
         <label>
           Email
           <input

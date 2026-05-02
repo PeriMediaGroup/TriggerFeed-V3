@@ -3,6 +3,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { formatShortDate, formatEditedDate } from "@/lib/formatDate";
+import { MessageSquareReply, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -18,16 +20,6 @@ function getAuthorName(author) {
     author?.first_name ||
     "Unknown user"
   );
-}
-
-function formatCommentDate(dateValue) {
-  if (!dateValue) return "";
-
-  return new Date(dateValue).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }
 
 export default function CommentItem({
@@ -111,7 +103,9 @@ export default function CommentItem({
   }
 
   return (
-    <li className={isReply ? "comment-item comment-item--reply" : "comment-item"}>
+    <li
+      className={isReply ? "comment-item comment-item--reply" : "comment-item"}
+    >
       <article className="comment-item__content">
         <header className="comment-item__header">
           <Link href={authorHref} className="comment-item__author">
@@ -119,13 +113,15 @@ export default function CommentItem({
           </Link>
 
           <span className="comment-item__date">
-            {formatCommentDate(comment.created_at)}
+            {formatShortDate(comment.created_at)}
           </span>
 
           {comment.updated_at &&
             comment.updated_at !== comment.created_at &&
             !comment.is_deleted && (
-              <span className="comment-item__edited"> Edited {formatCommentDate(comment.updated_at)}</span>
+              <span className="comment-item__edited">
+                {formatEditedDate(comment.updated_at)}
+              </span>
             )}
         </header>
 
@@ -135,9 +131,7 @@ export default function CommentItem({
           </p>
         ) : isEditing ? (
           <form onSubmit={handleEditSubmit} className="comment-item__edit-form">
-            <label htmlFor={`edit-comment-${comment.id}`}>
-              Edit comment
-            </label>
+            <label htmlFor={`edit-comment-${comment.id}`}>Edit comment</label>
 
             <textarea
               id={`edit-comment-${comment.id}`}
@@ -177,7 +171,12 @@ export default function CommentItem({
                 disabled={isPending}
                 onClick={() => setIsReplying((current) => !current)}
               >
-                Reply
+                <MessageSquareReply
+                  size={15}
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
+                
               </button>
             )}
 
@@ -188,7 +187,8 @@ export default function CommentItem({
                   disabled={isPending}
                   onClick={() => setIsEditing(true)}
                 >
-                  Edit
+                  <Pencil size={15} strokeWidth={2} aria-hidden="true" />
+                  
                 </button>
 
                 <button
@@ -196,7 +196,8 @@ export default function CommentItem({
                   disabled={isPending}
                   onClick={handleDelete}
                 >
-                  Delete
+                  <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
+                  
                 </button>
               </>
             )}
@@ -204,7 +205,10 @@ export default function CommentItem({
         )}
 
         {isReplying && !comment.is_deleted && (
-          <form onSubmit={handleReplySubmit} className="comment-item__reply-form">
+          <form
+            onSubmit={handleReplySubmit}
+            className="comment-item__reply-form"
+          >
             <label htmlFor={`reply-comment-${comment.id}`}>
               Reply to {authorName}
             </label>
