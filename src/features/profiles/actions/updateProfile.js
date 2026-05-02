@@ -2,6 +2,7 @@
 
 "use server";
 
+import { uploadProfileImage } from "@/features/media/cloudinary";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -19,6 +20,8 @@ export async function updateProfile(_prevState, formData) {
     redirect("/login");
   }
 
+  const avatarFile = formData.get("avatar");
+  const bannerFile = formData.get("banner");
   const displayName = String(formData.get("display_name") || "").trim();
   const username = String(formData.get("username") || "").trim();
   const firstName = String(formData.get("first_name") || "").trim();
@@ -54,19 +57,56 @@ export async function updateProfile(_prevState, formData) {
     };
   }
 
+  let avatarUpload = null;
+  let bannerUpload = null;
+
+  try {
+    avatarUpload = await uploadProfileImage({
+      file: avatarFile,
+      userId: user.id,
+      imageType: "avatar",
+    });
+
+    bannerUpload = await uploadProfileImage({
+      file: bannerFile,
+      userId: user.id,
+      imageType: "banner",
+    });
+  } catch (uploadError) {
+    console.error("PROFILE IMAGE UPLOAD ERROR:", uploadError);
+
+    return {
+      success: false,
+      message: uploadError.message || "Could not upload profile image.",
+      errors: {},
+    };
+  }
+
+  const profileUpdates = {
+    display_name: displayName || null,
+    username,
+    first_name: firstName || null,
+    last_name: lastName || null,
+    city: city || null,
+    state: state || null,
+    bio: bio || null,
+    profile_badge: profileBadge || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (avatarUpload) {
+    profileUpdates.avatar_cloudinary_url = avatarUpload.url;
+    profileUpdates.avatar_cloudinary_public_id = avatarUpload.publicId;
+  }
+
+  if (bannerUpload) {
+    profileUpdates.banner_cloudinary_url = bannerUpload.url;
+    profileUpdates.banner_cloudinary_public_id = bannerUpload.publicId;
+  }
+
   const { error: updateError } = await supabase
     .from("profiles")
-    .update({
-      display_name: displayName || null,
-      username,
-      first_name: firstName || null,
-      last_name: lastName || null,
-      city: city || null,
-      state: state || null,
-      bio: bio || null,
-      profile_badge: profileBadge || null,
-      updated_at: new Date().toISOString(),
-    })
+    .update(profileUpdates)
     .eq("id", user.id);
 
   if (updateError) {

@@ -1,5 +1,8 @@
 @use "./tokens";
 
+@use "../features/profiles/styles/_profile-header";
+@use "../features/profiles/styles/_profile-edit-form";
+
 body {
   background: var(--color-bg);
   color: var(--color-text);

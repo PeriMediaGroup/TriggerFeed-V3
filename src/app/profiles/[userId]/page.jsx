@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import "@/features/profiles/styles/profile.scss";
 
 import { getProfileById } from "@/features/profiles/data/getProfileById";
 import { getProfileStats } from "@/features/profiles/data/getProfileStats";

@@ -32,7 +32,7 @@ export default async function EditProfilePage({ searchParams }) {
         )}
       </div>
 
-      <EditProfileForm profile={profile} />
+      <EditProfileForm profile={ profile } />
     </main>
   );
 }
