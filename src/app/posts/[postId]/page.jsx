@@ -16,7 +16,7 @@ export default async function PostDetailPage({ params }) {
   if (error || !post) {
     return (
       <main className="post-detail-page">
-        <BackLink label="← Back" fallbackHref="/posts" />
+        <BackLink label="Back" fallbackHref="/posts" />
         <p>Post not found.</p>
       </main>
     );
@@ -26,7 +26,7 @@ export default async function PostDetailPage({ params }) {
 
   return (
     <main className="post-detail-page">
-      <BackLink label="← Back" fallbackHref="/posts" />
+      <BackLink label="Back" fallbackHref="/posts" />
 
       <PostDetail post={post} currentUser={user} />
 

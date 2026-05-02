@@ -21,7 +21,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`}>
+    <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`} style={{ padding: ".5rem", maxWidth: "620px", margin: "0 auto" }}>
       <body>
         <AppNav />
         {children}

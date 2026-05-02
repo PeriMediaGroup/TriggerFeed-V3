@@ -1,6 +1,8 @@
 // src/features/posts/components/PostCard.jsx
 
 import Link from "next/link";
+import { formatRelativeTime } from "@/lib/formatDate";
+import { MessageCircle } from "lucide-react";
 
 export default function PostCard({ post }) {
   const authorName =
@@ -29,8 +31,8 @@ export default function PostCard({ post }) {
             )}
           </p>
 
-          <p className="post-card__meta">
-            {new Date(post.created_at).toLocaleDateString()}
+          <p className="post-card__date">
+            {formatRelativeTime(post.created_at)}
           </p>
 
           <h2 className="post-card__title">
@@ -42,6 +44,7 @@ export default function PostCard({ post }) {
 
         {Number(post.comment_count) > 0 && (
           <Link href={`/posts/${post.id}`} className="post-card__comments">
+            <MessageCircle size={16} strokeWidth={2} aria-hidden="true" />
             Comments ({post.comment_count})
           </Link>
         )}

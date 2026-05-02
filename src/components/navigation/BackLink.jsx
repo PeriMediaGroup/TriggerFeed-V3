@@ -1,8 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
-export default function BackLink({ label = "← Back", fallbackHref = "/posts" }) {
+export default function BackLink({
+  label = "Back",
+  fallbackHref = "/posts",
+}) {
   const router = useRouter();
 
   function handleBack() {
@@ -16,7 +20,8 @@ export default function BackLink({ label = "← Back", fallbackHref = "/posts" }
 
   return (
     <button type="button" onClick={handleBack} className="back-link">
-      {label}
+      <ChevronLeft size={18} strokeWidth={2} aria-hidden="true" />
+      <span>{label}</span>
     </button>
   );
 }

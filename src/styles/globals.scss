@@ -11,3 +11,19 @@ h1,
 .brand {
   font-family: var(--font-brand), var(--font-fallback);
 }
+
+
+// Temp  css  stuff  ** REMOVE LATER ***  //
+
+.post-card__comments,
+.post-card__action,
+.comment-item__action,
+.profile-header__edit,
+.profile-header__meta-item,
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+// END TEMP //

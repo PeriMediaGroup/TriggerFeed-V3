@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deletePost } from "@/features/posts/actions/deletePost";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function PostActions({ postId, isOwner }) {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function PostActions({ postId, isOwner }) {
 
   function handleDelete() {
     const confirmed = window.confirm(
-      "Delete this post? This cannot be undone."
+      "Delete this post? This cannot be undone.",
     );
 
     if (!confirmed) {
@@ -40,10 +41,14 @@ export default function PostActions({ postId, isOwner }) {
 
   return (
     <div className="post-actions">
-      <Link href={`/posts/${postId}/edit`}>Edit Post</Link>
+      <Link href={`/posts/${postId}/edit`}>
+        <Pencil size={16} strokeWidth={2} aria-hidden="true" />
+        <span>Edit Post</span>
+      </Link>
       {" | "}
       <button type="button" onClick={handleDelete} disabled={isPending}>
-        {isPending ? "Deleting..." : "Delete Post"}
+        <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
+        <span>Delete Post</span>
       </button>
 
       {error && <p className="post-actions__error">{error}</p>}

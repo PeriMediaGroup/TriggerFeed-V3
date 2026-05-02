@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
+import { UserPlus } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -163,7 +164,10 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <Link href="/signup">Sign Up</Link>
+      <Link href="/signup">
+        <UserPlus size={18} strokeWidth={2} aria-hidden="true" />
+        <span>Sign Up</span>
+      </Link>
 
       {status ? <p style={{ marginTop: "1rem" }}>{status}</p> : null}
     </main>
