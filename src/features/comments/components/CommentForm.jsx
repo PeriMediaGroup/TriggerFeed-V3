@@ -45,13 +45,9 @@ export default function CommentForm({ postId, isLoggedIn }) {
 
   return (
     <section className="comment-form">
-      <h2 className="comment-form__title">Add a comment</h2>
+      <p className="comment-form__title">Add a comment</p>
 
       <form className="comment-form__form" onSubmit={handleSubmit}>
-        <label className="comment-form__label" htmlFor="comment-body">
-          Comment
-        </label>
-
         <textarea
           id="comment-body"
           className="comment-form__textarea"
@@ -63,7 +59,7 @@ export default function CommentForm({ postId, isLoggedIn }) {
         />
 
         {error && <p className="comment-form__error">{error}</p>}
-
+        <br />
         <button
           className="comment-form__button"
           type="submit"
