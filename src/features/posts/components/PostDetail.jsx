@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import PostActions from "@/features/posts/components/PostActions";
+import SmartText from "@/components/ui/SmartText";
 
 export default function PostDetail({ post, currentUser }) {
   const authorName =
@@ -24,7 +25,7 @@ export default function PostDetail({ post, currentUser }) {
         </p>
 
         <h1 className="post-detail__title">{post.title}</h1>
-        <p>{post.body}</p>
+        <p><SmartText text={post.body} /></p>
 
         <PostActions postId={post.id} isOwner={isOwner} />
       </header>

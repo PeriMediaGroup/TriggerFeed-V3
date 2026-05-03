@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { formatRelativeTime } from "@/lib/formatDate";
 import { MessageCircle } from "lucide-react";
+import SmartText from "@/components/ui/SmartText";
 
 export default function PostCard({ post }) {
   const authorName =
@@ -36,11 +37,15 @@ export default function PostCard({ post }) {
           </p>
 
           <h2 className="post-card__title">
-            <Link href={`/posts/${post.id}`}>{post.title}</Link>
+            <Link href={`/posts/${post.id}`}><SmartText text={post.title} /></Link>
           </h2>
         </header>
 
-        {post.body && <p className="post-card__body">{post.body}</p>}
+        {post.body && (
+          <p className="post-card__body">
+            <SmartText text={post.body} />
+          </p>
+        )}
 
         {Number(post.comment_count) > 0 && (
           <Link href={`/posts/${post.id}`} className="post-card__comments">
