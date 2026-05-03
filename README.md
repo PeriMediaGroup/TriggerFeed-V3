@@ -8,6 +8,14 @@ The goal is simple: build the basement correctly before adding features, styling
 
 ### Stage One: Auth Foundation
 
+## Local environment setup
+
+Copy `.env.example` to `.env.local` and fill in the Supabase values:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+
 Stage One is working.
 
 Completed:
