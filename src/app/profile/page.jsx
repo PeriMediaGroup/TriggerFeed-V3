@@ -1,7 +1,5 @@
 // src/app/profile/page.jsx
 
-import Link from "next/link";
-import "@/features/profiles/styles/profile.scss";
 import { redirect } from "next/navigation";
 
 import { getCurrentProfile } from "@/features/profiles/data/getCurrentProfile";

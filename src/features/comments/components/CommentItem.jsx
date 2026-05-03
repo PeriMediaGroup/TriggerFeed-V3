@@ -5,6 +5,7 @@
 import { useState, useTransition } from "react";
 import { formatShortDate, formatEditedDate } from "@/lib/formatDate";
 import { MessageSquareReply, Pencil, Trash2 } from "lucide-react";
+import SmartText from "@/components/ui/SmartText";
 import Link from "next/link";
 
 import {
@@ -160,7 +161,7 @@ export default function CommentItem({
             </div>
           </form>
         ) : (
-          <p className="comment-item__body">{comment.body}</p>
+          <p className="comment-item__body"><SmartText text={comment.body} /></p>
         )}
 
         {!comment.is_deleted && (

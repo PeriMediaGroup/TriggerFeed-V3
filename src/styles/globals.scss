@@ -1,5 +1,8 @@
 @use "./tokens";
 
+@use "../features/profiles/styles/_profile-header";
+@use "../features/profiles/styles/_profile-edit-form";
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
@@ -13,7 +16,14 @@ h1,
 }
 
 
-// Temp  css  stuff  ** REMOVE LATER ***  //
+// Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
+.post-card__body,
+.post-detail__body,
+.comment__body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 
 .post-card__comments,
 .post-card__action,

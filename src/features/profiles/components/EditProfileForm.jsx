@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
+import { Camera } from "lucide-react";
 
 import { updateProfile } from "@/features/profiles/actions/updateProfile";
 
@@ -16,14 +17,103 @@ const initialState = {
 export default function EditProfileForm({ profile }) {
   const [state, formAction, isPending] = useActionState(
     updateProfile,
-    initialState
+    initialState,
   );
+
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(
+    profile?.avatar_cloudinary_url || "",
+  );
+
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState(
+    profile?.banner_cloudinary_url || "",
+  );
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      }
+
+      if (bannerPreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(bannerPreviewUrl);
+      }
+    };
+  }, [avatarPreviewUrl, bannerPreviewUrl]);
+
+  function handleAvatarChange(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreviewUrl(previewUrl);
+  }
+
+  function handleBannerChange(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setBannerPreviewUrl(previewUrl);
+  }
 
   return (
     <form action={formAction} className="profile-edit-form">
       {state?.message && (
         <p className="profile-edit-form__message">{state.message}</p>
       )}
+
+      <div className="profile-edit-media">
+        <div className="profile-edit-media__banner">
+          {bannerPreviewUrl ? (
+            <img
+              src={bannerPreviewUrl}
+              alt=""
+              className="profile-edit-media__banner-image"
+            />
+          ) : (
+            <div className="profile-edit-media__banner-placeholder">TF</div>
+          )}
+
+          <label className="profile-edit-media__camera profile-edit-media__camera--banner">
+            <Camera size={18} strokeWidth={2} aria-hidden="true" />
+            
+            <input
+              type="file"
+              name="banner"
+              accept="image/*"
+              hidden
+              onChange={handleBannerChange}
+            />
+          </label>
+        </div>
+
+        <div className="profile-edit-media__avatar-wrap">
+          <div className="profile-edit-media__avatar">
+            {avatarPreviewUrl ? (
+              <img
+                src={avatarPreviewUrl}
+                alt=""
+                className="profile-edit-media__avatar-image"
+              />
+            ) : (
+              <div className="profile-edit-media__avatar-placeholder" />
+            )}
+          </div>
+
+          <label className="profile-edit-media__camera profile-edit-media__camera--avatar">
+            <Camera size={16} strokeWidth={2} aria-hidden="true" />
+            <input
+              type="file"
+              name="avatar"
+              accept="image/*"
+              hidden
+              onChange={handleAvatarChange}
+            />
+          </label>
+        </div>
+      </div>
 
       <div className="profile-edit-form__field">
         <label htmlFor="display_name">Display Name</label>

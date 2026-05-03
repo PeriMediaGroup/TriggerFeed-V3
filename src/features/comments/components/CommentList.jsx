@@ -50,9 +50,9 @@ export default function CommentList({
 
   return (
     <section className="comments-list">
-      <h2 className="comments-list__title">
-        Comments <span>({visibleTopLevelCommentCount})</span>
-      </h2>
+      <p className="comments-list__title">
+        Comments
+      </p>
 
       <ul className="comments-list__items">
         {topLevelComments.map((comment) => {

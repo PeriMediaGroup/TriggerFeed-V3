@@ -1,0 +1,100 @@
+.profile-edit-media {
+  width: 100%;
+  max-width: 604px;
+  margin: 0 0 2rem;
+  position: relative;
+}
+
+.profile-edit-media__banner {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(178, 34, 34, 0.28), transparent 52%),
+    #232c30;
+}
+
+.profile-edit-media__banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-edit-media__banner-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 2rem;
+  font-size: 6rem;
+  line-height: 1;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(90deg, rgba(178, 34, 34, 0.28), transparent 52%),
+    #232c30;
+}
+
+.profile-edit-media__avatar-wrap {
+  position: relative;
+  width: 144px;
+  height: 144px;
+  margin-top: -32px;
+  margin-left: 4px;
+}
+
+.profile-edit-media__avatar {
+  width: 144px;
+  height: 144px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #777;
+  border: 4px solid #1c1c1c;
+}
+
+.profile-edit-media__avatar-image,
+.profile-edit-media__avatar-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-edit-media__avatar-image {
+  display: block;
+  object-fit: cover;
+}
+
+.profile-edit-media__avatar-placeholder {
+  background:
+    radial-gradient(circle at 50% 32%, #1c1c1c 0 17%, transparent 18%),
+    radial-gradient(ellipse at 50% 78%, #1c1c1c 0 34%, transparent 35%),
+    #777;
+}
+
+.profile-edit-media__camera {
+  position: absolute;
+  z-index: 2;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  border: 2px solid #1c1c1c;
+  background: #b22222;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.profile-edit-media__camera--banner {
+  right: 0.75rem;
+  bottom: 0.75rem;
+}
+
+.profile-edit-media__camera--avatar {
+  right: 0.25rem;
+  bottom: 0.25rem;
+}
