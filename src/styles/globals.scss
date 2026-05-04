@@ -17,6 +17,49 @@ h1,
 
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
+.share-modal__social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.85rem;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-modal__social:hover,
+.share-modal__social:focus-visible {
+  background: var(--color-surface-muted);
+}
+
+.share-modal__qr {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.share-modal__qr canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.share-modal__qr-text {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
 .share-post-button {
   display: inline-flex;
   align-items: center;
