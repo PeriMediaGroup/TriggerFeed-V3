@@ -52,9 +52,9 @@ export default function PostCard({ post, children }) {
         </header>
 
         {post.body && (
-          <p className="post-card__body">
+          <div className="post-card__body">
             <SmartText text={post.body} />
-          </p>
+          </div>
         )}
 
         <button
@@ -67,7 +67,7 @@ export default function PostCard({ post, children }) {
         </button>
 
         <Link href={postUrl} className="post-card__share-link">
-          Share
+          Share (soon)
         </Link>
 
         {showComments && (

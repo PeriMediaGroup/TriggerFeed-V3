@@ -161,7 +161,7 @@ export default function CommentItem({
             </div>
           </form>
         ) : (
-          <p className="comment-item__body"><SmartText text={comment.body} /></p>
+          <div className="comment-item__body"><SmartText text={comment.body} /></div>
         )}
 
         {!comment.is_deleted && (

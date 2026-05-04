@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createComment } from "../actions";
+import { Send } from "lucide-react";
 
 export default function CommentForm({ postId, isLoggedIn }) {
   const [body, setBody] = useState("");
@@ -67,6 +68,7 @@ export default function CommentForm({ postId, isLoggedIn }) {
         >
           {isPending ? "Posting..." : "Post Comment"}
         </button>
+        <Send size={18} strokeWidth={2} aria-hidden="true" />
       </form>
     </section>
   );
