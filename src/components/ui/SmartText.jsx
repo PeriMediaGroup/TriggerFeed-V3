@@ -10,7 +10,6 @@ function getDisplayUrl(value, maxLength = 48) {
 
   try {
     const url = new URL(normalizedUrl);
-
     const cleanDisplay = `${url.hostname}${url.pathname}`;
 
     if (cleanDisplay.length <= maxLength) {
@@ -81,13 +80,55 @@ function splitTextByUrls(text) {
   return parts;
 }
 
+function getYouTubeVideoId(value) {
+  if (!value || typeof value !== "string") return null;
+
+  const url = normalizeUrl(value);
+
+  if (!url) return null;
+
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&\s]+)/,
+    /youtu\.be\/([^?\s]+)/,
+    /youtube\.com\/shorts\/([^?\s]+)/,
+    /youtube\.com\/embed\/([^?\s]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+
+    if (match?.[1]) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+function YouTubeEmbed({ url }) {
+  const videoId = getYouTubeVideoId(url);
+
+  if (!videoId) return null;
+
+  return (
+    <div className="smart-text__youtube">
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+        title="YouTube video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+    </div>
+  );
+}
+
 export default function SmartText({ text, className = "" }) {
   const parts = splitTextByUrls(text);
 
   if (!parts.length) return null;
 
   return (
-    <span className={className}>
+    <div className={className}>
       {parts.map((part, index) => {
         if (part.type === "text") {
           return <span key={index}>{part.value}</span>;
@@ -97,6 +138,12 @@ export default function SmartText({ text, className = "" }) {
 
         if (!href) {
           return <span key={index}>{part.value}</span>;
+        }
+
+        const youtubeVideoId = getYouTubeVideoId(href);
+
+        if (youtubeVideoId) {
+          return <YouTubeEmbed key={index} url={href} />;
         }
 
         return (
@@ -112,6 +159,6 @@ export default function SmartText({ text, className = "" }) {
           </a>
         );
       })}
-    </span>
+    </div>
   );
 }
