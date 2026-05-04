@@ -6,6 +6,7 @@ import { MessageSquare } from "lucide-react";
 
 import { formatRelativeTime } from "@/lib/formatDate";
 import SmartText from "@/components/ui/SmartText";
+import SharePostButton from "./SharePostButton";
 
 export default function PostCard({ post, children }) {
   const [showComments, setShowComments] = useState(false);
@@ -39,6 +40,7 @@ export default function PostCard({ post, children }) {
               <strong>{authorName}</strong>
             )}
           </p>
+          <SharePostButton postId={post.id} />
 
           <p className="post-card__date">
             {formatRelativeTime(post.created_at)}
@@ -65,10 +67,6 @@ export default function PostCard({ post, children }) {
           {showComments ? "Hide comments" : ` (${commentCount})`}
           <MessageSquare size={16} strokeWidth={2} aria-hidden="true" />
         </button>
-
-        <Link href={postUrl} className="post-card__share-link">
-          Share (soon)
-        </Link>
 
         {showComments && (
           <div className="post-card__comments-panel">{children}</div>

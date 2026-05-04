@@ -17,6 +17,136 @@ h1,
 
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
+.share-post-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.share-post-button:hover,
+.share-post-button:focus-visible {
+  color: var(--color-link-hover);
+}
+
+.share-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.share-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: var(--color-backdrop);
+  cursor: pointer;
+}
+
+.share-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 32rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.share-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.share-modal__header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.share-modal__close {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.share-modal__description {
+  margin: 0.75rem 0 1rem;
+  color: var(--color-text-muted);
+}
+
+.share-modal__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.share-modal__input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+}
+
+.share-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.share-modal__copy,
+.share-modal__cancel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.85rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.share-modal__copy {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.share-modal__cancel {
+  background: transparent;
+  color: var(--color-text);
+}
+
+.post-card__share {
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.post-card__share:hover,
+.post-card__share:focus-visible {
+  color: var(--color-link-hover);
+}
 
 .smart-text__link {
   color: var(--color-link);
