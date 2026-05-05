@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 
 export default function SharePostButton({ postId }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,36 @@ export default function SharePostButton({ postId }) {
   function openShareModal() {
     setCopied(false);
     setIsOpen(true);
+  }
+
+  function getXShareUrl(shareUrl) {
+    const text = "Check out this post on TriggerFeed";
+
+    return `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text,
+    )}&url=${encodeURIComponent(shareUrl)}`;
+  }
+
+  function getFacebookShareUrl(shareUrl) {
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      shareUrl,
+    )}`;
+  }
+  const canNativeShare =
+    typeof navigator !== "undefined" && typeof navigator.share === "function";
+
+  async function handleNativeShare() {
+    if (!navigator.share || !shareUrl) return;
+
+    try {
+      await navigator.share({
+        title: "TriggerFeed post",
+        text: "Check out this post on TriggerFeed.",
+        url: shareUrl,
+      });
+    } catch {
+      // User canceled or browser declined.
+    }
   }
 
   async function handleCopy() {
@@ -62,7 +93,6 @@ export default function SharePostButton({ postId }) {
               readOnly
               onFocus={(event) => event.target.select()}
             />
-
             <div className="share-modal__actions">
               <button
                 type="button"
@@ -71,7 +101,43 @@ export default function SharePostButton({ postId }) {
               >
                 {copied ? "Copied!" : "Copy link"}
               </button>
+            </div>
+            <div>
+              <a
+                href={getXShareUrl(shareUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-modal__social"
+              >
+                Share to X
+              </a>
 
+              <a
+                href={getFacebookShareUrl(shareUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-modal__social"
+              >
+                Share to Facebook
+              </a>
+              {canNativeShare && (
+                <button
+                  type="button"
+                  className="share-modal__native"
+                  onClick={handleNativeShare}
+                >
+                  Share from device
+                </button>
+              )}
+              {shareUrl && (
+                <div className="share-modal__qr">
+                  <QRCodeCanvas value={shareUrl} size={160} includeMargin />
+
+                  <p className="share-modal__qr-text">
+                    Scan this QR code to open the post on another device.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
