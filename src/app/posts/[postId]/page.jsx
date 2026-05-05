@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getPostById } from "@/features/posts/data/getPostById";
 
 import PostDetail from "@/features/posts/components/PostDetail";
+
 import { getCommentsByPostId } from "@/features/comments/queries";
 import CommentForm from "@/features/comments/components/CommentForm";
 import CommentList from "@/features/comments/components/CommentList";
@@ -28,7 +29,7 @@ export default async function PostDetailPage({ params }) {
     <main className="post-detail-page">
       <BackLink label="Back" fallbackHref="/posts" />
 
-      <PostDetail post={post} currentUser={user} />
+      <PostDetail post={post} currentUserId={user?.id || null} />
 
       <section className="post-detail__comments">
         <CommentForm postId={post.id} isLoggedIn={Boolean(user)} />

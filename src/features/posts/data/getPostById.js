@@ -16,7 +16,19 @@ export async function getPostById(postId) {
       visibility,
       is_deleted,
       created_at,
-      updated_at
+      updated_at,
+      post_media (
+        id,
+        media_type,
+        provider,
+        cloudinary_url,
+        cloudinary_secure_url,
+        cloudinary_public_id,
+        width,
+        height,
+        alt_text,
+        sort_order
+      )
     `
     )
     .eq("id", postId)
@@ -49,6 +61,7 @@ export async function getPostById(postId) {
   return {
     post: {
       ...post,
+      media: post.post_media || [],
       author: profile || null,
     },
     error: null,
