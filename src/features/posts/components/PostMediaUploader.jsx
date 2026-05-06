@@ -1,104 +1,97 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { validatePostImageFiles } from "@/features/media/mediaValidation";
+import { useMemo, useState } from "react";
+
+const MAX_FILES = 4;
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export default function PostMediaUploader({ onFilesChange }) {
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
-  const [errors, setErrors] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [error, setError] = useState("");
 
-  const previewsRef = useRef([]);
-
-  function revokePreviews(previewsToRevoke) {
-    previewsToRevoke.forEach((preview) => {
-      URL.revokeObjectURL(preview.url);
-    });
-  }
-
-  function setFilesWithPreviews(files) {
-    revokePreviews(previewsRef.current);
-
-    const nextPreviews = files.map((file) => ({
-      name: file.name,
+  const previews = useMemo(() => {
+    return files.map((file) => ({
+      file,
       url: URL.createObjectURL(file),
     }));
+  }, [files]);
 
-    previewsRef.current = nextPreviews;
+  function handleFilesChange(event) {
+    const selectedFiles = Array.from(event.target.files || []);
+    setError("");
 
-    setSelectedFiles(files);
-    setPreviews(nextPreviews);
-    onFilesChange(files);
-  }
-
-  useEffect(() => {
-    return () => {
-      revokePreviews(previewsRef.current);
-    };
-  }, []);
-
-  function handleFileChange(event) {
-    const validation = validatePostImageFiles(event.target.files);
-
-    if (!validation.isValid) {
-      setErrors(validation.errors);
-      setFilesWithPreviews([]);
-      event.target.value = "";
+    if (!selectedFiles.length) {
+      setFiles([]);
+      onFilesChange?.([]);
       return;
     }
 
-    setErrors([]);
-    setFilesWithPreviews(validation.files);
-  }
-
-  function handleRemoveFile(indexToRemove) {
-    const nextFiles = selectedFiles.filter(
-      (_, index) => index !== indexToRemove,
+    const imageFiles = selectedFiles.filter((file) =>
+      file.type.startsWith("image/")
     );
 
-    setFilesWithPreviews(nextFiles);
+    if (imageFiles.length !== selectedFiles.length) {
+      setError("Only image files are allowed.");
+      return;
+    }
+
+    if (imageFiles.length > MAX_FILES) {
+      setError(`You can upload up to ${MAX_FILES} images.`);
+      return;
+    }
+
+    const oversizedFile = imageFiles.find(
+      (file) => file.size > MAX_FILE_SIZE_BYTES
+    );
+
+    if (oversizedFile) {
+      setError(`Images must be under ${MAX_FILE_SIZE_MB}MB each.`);
+      return;
+    }
+
+    setFiles(imageFiles);
+    onFilesChange?.(imageFiles);
+  }
+
+  function handleRemoveFile(fileToRemove) {
+    const nextFiles = files.filter((file) => file !== fileToRemove);
+
+    setFiles(nextFiles);
+    onFilesChange?.(nextFiles);
   }
 
   return (
-    <div className="post-media-uploader">
-      <label className="post-media-uploader__label">
+    <section className="post-media-uploader">
+      <label className="post-media-uploader__label" htmlFor="post-media">
         Add images
-        <input
-          className="post-media-uploader__input"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          onChange={handleFileChange}
-        />
       </label>
 
-      {errors.length > 0 && (
-        <div className="post-media-uploader__errors">
-          {errors.map((error) => (
-            <p key={error}>{error}</p>
-          ))}
-        </div>
-      )}
+      <input
+        id="post-media"
+        className="post-media-uploader__input"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFilesChange}
+      />
+
+      {error && <p className="post-media-uploader__error">{error}</p>}
 
       {previews.length > 0 && (
         <div className="post-media-uploader__preview-grid">
-          {previews.map((preview, index) => (
-            <div className="post-media-uploader__preview" key={preview.url}>
-              <div className="post-media-uploader__preview-image">
-                <Image
-                  src={preview.url}
-                  alt={preview.name}
-                  fill
-                  sizes="(max-width: 700px) 50vw, 300px"
-                  unoptimized
-                />
-              </div>
+          {previews.map(({ file, url }) => (
+            <div className="post-media-uploader__preview" key={url}>
+              <img
+                src={url}
+                alt={file.name}
+                className="post-media-uploader__preview-image"
+              />
 
               <button
                 type="button"
                 className="post-media-uploader__remove"
-                onClick={() => handleRemoveFile(index)}
+                onClick={() => handleRemoveFile(file)}
               >
                 Remove
               </button>
@@ -106,6 +99,6 @@ export default function PostMediaUploader({ onFilesChange }) {
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

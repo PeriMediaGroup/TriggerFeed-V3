@@ -1,6 +1,6 @@
 // src/app/profile/guns/page.jsx
 
-import Link from "next/link";
+import BackLink from "@/components/navigation/BackLink";
 import { redirect } from "next/navigation";
 
 import { getCurrentProfile } from "@/features/profiles/data/getCurrentProfile";
@@ -19,9 +19,11 @@ export default async function ProfileGunsPage() {
   return (
     <main className="profile-guns-page">
       <header className="profile-guns-page__header">
-        <Link href="/profile" className="profile-guns-page__back">
-          Back to Profile
-        </Link>
+        <BackLink
+          label="Back to Profile"
+          fallbackHref="/profile"
+          mode="history"
+        />
 
         <h1>Top Guns</h1>
         <p>Choose up to 4 favorite guns to display on your profile.</p>

@@ -1,12 +1,14 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { uploadImageToCloudinary } from "@/features/media/cloudinary";
 import { getPostMediaFolder } from "@/features/media/mediaPaths";
 import { validatePostImageFiles } from "@/features/media/mediaValidation";
 import { uploadPostImage } from "@/features/media/cloudinary";
 
-export async function uploadPostMedia({ postId, files }) {
+export async function uploadPostMedia(formData) {
+    const postId = formData.get("postId");
+    const files = formData.getAll("files");
+
     const supabase = await createClient();
 
     const {
