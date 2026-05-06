@@ -15,12 +15,28 @@ export async function getPosts() {
       body,
       visibility,
       created_at,
-      updated_at
+      updated_at,
+      post_media (
+        id,
+        media_type,
+        provider,
+        cloudinary_url,
+        cloudinary_secure_url,
+        cloudinary_public_id,
+        width,
+        height,
+        alt_text,
+        sort_order
+      )
     `
     )
     .eq("is_deleted", false)
     .eq("visibility", "public")
     .order("created_at", { ascending: false })
+    .order("sort_order", {
+      referencedTable: "post_media",
+      ascending: true,
+    })
     .limit(50);
 
   if (postsError) {
@@ -90,6 +106,7 @@ export async function getPosts() {
 
   const postsWithAuthors = safePosts.map((post) => ({
     ...post,
+    media: post.post_media || [],
     author: profileMap.get(post.user_id) || null,
     comment_count: commentCountMap.get(post.id) || 0,
   }));

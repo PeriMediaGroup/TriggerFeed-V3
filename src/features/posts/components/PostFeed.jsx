@@ -19,7 +19,7 @@ export default function PostFeed({
         const comments = commentsByPostId[post.id] || [];
 
         return (
-          <PostCard key={post.id} post={post}>
+          <PostCard key={post.id} post={post} currentUserId={currentUserId}>
 
             <CommentList
               comments={comments}

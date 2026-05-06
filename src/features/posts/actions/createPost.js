@@ -111,5 +111,6 @@ export async function createPost(formData) {
   return {
     success: true,
     postId: data.id,
+    errors: {},
   };
 }
