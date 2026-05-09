@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
-import { Pencil, Users, CalendarDays, MapPin } from "lucide-react";
+import { Pencil, CalendarDays, MapPin } from "lucide-react";
 
 export default function ProfileHeader({
   profile,
@@ -18,45 +18,40 @@ export default function ProfileHeader({
 
   const username = profile?.username || "your_username";
   const email = profile?.email || "your_email";
+  const bannerUrl = profile?.banner_cloudinary_url?.trim();
+  const avatarUrl = profile?.avatar_cloudinary_url?.trim();
 
   const location = [profile?.city, profile?.state].filter(Boolean).join(", ");
 
-  const joinedDate = profile?.created_at
-    ? new Date(profile.created_at).toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      })
-    : "Unknown";
-
   return (
     <section className="profile-header">
-      <div className="profile-header__banner">
-        {profile?.banner_cloudinary_url && (
-          <img
-            src={profile.banner_cloudinary_url}
-            alt=""
-            className="profile-header__banner-image"
-          />
+      <div className="profile__banner">
+        {bannerUrl ? (
+          <img src={bannerUrl} alt="" className="profile__banner-image" />
+        ) : (
+          <div className="profile__banner-placeholder">TF</div>
         )}
       </div>
 
       <div className="profile-header__body">
-        <div className="profile-header__avatar">
-          {profile?.avatar_cloudinary_url ? (
-            <img
-              src={profile.avatar_cloudinary_url}
-              alt={`${displayName} avatar`}
-              className="profile-header__avatar-image"
-            />
-          ) : (
-            <Image
-              className="profile-header__avatar-image"
-              src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
-              alt="Default Avitar"
-              width="150"
-              height="150"
-            />
-          )}
+        <div className="profile-header__avatar-wrap">
+          <div className="profile__avatar">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={`${displayName} avatar`}
+                className="profile__avatar-image"
+              />
+            ) : (
+              <Image
+                className="profile__avatar-image"
+                src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
+                alt="Default Avatar"
+                width="150"
+                height="150"
+              />
+            )}
+          </div>
         </div>
 
         <div className="profile-header__identity">
@@ -79,7 +74,7 @@ export default function ProfileHeader({
 
           <p className="profile-header__joined">
             <CalendarDays size={15} strokeWidth={2} aria-hidden="true" /> Joined{" "}
-            {formatShortDate(profile.created_at)}
+            {formatShortDate(profile?.created_at)}
           </p>
         </div>
 
@@ -89,11 +84,15 @@ export default function ProfileHeader({
               <Pencil size={16} strokeWidth={2} aria-hidden="true" />
               Edit Profile
             </Link>
+
             <br />
+
             <Link href="/profile/friends" className="profile__action-link">
               Manage Friends
             </Link>
+
             <br />
+
             <Link href="/profile/guns" className="profile__action-link">
               Edit Top Guns
             </Link>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
   return (
@@ -39,7 +40,13 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
                           className="profile-showcase__avatar-image"
                         />
                       ) : (
-                        <span>{displayName.charAt(0).toUpperCase()}</span>
+                        <Image
+                          className="profile-showcase__avatar"
+                          src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
+                          alt="Default Avatar"
+                          width="50"
+                          height="50"
+                        />
                       )}
                     </div>
 

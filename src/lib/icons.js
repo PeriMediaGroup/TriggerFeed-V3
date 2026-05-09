@@ -24,6 +24,8 @@ import {
   ChevronRight,
   Check,
   CircleAlert,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
 
 export const icons = {
@@ -52,4 +54,6 @@ export const icons = {
   next: ChevronRight,
   check: Check,
   warning: CircleAlert,
+  thumbsdown: ThumbsDown,
+  thumbsup: ThumbsUp,
 };

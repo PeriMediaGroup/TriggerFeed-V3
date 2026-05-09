@@ -9,6 +9,7 @@ import { formatRelativeTime } from "@/lib/formatDate";
 import MediaGallery from "@/features/media/components/MediaGallery";
 import SmartText from "@/components/ui/SmartText";
 import SharePostButton from "./SharePostButton";
+import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
 
 export default function PostCard({
   post,
@@ -70,6 +71,12 @@ export default function PostCard({
             <SmartText text={post.body} />
           </div>
         )}
+        <PostVoteButtons
+          postId={post.id}
+          upvoteCount={post.upvote_count}
+          downvoteCount={post.downvote_count}
+          currentUserVote={post.current_user_vote}
+        />
         {canManagePost && (
           <div className="post-card__manage-actions">
             <Link href={`/posts/${post.id}/edit`} className="post-card__edit">
