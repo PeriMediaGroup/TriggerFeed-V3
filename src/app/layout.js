@@ -1,5 +1,6 @@
 import { Black_Ops_One, Tomorrow } from "next/font/google";
 import AppNav from "@/components/layout/AppNav";
+import { Toaster } from "react-hot-toast";
 import "@/styles/globals.scss";
 
 const blackOpsOne = Black_Ops_One({
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
       <body>
         <AppNav />
         {children}
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

@@ -64,21 +64,21 @@ export default function EditProfileForm({ profile }) {
         <p className="profile-edit-form__message">{state.message}</p>
       )}
 
-      <div className="profile-edit-media">
-        <div className="profile-edit-media__banner">
+      <div className="profile-edit__visuals">
+        <div className="profile__banner">
           {bannerPreviewUrl ? (
             <img
               src={bannerPreviewUrl}
               alt=""
-              className="profile-edit-media__banner-image"
+              className="profile__banner-image"
             />
           ) : (
-            <div className="profile-edit-media__banner-placeholder">TF</div>
+            <div className="profile__banner-placeholder">TF</div>
           )}
 
-          <label className="profile-edit-media__camera profile-edit-media__camera--banner">
+          <label className="profile-edit__camera profile-edit__camera--banner">
             <Camera size={18} strokeWidth={2} aria-hidden="true" />
-            
+
             <input
               type="file"
               name="banner"
@@ -89,21 +89,22 @@ export default function EditProfileForm({ profile }) {
           </label>
         </div>
 
-        <div className="profile-edit-media__avatar-wrap">
-          <div className="profile-edit-media__avatar">
+        <div className="profile-edit__avatar-wrap">
+          <div className="profile__avatar">
             {avatarPreviewUrl ? (
               <img
                 src={avatarPreviewUrl}
                 alt=""
-                className="profile-edit-media__avatar-image"
+                className="profile__avatar-image"
               />
             ) : (
-              <div className="profile-edit-media__avatar-placeholder" />
+              <div className="profile__avatar-placeholder" />
             )}
           </div>
 
-          <label className="profile-edit-media__camera profile-edit-media__camera--avatar">
+          <label className="profile-edit__camera profile-edit__camera--avatar">
             <Camera size={16} strokeWidth={2} aria-hidden="true" />
+
             <input
               type="file"
               name="avatar"

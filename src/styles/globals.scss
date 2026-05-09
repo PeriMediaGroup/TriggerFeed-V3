@@ -1,5 +1,6 @@
 @use "./tokens";
 
+@use "../features/profiles/styles/_profile";
 @use "../features/profiles/styles/_profile-header";
 @use "../features/profiles/styles/_profile-edit-form";
 
@@ -16,6 +17,48 @@ h1,
 }
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
+/* VOTE CSS */
+.post-votes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.post-votes__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.post-votes__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.post-votes__button--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.post-votes__icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.post-votes__count {
+  line-height: 1;
+  font-size: 0.9rem;
+}
+
+
 /* TF-TEMP-CSS: Edit post media manager - move during polish pass */
 
 .edit-post-media {
