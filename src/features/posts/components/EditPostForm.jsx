@@ -1,8 +1,5 @@
-// src/features/posts/components/EditPostForm.jsx
-
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updatePost } from "../actions/updatePost";
 import { deletePostMedia } from "../actions/deletePostMedia";
@@ -10,8 +7,7 @@ import { uploadPostMedia } from "../actions/uploadPostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
 
 export default function EditPostForm({ post }) {
-  const router = useRouter();
-
+  const existingMedia = post.media || post.images || post.post_images || [];
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -24,52 +20,64 @@ export default function EditPostForm({ post }) {
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
-      setErrors({});
-      setStatus("");
+      try {
+        setErrors({});
+        setStatus("");
 
-      const result = await updatePost(post.id, formData);
+        const result = await updatePost(post.id, formData);
 
-      if (!result.success) {
-        setErrors(result.errors || {});
-        setStatus(result.message || "Something went wrong.");
-        return;
-      }
-
-      if (removedMediaIds.length > 0) {
-        setStatus("Removing images...");
-
-        const deleteMediaResult = await deletePostMedia({
-          postId: post.id,
-          mediaIds: removedMediaIds,
-        });
-
-        if (!deleteMediaResult.success) {
-          setStatus("Post updated, but some media could not be removed.");
+        if (!result.success) {
+          setErrors(result.errors || {});
+          setStatus(result.message || "Something went wrong.");
           return;
         }
-      }
 
-      if (newMediaFiles.length > 0) {
-        setStatus(
-          newMediaFiles.length === 1
-            ? "Uploading image..."
-            : `Uploading ${newMediaFiles.length} images...`,
-        );
+        if (removedMediaIds.length > 0) {
+          setStatus("Removing images...");
 
-        const uploadMediaResult = await uploadPostMedia({
-          postId: post.id,
-          files: newMediaFiles,
-        });
+          const deleteMediaResult = await deletePostMedia({
+            postId: post.id,
+            mediaIds: removedMediaIds,
+          });
 
-        if (!uploadMediaResult.success) {
-          setStatus("Post updated, but new media could not be uploaded.");
-          return;
+          if (!deleteMediaResult.success) {
+            setStatus("Post updated, but some media could not be removed.");
+            return;
+          }
         }
+
+        if (newMediaFiles.length > 0) {
+          setStatus(
+            newMediaFiles.length === 1
+              ? "Uploading image..."
+              : `Uploading ${newMediaFiles.length} images...`,
+          );
+
+          const mediaFormData = new FormData();
+
+          mediaFormData.append("postId", post.id);
+
+          newMediaFiles.forEach((file) => {
+            mediaFormData.append("files", file);
+          });
+
+          const uploadMediaResult = await uploadPostMedia(mediaFormData);
+
+          if (!uploadMediaResult.success) {
+            setStatus("Post updated, but new media could not be uploaded.");
+            return;
+          }
+        }
+
+        setStatus("Post updated.");
+
+        setTimeout(() => {
+          window.location.assign(`/posts/${post.id}`);
+        }, 150);
+      } catch (error) {
+        console.error("EDIT POST SAVE ERROR:", error);
+        setStatus(error?.message || "Post save failed. Check the console.");
       }
-
-      setStatus("Finishing up...");
-
-      router.replace(`/posts/${post.id}`);
     });
   }
 
@@ -89,7 +97,7 @@ export default function EditPostForm({ post }) {
       </div>
 
       <EditPostMediaManager
-        media={post.media || []}
+        media={existingMedia}
         onNewFilesChange={setNewMediaFiles}
         onRemovedMediaIdsChange={setRemovedMediaIds}
       />

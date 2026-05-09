@@ -6,13 +6,13 @@ import DeletePostButton from "./DeletePostButton";
 import { MessageSquare } from "lucide-react";
 
 import { formatRelativeTime } from "@/lib/formatDate";
+import MediaGallery from "@/features/media/components/MediaGallery";
 import SmartText from "@/components/ui/SmartText";
 import SharePostButton from "./SharePostButton";
-import PostMediaGallery from "./PostMediaGallery";
 
 export default function PostCard({
   post,
-  currentUserId  = null,
+  currentUserId = null,
   variant = "feed",
   children,
 }) {
@@ -25,6 +25,7 @@ export default function PostCard({
   const authorId = post.user_id || post.author?.id;
   const commentCount = post.comment_count || 0;
   const canManagePost = currentUserId === post.user_id;
+  const postImages = post.images || post.media || post.post_images || [];
 
   return (
     <>
@@ -57,7 +58,12 @@ export default function PostCard({
           </h2>
         </header>
 
-        {post.media?.length > 0 && <PostMediaGallery media={post.media} />}
+        {postImages.length > 0 && (
+          <MediaGallery
+            images={postImages}
+            fallbackAlt={post.title || "Post image"}
+          />
+        )}
 
         {post.body && (
           <div className="post-card__body">

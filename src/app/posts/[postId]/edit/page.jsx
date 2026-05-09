@@ -1,10 +1,8 @@
-// src/app/posts/[postId]/edit/page.jsx
-
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getPostById } from "@/features/posts/data/getPostById";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import EditPostForm from "@/features/posts/components/EditPostForm";
+import BackLink from "@/components/navigation/BackLink";
 
 export default async function EditPostPage({ params }) {
   const { postId } = await params;
@@ -29,9 +27,11 @@ export default async function EditPostPage({ params }) {
     <main className="tf-page post-edit-page">
       <section className="tf-section">
         <p>
-          <Link href={`/posts/${post.id}`} replace>
-            ← Back to post
-          </Link>
+          <BackLink
+            label="Back"
+            fallbackHref={`/posts/${post.id}`}
+            mode="history"
+          />
         </p>
 
         <h1>Edit Post</h1>

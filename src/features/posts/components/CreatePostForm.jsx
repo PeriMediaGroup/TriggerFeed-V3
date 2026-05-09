@@ -14,6 +14,7 @@ export default function CreatePostForm() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaErrors, setMediaErrors] = useState([]);
   const [isPending, startTransition] = useTransition();
+  const [uploaderKey, setUploaderKey] = useState(0);
   const [submitStep, setSubmitStep] = useState("");
 
   function handleSubmit(event) {
@@ -23,47 +24,65 @@ export default function CreatePostForm() {
     const formData = new FormData(form);
 
     startTransition(async () => {
-      setErrors({});
-      setMediaErrors([]);
-      setStatus("");
-      setSubmitStep("Creating post...");
+      try {
+        setErrors({});
+        setMediaErrors([]);
+        setStatus("");
+        setSubmitStep("Creating post...");
 
-      const result = await createPost(formData);
+        const result = await createPost(formData);
 
-      if (!result.success) {
-        setErrors(result.errors || {});
-        setStatus(result.message || "Something went wrong.");
-        setSubmitStep("");
-        return;
-      }
-
-      if (mediaFiles.length > 0) {
-        setSubmitStep(
-          mediaFiles.length === 1
-            ? "Uploading image..."
-            : `Uploading ${mediaFiles.length} images...`,
-        );
-
-        const mediaResult = await uploadPostMedia({
-          postId: result.postId,
-          files: mediaFiles,
-        });
-
-        if (!mediaResult.success) {
-          setMediaErrors(mediaResult.errors || ["Media upload failed."]);
-          setStatus("Post was created, but media upload failed.");
+        if (!result.success) {
+          setErrors(result.errors || {});
+          setStatus(result.message || "Something went wrong.");
           setSubmitStep("");
           return;
         }
+
+        if (mediaFiles.length > 0) {
+          setStatus(
+            mediaFiles.length === 1
+              ? "Uploading image..."
+              : `Uploading ${mediaFiles.length} images...`,
+          );
+
+          const mediaFormData = new FormData();
+          mediaFormData.append("postId", result.postId);
+
+          mediaFiles.forEach((file) => {
+            mediaFormData.append("files", file);
+          });
+
+          const uploadMediaResult = await uploadPostMedia(mediaFormData);
+
+          if (!uploadMediaResult.success) {
+            const uploadErrors = uploadMediaResult.errors || [];
+
+            setMediaErrors(uploadErrors);
+            setStatus(
+              uploadErrors[0] || "Post created, but images failed to upload.",
+            );
+            setSubmitStep("");
+            return;
+          }
+        }
+
+        setSubmitStep("Finishing up...");
+
+        form.reset();
+        setMediaFiles([]);
+        setUploaderKey((currentKey) => currentKey + 1);
+        setStatus("Post created.");
+
+        setTimeout(() => {
+          window.location.assign(`/posts/${result.postId}`);
+        }, 150);
+        router.refresh();
+      } catch (error) {
+        console.error("CREATE POST SAVE ERROR:", error);
+        setStatus(error?.message || "Create post failed. Check the console.");
+        setSubmitStep("");
       }
-
-      setSubmitStep("Finishing up...");
-
-      form.reset();
-      setMediaFiles([]);
-      setStatus("Post created.");
-
-      router.replace(`/posts/${result.postId}`);
     });
   }
 
@@ -86,7 +105,7 @@ export default function CreatePostForm() {
         <p className="post-form__error">{errors.visibility}</p>
       )}
 
-      <PostMediaUploader onFilesChange={setMediaFiles} />
+      <PostMediaUploader key={uploaderKey} onFilesChange={setMediaFiles} />
 
       {mediaErrors.length > 0 && (
         <div className="create-post__media-errors">
