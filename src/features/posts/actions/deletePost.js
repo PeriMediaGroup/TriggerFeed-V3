@@ -73,6 +73,7 @@ export async function deletePost(postId) {
 
   revalidatePath("/");
   revalidatePath(`/posts/${postId}`);
+  revalidatePath(`/posts/${comment.post_id}`);
 
   redirect("/");
 }

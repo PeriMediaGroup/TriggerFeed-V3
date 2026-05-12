@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 import { validatePostInput } from "../utils/validatePost";
 
 export async function createPost(formData) {
@@ -105,6 +106,29 @@ export async function createPost(formData) {
     },
   });
 
+  await supabase.from("post_audit_logs").insert({
+    post_id: data.id,
+    user_id: user.id,
+    event_type: "post_create_success",
+    success: true,
+    metadata: {
+      source: "createPost",
+    },
+  });
+
+  const mentionText = `${validation.values.title || ""} ${validation.values.body || ""
+    }`;
+
+  const mentionResult = await createMentionNotifications({
+    text: mentionText,
+    actorId: user.id,
+    postId: data.id,
+  });
+
+  if (!mentionResult.success) {
+    console.error("CREATE POST MENTION NOTIFICATION ERROR:", mentionResult.error);
+  }
+
   revalidatePath("/");
   revalidatePath("/posts");
 
@@ -113,4 +137,5 @@ export async function createPost(formData) {
     postId: data.id,
     errors: {},
   };
+
 }

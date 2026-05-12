@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createComment } from "../actions";
 import { Send } from "lucide-react";
+import MentionTextarea from "@/features/mentions/components/MentionTextarea";
 
 export default function CommentForm({ postId, isLoggedIn }) {
   const [body, setBody] = useState("");
@@ -49,18 +50,22 @@ export default function CommentForm({ postId, isLoggedIn }) {
       <p className="comment-form__title">Add a comment</p>
 
       <form className="comment-form__form" onSubmit={handleSubmit}>
-        <textarea
+        <MentionTextarea
           id="comment-body"
           className="comment-form__textarea"
+          name="body"
           value={body}
           onChange={(event) => setBody(event.target.value)}
-          placeholder="Write your comment..."
-          rows={4}
+          placeholder="Write a comment..."
+          rows={3}
+          maxLength={5000}
           disabled={isPending}
         />
 
         {error && <p className="comment-form__error">{error}</p>}
+
         <br />
+
         <button
           className="comment-form__button"
           type="submit"
@@ -68,6 +73,7 @@ export default function CommentForm({ postId, isLoggedIn }) {
         >
           {isPending ? "Posting..." : "Post Comment"}
         </button>
+
         <Send size={18} strokeWidth={2} aria-hidden="true" />
       </form>
     </section>

@@ -1,6 +1,7 @@
 // src/features/posts/data/getPostById.js
 
 import { createClient } from "@/lib/supabase/server";
+import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 
 export async function getPostById(postId) {
   const supabase = await createClient();
@@ -104,11 +105,16 @@ export async function getPostById(postId) {
     currentUserVote = userVote?.vote_type || null;
   }
 
+  const mentionProfiles = await getMentionProfilesForText(
+    `${post.title || ""} ${post.body || ""}`
+  );
+
   return {
     post: {
       ...post,
       media: post.post_media || [],
       author: profile || null,
+      mentionProfiles,
       upvote_count: voteCounts?.upvote_count || 0,
       downvote_count: voteCounts?.downvote_count || 0,
       interaction_count: voteCounts?.interaction_count || 0,

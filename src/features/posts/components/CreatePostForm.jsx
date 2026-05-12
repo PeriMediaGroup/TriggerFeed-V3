@@ -6,6 +6,8 @@ import { useState, useTransition } from "react";
 import { createPost } from "../actions/createPost";
 import PostMediaUploader from "@/features/posts/components/PostMediaUploader";
 import { uploadPostMedia } from "@/features/posts/actions/uploadPostMedia";
+import MentionInput from "@/features/mentions/components/MentionInputs";
+import MentionTextarea from "@/features/mentions/components/MentionTextarea";
 
 export default function CreatePostForm() {
   const router = useRouter();
@@ -16,6 +18,8 @@ export default function CreatePostForm() {
   const [isPending, startTransition] = useTransition();
   const [uploaderKey, setUploaderKey] = useState(0);
   const [submitStep, setSubmitStep] = useState("");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -77,6 +81,7 @@ export default function CreatePostForm() {
         setTimeout(() => {
           window.location.assign(`/posts/${result.postId}`);
         }, 150);
+
         router.refresh();
       } catch (error) {
         console.error("CREATE POST SAVE ERROR:", error);
@@ -90,13 +95,28 @@ export default function CreatePostForm() {
     <form className="post-form" onSubmit={handleSubmit}>
       <div className="post-form__field">
         <label htmlFor="title">Title</label>
-        <input id="title" name="title" type="text" maxLength={120} required />
+        <MentionInput
+          id="title"
+          name="title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="Post title"
+          maxLength={120}
+        />
         {errors.title && <p className="post-form__error">{errors.title}</p>}
       </div>
 
       <div className="post-form__field">
         <label htmlFor="body">Body</label>
-        <textarea id="body" name="body" rows={6} maxLength={5000} />
+        <MentionTextarea
+          name="body"
+          id="body"
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+          placeholder="What's on your mind?"
+          rows={5}
+          maxLength={5000}
+        />
         {errors.body && <p className="post-form__error">{errors.body}</p>}
       </div>
 

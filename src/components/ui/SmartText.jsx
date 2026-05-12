@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { normalizeUrl } from "@/lib/urlUtils";
 
 const URL_REGEX =
   /((https?:\/\/|www\.)[^\s<]+|(?:youtube\.com|youtu\.be)\/[^\s<]+)/gi;
+
+const MENTION_REGEX = /(^|[\s([{])@([a-zA-Z0-9_-]{2,30})\b/g;
 
 function getDisplayUrl(value, maxLength = 48) {
   const normalizedUrl = normalizeUrl(value);
@@ -122,8 +125,79 @@ function YouTubeEmbed({ url }) {
   );
 }
 
-export default function SmartText({ text, className = "" }) {
+function buildMentionMap(mentionProfiles = []) {
+  return new Map(
+    mentionProfiles
+      .filter((profile) => profile?.username && profile?.id)
+      .map((profile) => [profile.username.toLowerCase(), profile])
+  );
+}
+
+function renderTextWithMentions(text, mentionMap, keyPrefix) {
+  if (!text) return null;
+
+  const pieces = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(MENTION_REGEX)) {
+    const fullMatch = match[0];
+    const prefix = match[1] || "";
+    const username = match[2];
+    const matchIndex = match.index ?? 0;
+
+    const mentionStart = matchIndex + prefix.length;
+    const mentionEnd = mentionStart + username.length + 1;
+
+    if (matchIndex > lastIndex) {
+      pieces.push(text.slice(lastIndex, matchIndex));
+    }
+
+    if (prefix) {
+      pieces.push(prefix);
+    }
+
+    const profile = mentionMap.get(username.toLowerCase());
+
+    if (profile) {
+      pieces.push(
+        <Link
+          key={`${keyPrefix}-mention-${mentionStart}`}
+          href={`/profiles/${profile.id}`}
+          className="smart-text__mention"
+        >
+          @{username}
+        </Link>
+      );
+    } else {
+      pieces.push(`@${username}`);
+    }
+
+    lastIndex = mentionEnd;
+
+    // Avoid unused variable lint whining if your setup is cranky.
+    void fullMatch;
+  }
+
+  if (lastIndex < text.length) {
+    pieces.push(text.slice(lastIndex));
+  }
+
+  return pieces.map((piece, index) => {
+    if (typeof piece === "string") {
+      return <span key={`${keyPrefix}-text-${index}`}>{piece}</span>;
+    }
+
+    return piece;
+  });
+}
+
+export default function SmartText({
+  text,
+  className = "",
+  mentionProfiles = [],
+}) {
   const parts = splitTextByUrls(text);
+  const mentionMap = buildMentionMap(mentionProfiles);
 
   if (!parts.length) return null;
 
@@ -131,7 +205,11 @@ export default function SmartText({ text, className = "" }) {
     <div className={className}>
       {parts.map((part, index) => {
         if (part.type === "text") {
-          return <span key={index}>{part.value}</span>;
+          return renderTextWithMentions(
+            part.value,
+            mentionMap,
+            `part-${index}`
+          );
         }
 
         const href = normalizeUrl(part.value);
