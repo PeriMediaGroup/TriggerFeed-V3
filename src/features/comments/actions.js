@@ -299,7 +299,7 @@ export async function deleteComment({ commentId }) {
   }
 
   revalidatePath("/");
-  revalidatePath(`/posts/${postId}`);
+  revalidatePath(`/posts/${comment.post_id}`);
 
   return {
     success: true,
