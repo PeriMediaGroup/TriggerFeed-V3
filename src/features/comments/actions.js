@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 
 function normalizeCommentBody(body) {
   return String(body || "").trim();
@@ -87,12 +88,16 @@ export async function createComment({ postId, body, parentCommentId = null }) {
     }
   }
 
-  const { error } = await supabase.from("comments").insert({
-    post_id: postId,
-    user_id: user.id,
-    parent_comment_id: parentCommentId || null,
-    body: cleanBody,
-  });
+  const { data: comment, error } = await supabase
+    .from("comments")
+    .insert({
+      post_id: postId,
+      user_id: user.id,
+      parent_comment_id: parentCommentId || null,
+      body: cleanBody,
+    })
+    .select("id, post_id")
+    .single();
 
   if (error) {
     console.error("Error creating comment:", {
@@ -106,6 +111,17 @@ export async function createComment({ postId, body, parentCommentId = null }) {
       success: false,
       error: error.message,
     };
+  }
+
+  const mentionResult = await createMentionNotifications({
+    text: cleanBody,
+    actorId: user.id,
+    postId,
+    commentId: comment.id,
+  });
+
+  if (!mentionResult.success) {
+    console.error("CREATE COMMENT MENTION NOTIFICATION ERROR:", mentionResult.error);
   }
 
   revalidatePath(`/posts/${postId}`);
@@ -282,7 +298,8 @@ export async function deleteComment({ commentId }) {
     };
   }
 
-  revalidatePath(`/posts/${comment.post_id}`);
+  revalidatePath("/");
+  revalidatePath(`/posts/${postId}`);
 
   return {
     success: true,

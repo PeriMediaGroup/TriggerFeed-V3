@@ -18,15 +18,18 @@ export default function PostCard({
   children,
 }) {
   const [showComments, setShowComments] = useState(false);
+
   const authorName =
     post.author?.username ||
     post.author?.first_name ||
     post.author?.email ||
     "Unknown user";
+
   const authorId = post.user_id || post.author?.id;
   const commentCount = post.comment_count || 0;
   const canManagePost = currentUserId === post.user_id;
   const postImages = post.images || post.media || post.post_images || [];
+  const mentionProfiles = post.mentionProfiles || [];
 
   return (
     <>
@@ -46,17 +49,22 @@ export default function PostCard({
               <strong>{authorName}</strong>
             )}
           </p>
+
           <SharePostButton postId={post.id} />
 
-          <p className="post-card__date">
+          <p className="post-card__date" suppressHydrationWarning>
             {formatRelativeTime(post.created_at)}
           </p>
-
+          
           <h2 className="post-card__title">
-            <Link href={`/posts/${post.id}`}>
-              <SmartText text={post.title} />
-            </Link>
+            <SmartText text={post.title} mentionProfiles={mentionProfiles} />
           </h2>
+
+          {variant === "feed" && (
+            <Link href={`/posts/${post.id}`} className="post-card__detail-link">
+              View post
+            </Link>
+          )}
         </header>
 
         {postImages.length > 0 && (
@@ -68,15 +76,17 @@ export default function PostCard({
 
         {post.body && (
           <div className="post-card__body">
-            <SmartText text={post.body} />
+            <SmartText text={post.body} mentionProfiles={mentionProfiles} />
           </div>
         )}
+
         <PostVoteButtons
           postId={post.id}
           upvoteCount={post.upvote_count}
           downvoteCount={post.downvote_count}
           currentUserVote={post.current_user_vote}
         />
+
         {canManagePost && (
           <div className="post-card__manage-actions">
             <Link href={`/posts/${post.id}/edit`} className="post-card__edit">

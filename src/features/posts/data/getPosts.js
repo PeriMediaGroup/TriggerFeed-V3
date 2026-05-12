@@ -1,6 +1,7 @@
 // src/features/posts/data/getPosts.js
 
 import { createClient } from "@/lib/supabase/server";
+import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 
 export async function getPosts() {
   const supabase = await createClient();
@@ -151,14 +152,19 @@ export async function getPosts() {
   if (profilesError) {
     console.error("GET POST PROFILES ERROR:", profilesError);
 
-    return {
-      posts: safePosts.map((post) => {
+    const postsWithMentions = await Promise.all(
+      safePosts.map(async (post) => {
         const voteCountsForPost = voteCountMap.get(post.id);
+
+        const mentionProfiles = await getMentionProfilesForText(
+          `${post.title || ""} ${post.body || ""}`
+        );
 
         return {
           ...post,
           media: post.post_media || [],
           author: null,
+          mentionProfiles,
           comment_count: commentCountMap.get(post.id) || 0,
           upvote_count: voteCountsForPost?.upvote_count || 0,
           downvote_count: voteCountsForPost?.downvote_count || 0,
@@ -166,7 +172,11 @@ export async function getPosts() {
           score: voteCountsForPost?.score || 0,
           current_user_vote: currentUserVoteMap.get(post.id) || null,
         };
-      }),
+      })
+    );
+
+    return {
+      posts: postsWithMentions,
       error: null,
     };
   }
@@ -175,21 +185,28 @@ export async function getPosts() {
     (profiles || []).map((profile) => [profile.id, profile])
   );
 
-  const postsWithAuthors = safePosts.map((post) => {
-    const voteCountsForPost = voteCountMap.get(post.id);
+  const postsWithAuthors = await Promise.all(
+    safePosts.map(async (post) => {
+      const voteCountsForPost = voteCountMap.get(post.id);
 
-    return {
-      ...post,
-      media: post.post_media || [],
-      author: profileMap.get(post.user_id) || null,
-      comment_count: commentCountMap.get(post.id) || 0,
-      upvote_count: voteCountsForPost?.upvote_count || 0,
-      downvote_count: voteCountsForPost?.downvote_count || 0,
-      interaction_count: voteCountsForPost?.interaction_count || 0,
-      score: voteCountsForPost?.score || 0,
-      current_user_vote: currentUserVoteMap.get(post.id) || null,
-    };
-  });
+      const mentionProfiles = await getMentionProfilesForText(
+        `${post.title || ""} ${post.body || ""}`
+      );
+
+      return {
+        ...post,
+        media: post.post_media || [],
+        author: profileMap.get(post.user_id) || null,
+        mentionProfiles,
+        comment_count: commentCountMap.get(post.id) || 0,
+        upvote_count: voteCountsForPost?.upvote_count || 0,
+        downvote_count: voteCountsForPost?.downvote_count || 0,
+        interaction_count: voteCountsForPost?.interaction_count || 0,
+        score: voteCountsForPost?.score || 0,
+        current_user_vote: currentUserVoteMap.get(post.id) || null,
+      };
+    })
+  );
 
   return {
     posts: postsWithAuthors,
