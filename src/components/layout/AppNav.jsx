@@ -4,15 +4,10 @@ import { getProfileById } from "@/features/profiles/data/getProfileById";
 import {
   Home,
   User,
-  Users,
-  Bell,
-  Menu,
   LogIn,
   LogOut,
   PlusCircle,
-  Settings,
-  Globe,
-  FileText,
+  UserPlus,
 } from "lucide-react";
 
 export default async function AppNav() {
@@ -31,6 +26,7 @@ export default async function AppNav() {
   return (
     <nav aria-label="Main navigation">
       <h1>TriggerFeed</h1>
+
       <Link href="/" className="app-nav__link">
         <Home size={18} strokeWidth={2} aria-hidden="true" />
         <span>Home</span>
@@ -39,20 +35,24 @@ export default async function AppNav() {
       {user ? (
         <>
           {" | "}
-          <Link href="/posts/new">
-  <PlusCircle size={18} strokeWidth={2} aria-hidden="true" />
-  <span>Create</span></Link>
+          <Link href="/posts/new" className="app-nav__link">
+            <PlusCircle size={18} strokeWidth={2} aria-hidden="true" />
+            <span>Create</span>
+          </Link>
+
           {" | "}
           <Link href="/profile" className="app-nav__link">
             <User size={18} strokeWidth={2} aria-hidden="true" />
             <span>Profile</span>
           </Link>
+
           {" | "}
           <span>
             Logged in as <strong>{username || "Unknown user"}</strong>
           </span>
+
           {" | "}
-          <a href="/logout">
+          <a href="/logout" className="app-nav__link">
             <LogOut size={17} strokeWidth={2} aria-hidden="true" />
             <span>Logout</span>
           </a>
@@ -60,9 +60,16 @@ export default async function AppNav() {
       ) : (
         <>
           {" | "}
-          <Link href="/login">
-  <LogIn size={18} strokeWidth={2} aria-hidden="true" />
-  <span>Login</span></Link>
+          <Link href="/login" className="app-nav__link">
+            <LogIn size={18} strokeWidth={2} aria-hidden="true" />
+            <span>Login</span>
+          </Link>
+
+          {" | "}
+          <Link href="/signup" className="app-nav__link">
+            <UserPlus size={18} strokeWidth={2} aria-hidden="true" />
+            <span>Signup</span>
+          </Link>
         </>
       )}
     </nav>

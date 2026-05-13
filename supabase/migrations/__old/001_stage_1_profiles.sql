@@ -11,7 +11,7 @@ create table if not exists public.profiles (
   email text,
   username text unique,
   username_lower text unique,
-
+  display_name text,
   first_name text,
   last_name text,
   city text,
@@ -48,6 +48,30 @@ begin
   return new;
 end;
 $$;
+
+create or replace function public.set_profiles_username_lower()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.username is not null then
+    new.username_lower = lower(new.username);
+  else
+    new.username_lower = null;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists set_profiles_username_lower_trigger
+on public.profiles;
+
+create trigger set_profiles_username_lower_trigger
+before insert or update of username
+on public.profiles
+for each row
+execute function public.set_profiles_username_lower();
 
 drop trigger if exists set_profiles_updated_at on public.profiles;
 
@@ -98,6 +122,9 @@ with check (
 
 create index if not exists profiles_username_lower_idx
 on public.profiles(username_lower);
+
+create index if not exists profiles_display_name_idx
+on public.profiles(display_name);
 
 create index if not exists profiles_is_deleted_idx
 on public.profiles(is_deleted);
