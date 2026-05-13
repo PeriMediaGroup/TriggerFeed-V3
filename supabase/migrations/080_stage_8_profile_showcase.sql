@@ -1,52 +1,52 @@
 -- =========================================================
--- Stage 7: Profile Showcase
+-- Stage 8: Profile Showcase
 -- Adds top friends and top guns/profile showcase tables.
 -- =========================================================
 
 create table if not exists public.profile_top_friends (
   id uuid primary key default gen_random_uuid(),
 
-  profile_id uuid not null references public.profiles(id) on delete cascade,
-  friend_profile_id uuid not null references public.profiles(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  friend_user_id uuid not null references public.profiles(id) on delete cascade,
 
-  sort_order integer not null default 0,
+  display_order integer not null default 0,
 
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
   constraint profile_top_friends_no_self
-    check (profile_id <> friend_profile_id),
+    check (user_id <> friend_user_id),
 
-  constraint profile_top_friends_sort_order_check
-    check (sort_order >= 0),
+  constraint profile_top_friends_display_order_check
+    check (display_order >= 0),
 
   constraint profile_top_friends_unique_friend
-    unique (profile_id, friend_profile_id),
+    unique (user_id, friend_user_id),
 
   constraint profile_top_friends_unique_order
-    unique (profile_id, sort_order)
+    unique (user_id, display_order)
 );
 
 create table if not exists public.profile_top_guns (
   id uuid primary key default gen_random_uuid(),
 
-  profile_id uuid not null references public.profiles(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
 
   name text not null,
   description text,
   image_cloudinary_url text,
   image_cloudinary_public_id text,
 
-  sort_order integer not null default 0,
+  display_order integer not null default 0,
 
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
-  constraint profile_top_guns_sort_order_check
-    check (sort_order >= 0),
+  constraint profile_top_guns_display_order_check
+    check (display_order >= 0),
 
   constraint profile_top_guns_unique_order
-    unique (profile_id, sort_order)
+    unique (user_id, display_order)
 );
 
 create or replace function public.set_profile_showcase_updated_at()
@@ -100,10 +100,10 @@ on public.profile_top_friends
 for all
 to authenticated
 using (
-  auth.uid() = profile_id
+  auth.uid() = user_id
 )
 with check (
-  auth.uid() = profile_id
+  auth.uid() = user_id
 );
 
 drop policy if exists "Anyone can read top guns"
@@ -122,17 +122,23 @@ on public.profile_top_guns
 for all
 to authenticated
 using (
-  auth.uid() = profile_id
+  auth.uid() = user_id
 )
 with check (
-  auth.uid() = profile_id
+  auth.uid() = user_id
 );
 
-create index if not exists profile_top_friends_profile_id_idx
-on public.profile_top_friends(profile_id);
+create index if not exists profile_top_friends_user_id_idx
+on public.profile_top_friends(user_id);
 
-create index if not exists profile_top_friends_friend_profile_id_idx
-on public.profile_top_friends(friend_profile_id);
+create index if not exists profile_top_friends_friend_user_id_idx
+on public.profile_top_friends(friend_user_id);
 
-create index if not exists profile_top_guns_profile_id_idx
-on public.profile_top_guns(profile_id);
+create index if not exists profile_top_friends_user_id_display_order_idx
+on public.profile_top_friends(user_id, display_order);
+
+create index if not exists profile_top_guns_user_id_idx
+on public.profile_top_guns(user_id);
+
+create index if not exists profile_top_guns_user_id_display_order_idx
+on public.profile_top_guns(user_id, display_order);

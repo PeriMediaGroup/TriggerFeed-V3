@@ -49,6 +49,25 @@ create table if not exists public.post_media (
     )
 );
 
+-- Make the relationships explicit so PostgREST/Supabase can detect embeds.
+alter table public.post_media
+drop constraint if exists post_media_post_id_fkey;
+
+alter table public.post_media
+add constraint post_media_post_id_fkey
+foreign key (post_id)
+references public.posts(id)
+on delete cascade;
+
+alter table public.post_media
+drop constraint if exists post_media_user_id_fkey;
+
+alter table public.post_media
+add constraint post_media_user_id_fkey
+foreign key (user_id)
+references public.profiles(id)
+on delete cascade;
+
 create index if not exists post_media_post_id_idx
   on public.post_media(post_id);
 
@@ -60,7 +79,9 @@ create index if not exists post_media_post_sort_idx
 
 alter table public.post_media enable row level security;
 
--- Anyone can read media attached to non-deleted public posts.
+drop policy if exists "Anyone can read post media"
+on public.post_media;
+
 create policy "Anyone can read post media"
 on public.post_media
 for select
@@ -74,10 +95,13 @@ using (
   )
 );
 
--- Logged-in users can insert media for their own posts.
+drop policy if exists "Users can insert media for their own posts"
+on public.post_media;
+
 create policy "Users can insert media for their own posts"
 on public.post_media
 for insert
+to authenticated
 with check (
   auth.uid() = user_id
   and exists (
@@ -89,10 +113,13 @@ with check (
   )
 );
 
--- Users can update their own post media.
+drop policy if exists "Users can update their own post media"
+on public.post_media;
+
 create policy "Users can update their own post media"
 on public.post_media
 for update
+to authenticated
 using (
   auth.uid() = user_id
 )
@@ -100,10 +127,13 @@ with check (
   auth.uid() = user_id
 );
 
--- Users can delete their own post media.
+drop policy if exists "Users can delete their own post media"
+on public.post_media;
+
 create policy "Users can delete their own post media"
 on public.post_media
 for delete
+to authenticated
 using (
   auth.uid() = user_id
 );
