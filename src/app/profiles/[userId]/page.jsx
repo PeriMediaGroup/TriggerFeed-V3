@@ -37,7 +37,11 @@ export default async function PublicProfilePage({ params }) {
 
   return (
     <main className="profile">
-      <ProfileHeader profile={profile} stats={stats} isCurrentUser={false} />
+      <ProfileHeader
+        profile={profile}
+        stats={stats}
+        isCurrentUser={false}
+      />
 
       <ProfileFriendAction
         profileUserId={profile.id}

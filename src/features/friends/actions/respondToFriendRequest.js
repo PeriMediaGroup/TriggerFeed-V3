@@ -27,7 +27,7 @@ export async function respondToFriendRequest(friendRequestId, response) {
         };
     }
 
-    const { error } = await supabase
+    const { data: friendRow, error } = await supabase
         .from("friends")
         .update({
             status: response,
@@ -35,7 +35,9 @@ export async function respondToFriendRequest(friendRequestId, response) {
         })
         .eq("id", friendRequestId)
         .eq("addressee_id", user.id)
-        .eq("status", "pending");
+        .eq("status", "pending")
+        .select("id")
+        .single();
 
     if (error) {
         console.error("RESPOND FRIEND REQUEST ERROR:", {
@@ -51,7 +53,50 @@ export async function respondToFriendRequest(friendRequestId, response) {
         };
     }
 
-    revalidatePath("/profile/friends"); 
+    if (response === "accepted") {
+        const { error: notificationError } = await supabase.rpc(
+            "create_friend_accepted_notification",
+            {
+                p_friend_id: friendRow.id,
+            }
+        );
+
+        if (notificationError) {
+            console.error("CREATE FRIEND ACCEPTED NOTIFICATION ERROR:", {
+                code: notificationError.code,
+                message: notificationError.message,
+                details: notificationError.details,
+                hint: notificationError.hint,
+            });
+        }
+    }
+
+    const now = new Date().toISOString();
+
+    const { error: dismissNotificationError } = await supabase
+        .from("notifications")
+        .update({
+            is_read: true,
+            read_at: now,
+            dismissed_at: now,
+        })
+        .eq("user_id", user.id)
+        .eq("friend_id", friendRequestId)
+        .eq("type", "friend_request")
+        .is("dismissed_at", null);
+
+    if (dismissNotificationError) {
+        console.error("DISMISS FRIEND REQUEST NOTIFICATION ERROR:", {
+            code: dismissNotificationError.code,
+            message: dismissNotificationError.message,
+            details: dismissNotificationError.details,
+            hint: dismissNotificationError.hint,
+        });
+    }
+
+    revalidatePath("/profile");
+    revalidatePath("/profile/notifications");
+    revalidatePath("/profile/friends");
     revalidatePath(`/profiles/${user.id}`);
 
     return {

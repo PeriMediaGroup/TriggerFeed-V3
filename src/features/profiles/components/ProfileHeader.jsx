@@ -3,12 +3,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
-import { Pencil, CalendarDays, MapPin } from "lucide-react";
+import {
+  Pencil,
+  CalendarDays,
+  MapPin,
+  Bell,
+  Handshake,
+  Crosshair,
+} from "lucide-react";
 
 export default function ProfileHeader({
   profile,
   stats,
   isCurrentUser = false,
+  unreadNotifications = 0,
 }) {
   const displayName =
     profile?.display_name ||
@@ -22,6 +30,7 @@ export default function ProfileHeader({
   const avatarUrl = profile?.avatar_cloudinary_url?.trim();
 
   const location = [profile?.city, profile?.state].filter(Boolean).join(", ");
+  const NotificationIcon = Bell;
 
   return (
     <section className="profile-header">
@@ -87,13 +96,30 @@ export default function ProfileHeader({
 
             <br />
 
+            <Link
+              href="/profile/notifications"
+              className="profile__action-link"
+            >
+              <NotificationIcon size={16} strokeWidth={2} aria-hidden="true" />
+              Notifications
+              {unreadNotifications > 0 && (
+                <span className="profile__action-count">
+                  {unreadNotifications}
+                </span>
+              )}
+            </Link>
+
+            <br />
+
             <Link href="/profile/friends" className="profile__action-link">
+              <Handshake size={16} strokeWidth={2} aria-hidden="true" />
               Manage Friends
             </Link>
 
             <br />
 
             <Link href="/profile/guns" className="profile__action-link">
+              <Crosshair size={16} strokeWidth={2} aria-hidden="true" />
               Edit Top Guns
             </Link>
           </div>

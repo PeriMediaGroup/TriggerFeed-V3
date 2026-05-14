@@ -59,11 +59,15 @@ export async function sendFriendRequest(addresseeId) {
     };
   }
 
-  const { error: insertError } = await supabase.from("friends").insert({
-    requester_id: user.id,
-    addressee_id: addresseeId,
-    status: "pending",
-  });
+  const { data: friendRow, error: insertError } = await supabase
+    .from("friends")
+    .insert({
+      requester_id: user.id,
+      addressee_id: addresseeId,
+      status: "pending",
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     console.error("SEND FRIEND REQUEST ERROR:", {
@@ -77,6 +81,22 @@ export async function sendFriendRequest(addresseeId) {
       success: false,
       message: "Could not send friend request.",
     };
+  }
+
+  const { error: notificationError } = await supabase.rpc(
+    "create_friend_request_notification",
+    {
+      p_friend_id: friendRow.id,
+    }
+  );
+
+  if (notificationError) {
+    console.error("CREATE FRIEND REQUEST NOTIFICATION ERROR:", {
+      code: notificationError.code,
+      message: notificationError.message,
+      details: notificationError.details,
+      hint: notificationError.hint,
+    });
   }
 
   revalidatePath("/profile/friends");

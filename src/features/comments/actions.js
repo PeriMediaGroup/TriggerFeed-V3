@@ -112,7 +112,33 @@ export async function createComment({ postId, body, parentCommentId = null }) {
       error: error.message,
     };
   }
+  const notificationRpc = parentCommentId
+    ? "create_reply_notification"
+    : "create_comment_notification";
 
+  const notificationPayload = parentCommentId
+    ? {
+      p_parent_comment_id: parentCommentId,
+      p_reply_comment_id: comment.id,
+    }
+    : {
+      p_post_id: postId,
+      p_comment_id: comment.id,
+    };
+
+  const { error: notificationError } = await supabase.rpc(
+    notificationRpc,
+    notificationPayload
+  );
+
+  if (notificationError) {
+    console.error("CREATE COMMENT/REPLY NOTIFICATION ERROR:", {
+      code: notificationError.code,
+      message: notificationError.message,
+      details: notificationError.details,
+      hint: notificationError.hint,
+    });
+  }
   const mentionResult = await createMentionNotifications({
     text: cleanBody,
     actorId: user.id,

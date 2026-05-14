@@ -3,6 +3,7 @@ import {
   Users,
   SquarePlus,
   Bell,
+  BellCheck,
   User,
   Menu,
   Settings,
@@ -26,6 +27,8 @@ import {
   CircleAlert,
   ThumbsDown,
   ThumbsUp,
+  Handshake,
+  Crosshair,
 } from "lucide-react";
 
 export const icons = {
@@ -33,6 +36,7 @@ export const icons = {
   friends: Users,
   create: SquarePlus,
   notifications: Bell,
+  notificationsUnread: BellCheck,
   profile: User,
   menu: Menu,
   settings: Settings,
@@ -56,4 +60,6 @@ export const icons = {
   warning: CircleAlert,
   thumbsdown: ThumbsDown,
   thumbsup: ThumbsUp,
+  handshake: Handshake,
+  crosshair: Crosshair
 };
