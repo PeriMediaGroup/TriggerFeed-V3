@@ -3,10 +3,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { formatShortDate, formatEditedDate } from "@/lib/formatDate";
-import { MessageSquareReply, Pencil, Trash2 } from "lucide-react";
-import SmartText from "@/components/ui/SmartText";
 import Link from "next/link";
+import { MessageSquareReply, Pencil, Trash2 } from "lucide-react";
+
+import { formatShortDate, formatEditedDate } from "@/lib/formatDate";
+import SmartText from "@/components/ui/SmartText";
+import MentionTextarea from "@/features/mentions/components/MentionTextarea";
 
 import {
   createComment,
@@ -38,19 +40,29 @@ export default function CommentItem({
   const [isPending, startTransition] = useTransition();
 
   const isOwner = currentUserId && currentUserId === comment.user_id;
+
   const authorName = getAuthorName(comment.author);
+
   const authorHref = comment.author?.id
     ? `/profiles/${comment.author.id}`
     : `/profiles/${comment.user_id}`;
 
   function handleEditSubmit(event) {
     event.preventDefault();
+
+    const trimmedBody = editBody.trim();
+
+    if (!trimmedBody) {
+      setStatus("Comment cannot be empty.");
+      return;
+    }
+
     setStatus("");
 
     startTransition(async () => {
       const result = await updateComment({
         commentId: comment.id,
-        body: editBody,
+        body: trimmedBody,
       });
 
       if (!result.success) {
@@ -83,12 +95,20 @@ export default function CommentItem({
 
   function handleReplySubmit(event) {
     event.preventDefault();
+
+    const trimmedBody = replyBody.trim();
+
+    if (!trimmedBody) {
+      setStatus("Reply cannot be empty.");
+      return;
+    }
+
     setStatus("");
 
     startTransition(async () => {
       const result = await createComment({
         postId,
-        body: replyBody,
+        body: trimmedBody,
         parentCommentId: comment.id,
       });
 
@@ -134,12 +154,12 @@ export default function CommentItem({
           <form onSubmit={handleEditSubmit} className="comment-item__edit-form">
             <label htmlFor={`edit-comment-${comment.id}`}>Edit comment</label>
 
-            <textarea
+            <MentionTextarea
               id={`edit-comment-${comment.id}`}
               value={editBody}
               onChange={(event) => setEditBody(event.target.value)}
-              rows={3}
               maxLength={5000}
+              placeholder="Edit your comment..."
             />
 
             <div className="comment-item__actions">
@@ -161,7 +181,9 @@ export default function CommentItem({
             </div>
           </form>
         ) : (
-          <div className="comment-item__body"><SmartText text={comment.body} /></div>
+          <div className="comment-item__body">
+            <SmartText text={comment.body} />
+          </div>
         )}
 
         {!comment.is_deleted && (
@@ -171,13 +193,13 @@ export default function CommentItem({
                 type="button"
                 disabled={isPending}
                 onClick={() => setIsReplying((current) => !current)}
+                aria-label="Reply to comment"
               >
                 <MessageSquareReply
                   size={15}
                   strokeWidth={2}
                   aria-hidden="true"
                 />
-                
               </button>
             )}
 
@@ -187,18 +209,18 @@ export default function CommentItem({
                   type="button"
                   disabled={isPending}
                   onClick={() => setIsEditing(true)}
+                  aria-label="Edit comment"
                 >
                   <Pencil size={15} strokeWidth={2} aria-hidden="true" />
-                  
                 </button>
 
                 <button
                   type="button"
                   disabled={isPending}
                   onClick={handleDelete}
+                  aria-label="Delete comment"
                 >
                   <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
-                  
                 </button>
               </>
             )}
@@ -214,11 +236,10 @@ export default function CommentItem({
               Reply to {authorName}
             </label>
 
-            <textarea
+            <MentionTextarea
               id={`reply-comment-${comment.id}`}
               value={replyBody}
               onChange={(event) => setReplyBody(event.target.value)}
-              rows={3}
               maxLength={5000}
               placeholder="Write a reply..."
             />
