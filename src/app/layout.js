@@ -1,5 +1,5 @@
 import { Black_Ops_One, Tomorrow } from "next/font/google";
-import AppNav from "@/components/layout/AppNav";
+import AppHeader from "@/components/layout/AppHeader";
 import { Toaster } from "react-hot-toast";
 import "@/styles/globals.scss";
 
@@ -24,9 +24,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`} style={{ padding: ".5rem", maxWidth: "620px", margin: "0 auto" }}>
       <body>
-        <AppNav />
-        {children}
+        <AppHeader />
+        <div className="content">
+          {children}
+        </div>
         <Toaster position="bottom-center" />
+        <footer>footer</footer>
       </body>
     </html>
   );

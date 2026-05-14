@@ -1,5 +1,13 @@
 @use "./tokens";
 
+
+@use "../components/layout/layout";
+@use "../components/logo/logo";
+@use "../components/navigation/navigation";
+@use "../components/ui/ui";
+@use "../components/user/user";
+
+@use "../features/votes/styles/_votes";
 @use "../features/profiles/styles/_profile";
 @use "../features/profiles/styles/_profile-header";
 @use "../features/profiles/styles/_profile-edit-form";
@@ -17,12 +25,7 @@ h1,
 }
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
-/* VOTE CSS */
-.post-votes {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+
 
 .post-votes__button {
   display: inline-flex;
@@ -60,164 +63,6 @@ h1,
 
 
 /* TF-TEMP-CSS: Edit post media manager - move during polish pass */
-
-/*  MENTION CSS & autocomplete */
-.smart-text__mention {
-  color: var(--color-accent);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.smart-text__mention:hover {
-  text-decoration: underline;
-}
-
-.mention-input {
-  position: relative;
-}
-
-.mention-input input {
-  width: 100%;
-}
-
-.mention-input__menu {
-  position: absolute;
-  z-index: 30;
-  left: 0;
-  right: 0;
-  top: calc(100% + 0.25rem);
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.4rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-}
-
-.mention-input__option {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  padding: 0.5rem;
-  border: 0;
-  border-radius: 0.55rem;
-  background: transparent;
-  color: var(--color-text);
-  text-align: left;
-  cursor: pointer;
-}
-
-.mention-input__option:hover,
-.mention-input__option--active {
-  background: var(--color-surface-hover);
-}
-
-.mention-input__avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  object-fit: cover;
-  flex: 0 0 auto;
-}
-
-.mention-input__avatar--fallback {
-  display: inline-grid;
-  place-items: center;
-  background: var(--color-surface-muted);
-  color: var(--color-text-muted);
-  font-weight: 700;
-}
-
-.mention-input__user {
-  display: grid;
-  gap: 0.1rem;
-}
-
-.mention-input__user span {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
-
-.mention-input__loading {
-  padding: 0.4rem 0.5rem;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
-.mention-textarea {
-  position: relative;
-}
-
-.mention-textarea textarea {
-  width: 100%;
-}
-
-.mention-textarea__menu {
-  position: absolute;
-  z-index: 30;
-  left: 0;
-  right: 0;
-  top: calc(100% + 0.25rem);
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.4rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-}
-
-.mention-textarea__option {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  padding: 0.5rem;
-  border: 0;
-  border-radius: 0.55rem;
-  background: transparent;
-  color: var(--color-text);
-  text-align: left;
-  cursor: pointer;
-}
-
-.mention-textarea__option:hover,
-.mention-textarea__option--active {
-  background: var(--color-surface-hover);
-}
-
-.mention-textarea__avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  object-fit: cover;
-  flex: 0 0 auto;
-}
-
-.mention-textarea__avatar--fallback {
-  display: inline-grid;
-  place-items: center;
-  background: var(--color-surface-muted);
-  color: var(--color-text-muted);
-  font-weight: 700;
-}
-
-.mention-textarea__user {
-  display: grid;
-  gap: 0.1rem;
-}
-
-.mention-textarea__user span {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
-
-.mention-textarea__loading {
-  padding: 0.4rem 0.5rem;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
 
 .edit-post-media {
   margin-top: 1rem;

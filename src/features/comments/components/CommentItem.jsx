@@ -125,6 +125,7 @@ export default function CommentItem({
 
   return (
     <li
+      id={`comment-${comment.id}`}
       className={isReply ? "comment-item comment-item--reply" : "comment-item"}
     >
       <article className="comment-item__content">
@@ -181,7 +182,7 @@ export default function CommentItem({
             </div>
           </form>
         ) : (
-          <div className="comment-item__body">
+          <div id={`comment-${comment.id}`} className="comment-item__body">
             <SmartText text={comment.body} />
           </div>
         )}

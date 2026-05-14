@@ -49,11 +49,6 @@ export async function markNotificationsRead() {
 
   const updatedCount = data?.length ?? 0;
 
-  console.log("MARK NOTIFICATIONS READ SUCCESS:", {
-    userId: user.id,
-    updatedCount,
-  });
-
   revalidatePath("/profile");
   revalidatePath("/profile/notifications");
 

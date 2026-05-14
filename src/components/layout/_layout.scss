@@ -1,0 +1,11 @@
+.app-shell {
+    border: 1px solid blue;
+}
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.app-header__actions {
+    background: blue;
+}

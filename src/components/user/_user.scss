@@ -1,0 +1,87 @@
+.current-user-label {
+  display: inline-flex;
+  align-items: center;
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.current-user-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.current-user-menu__name {
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.current-user-menu {
+  position: relative;
+}
+
+.current-user-menu__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  list-style: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.current-user-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 50;
+  min-width: 13rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.16));
+  border-radius: 0.75rem;
+  background: var(--color-surface, #1f292f);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.35);
+}
+
+.current-user-menu__list {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.current-user-menu__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.current-user-menu__link:hover,
+.current-user-menu__link:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.current-user-menu__badge {
+  margin-left: auto;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  text-align: center;
+  background: var(--color-danger, #b22222);
+  color: #fff;
+}

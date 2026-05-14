@@ -1,0 +1,9 @@
+.smart-text__mention {
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.smart-text__mention:hover {
+  text-decoration: underline;
+}
