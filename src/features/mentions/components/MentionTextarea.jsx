@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { searchMentionProfiles } from "../actions/searchMentionProfiles";
 
 function getMentionQueryBeforeCursor(value, cursorPosition) {
+  const safeValue = typeof value === "string" ? value : "";
   const textBeforeCursor = value.slice(0, cursorPosition);
 
   const match = textBeforeCursor.match(/(^|[\s([{])@([a-zA-Z0-9_-]{1,30})$/);
