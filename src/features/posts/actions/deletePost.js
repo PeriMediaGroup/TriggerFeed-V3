@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 export async function deletePost(postId) {
   if (!postId) {
@@ -13,20 +12,23 @@ export async function deletePost(postId) {
     };
   }
 
-  const user = await getCurrentUser();
+  const supabase = await createClient();
 
-  if (!user) {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
     return {
       success: false,
       error: "You must be logged in to delete a post.",
     };
   }
 
-  const supabase = await createClient();
-
   const { data: post, error: postError } = await supabase
     .from("posts")
-    .select("id, user_id")
+    .select("id, user_id, is_deleted")
     .eq("id", postId)
     .maybeSingle();
 
@@ -53,17 +55,27 @@ export async function deletePost(postId) {
     };
   }
 
-  const { error: deleteError } = await supabase
-    .from("posts")
-    .update({
-      is_deleted: true,
-      deleted_at: new Date().toISOString(),
-    })
-    .eq("id", postId)
-    .eq("user_id", user.id);
+  if (post.is_deleted) {
+    return {
+      success: true,
+      error: null,
+    };
+  }
+
+  const { error: deleteError } = await supabase.rpc("soft_delete_post", {
+    target_post_id: postId,
+  });
 
   if (deleteError) {
-    console.error("Error deleting post:", deleteError);
+    console.error("Error deleting post:", {
+      code: deleteError.code,
+      message: deleteError.message,
+      details: deleteError.details,
+      hint: deleteError.hint,
+      userId: user.id,
+      postId,
+      postUserId: post.user_id,
+    });
 
     return {
       success: false,
@@ -72,6 +84,7 @@ export async function deletePost(postId) {
   }
 
   revalidatePath("/");
+  revalidatePath("/posts");
   revalidatePath(`/posts/${postId}`);
 
   redirect("/");

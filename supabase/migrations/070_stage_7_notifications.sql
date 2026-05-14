@@ -9,7 +9,7 @@ create table if not exists public.notifications (
   user_id uuid not null references public.profiles(id) on delete cascade,
   actor_id uuid references public.profiles(id) on delete set null,
 
-  notification_type text not null,
+  type text not null,
 
   post_id uuid references public.posts(id) on delete cascade,
   comment_id uuid references public.comments(id) on delete cascade,
@@ -27,7 +27,7 @@ create table if not exists public.notifications (
 
   constraint notifications_type_check
     check (
-      notification_type in (
+      type in (
         'mention',
         'comment',
         'reply',
@@ -40,8 +40,13 @@ create table if not exists public.notifications (
 
 alter table public.notifications enable row level security;
 
+revoke all on public.notifications from anon;
+revoke all on public.notifications from authenticated;
+
 grant select, update, delete on public.notifications to authenticated;
 grant insert on public.notifications to authenticated;
+
+revoke select on public.notifications from anon;
 
 drop policy if exists "Users can read their own notifications"
 on public.notifications;
@@ -111,8 +116,8 @@ create unique index if not exists notifications_unique_mention_context_idx
 on public.notifications(
   user_id,
   actor_id,
-  notification_type,
+  type,
   post_id,
   coalesce(comment_id, '00000000-0000-0000-0000-000000000000'::uuid)
 )
-where notification_type = 'mention';
+where type = 'mention';

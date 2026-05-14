@@ -52,6 +52,7 @@ create table if not exists public.profile_top_guns (
 create or replace function public.set_profile_showcase_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();

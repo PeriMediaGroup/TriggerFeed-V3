@@ -27,6 +27,7 @@ create table if not exists public.friends (
 create or replace function public.set_friends_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();

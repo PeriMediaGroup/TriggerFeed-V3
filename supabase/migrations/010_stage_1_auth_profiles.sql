@@ -42,6 +42,7 @@ create table if not exists public.profiles (
 create or replace function public.set_profiles_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();
@@ -52,6 +53,7 @@ $$;
 create or replace function public.set_profiles_username_lower()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if new.username is not null then
@@ -154,20 +156,40 @@ create table if not exists public.auth_events (
 
 alter table public.auth_events enable row level security;
 
+revoke all on public.auth_events from anon;
+revoke all on public.auth_events from authenticated;
+
 grant insert on public.auth_events to anon, authenticated;
 grant select on public.auth_events to authenticated;
 
 drop policy if exists "Anyone can insert auth events"
 on public.auth_events;
 
-create policy "Anyone can insert auth events"
-on public.auth_events
-for insert
-to anon, authenticated
-with check (true);
+drop policy if exists "Anon can insert pre-auth auth events"
+on public.auth_events;
+
+drop policy if exists "Authenticated users can insert their own auth events"
+on public.auth_events;
 
 drop policy if exists "Authenticated users can read their own auth events"
 on public.auth_events;
+
+create policy "Anon can insert pre-auth auth events"
+on public.auth_events
+for insert
+to anon
+with check (
+  user_id is null
+);
+
+create policy "Authenticated users can insert their own auth events"
+on public.auth_events
+for insert
+to authenticated
+with check (
+  user_id = auth.uid()
+  or user_id is null
+);
 
 create policy "Authenticated users can read their own auth events"
 on public.auth_events
@@ -176,6 +198,8 @@ to authenticated
 using (
   auth.uid() = user_id
 );
+
+revoke select on public.auth_events from anon;
 
 create index if not exists auth_events_user_id_idx
 on public.auth_events(user_id);
@@ -188,7 +212,6 @@ on public.auth_events(event_type);
 
 create index if not exists auth_events_created_at_idx
 on public.auth_events(created_at desc);
-
 
 -- =========================================================
 -- Stage 1: Create Profile On Signup
@@ -230,6 +253,8 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.handle_new_user() from anon, authenticated;
 
 drop trigger if exists on_auth_user_created on auth.users;
 

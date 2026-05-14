@@ -68,13 +68,44 @@ using (
 )
 with check (
   auth.uid() = user_id
-  and visibility = 'public'
-  and (
-    (is_deleted = false and deleted_at is null)
-    or
-    (is_deleted = true and deleted_at is not null)
-  )
 );
+
+-- Soft delete posts through an RPC so the app does not need to read
+-- the row after it has been hidden by the SELECT policy.
+create or replace function public.soft_delete_post(target_post_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  deleted_post_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication required';
+  end if;
+
+  update public.posts
+  set
+    is_deleted = true,
+    deleted_at = now(),
+    updated_at = now()
+  where id = target_post_id
+    and user_id = auth.uid()
+    and is_deleted = false
+  returning id into deleted_post_id;
+
+  if deleted_post_id is null then
+    raise exception 'Post not found or you do not have permission to delete it';
+  end if;
+
+  return deleted_post_id;
+end;
+$$;
+
+revoke execute on function public.soft_delete_post(uuid) from public;
+revoke execute on function public.soft_delete_post(uuid) from anon;
+grant execute on function public.soft_delete_post(uuid) to authenticated;
 
 drop policy if exists "Anyone can read comments on visible public posts"
 on public.comments;

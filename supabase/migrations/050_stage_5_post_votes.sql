@@ -25,6 +25,7 @@ create table if not exists public.post_votes (
 create or replace function public.set_post_votes_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();
@@ -41,7 +42,11 @@ execute function public.set_post_votes_updated_at();
 
 alter table public.post_votes enable row level security;
 
-grant select on public.post_votes to anon, authenticated;
+revoke all on public.post_votes from anon;
+revoke all on public.post_votes from authenticated;
+
+grant select (post_id, vote_type) on public.post_votes to anon;
+grant select on public.post_votes to authenticated;
 grant insert, update, delete on public.post_votes to authenticated;
 
 drop policy if exists "Anyone can read post votes"
@@ -99,7 +104,9 @@ on public.post_votes(post_id, vote_type);
 
 drop view if exists public.post_vote_counts;
 
-create view public.post_vote_counts as
+create or replace view public.post_vote_counts
+with (security_invoker = true)
+as
 select
   p.id as post_id,
 

@@ -52,6 +52,7 @@ $$;
 create or replace function public.set_profiles_username_lower()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if new.username is not null then

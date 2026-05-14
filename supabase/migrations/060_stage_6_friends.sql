@@ -27,6 +27,7 @@ create table if not exists public.friends (
 create or replace function public.set_friends_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();
@@ -43,8 +44,13 @@ execute function public.set_friends_updated_at();
 
 alter table public.friends enable row level security;
 
+revoke all on public.friends from anon;
+revoke all on public.friends from authenticated;
+
 grant select on public.friends to authenticated;
 grant insert, update, delete on public.friends to authenticated;
+
+revoke select on public.friends from anon;
 
 drop policy if exists "Users can read their own friend relationships"
 on public.friends;
@@ -109,3 +115,24 @@ on public.friends(status);
 
 create index if not exists friends_requester_addressee_status_idx
 on public.friends(requester_id, addressee_id, status);
+
+-- Public profile pages need a friend count, but they should not need
+-- direct access to the raw friends table.
+create or replace function public.get_profile_friend_count(target_user_id uuid)
+returns integer
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select count(*)::integer
+  from public.friends
+  where status = 'accepted'
+    and (
+      requester_id = target_user_id
+      or addressee_id = target_user_id
+    );
+$$;
+
+revoke execute on function public.get_profile_friend_count(uuid) from public;
+grant execute on function public.get_profile_friend_count(uuid) to anon, authenticated;

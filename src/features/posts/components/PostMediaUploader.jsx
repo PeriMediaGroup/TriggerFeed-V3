@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const MAX_FILES = 4;
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MAX_TOTAL_UPLOAD_SIZE_MB = 20;
+const MAX_TOTAL_UPLOAD_SIZE_BYTES = MAX_TOTAL_UPLOAD_SIZE_MB * 1024 * 1024;
 
 export default function PostMediaUploader({ onFilesChange }) {
   const [files, setFiles] = useState([]);
@@ -17,6 +19,14 @@ export default function PostMediaUploader({ onFilesChange }) {
     }));
   }, [files]);
 
+  useEffect(() => {
+    return () => {
+      previews.forEach((preview) => {
+        URL.revokeObjectURL(preview.url);
+      });
+    };
+  }, [previews]);
+
   function handleFilesChange(event) {
     const selectedFiles = Array.from(event.target.files || []);
     setError("");
@@ -28,25 +38,39 @@ export default function PostMediaUploader({ onFilesChange }) {
     }
 
     const imageFiles = selectedFiles.filter((file) =>
-      file.type.startsWith("image/")
+      file.type.startsWith("image/"),
     );
 
     if (imageFiles.length !== selectedFiles.length) {
       setError("Only image files are allowed.");
+      event.target.value = "";
       return;
     }
 
     if (imageFiles.length > MAX_FILES) {
       setError(`You can upload up to ${MAX_FILES} images.`);
+      event.target.value = "";
       return;
     }
 
     const oversizedFile = imageFiles.find(
-      (file) => file.size > MAX_FILE_SIZE_BYTES
+      (file) => file.size > MAX_FILE_SIZE_BYTES,
     );
 
     if (oversizedFile) {
       setError(`Images must be under ${MAX_FILE_SIZE_MB}MB each.`);
+      event.target.value = "";
+      return;
+    }
+
+    const totalUploadSize = imageFiles.reduce(
+      (total, file) => total + file.size,
+      0,
+    );
+
+    if (totalUploadSize > MAX_TOTAL_UPLOAD_SIZE_BYTES) {
+      setError(`Total upload size must be under ${MAX_TOTAL_UPLOAD_SIZE_MB}MB.`);
+      event.target.value = "";
       return;
     }
 

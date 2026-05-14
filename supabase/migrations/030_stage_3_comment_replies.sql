@@ -52,6 +52,8 @@ begin
 end;
 $$;
 
+revoke execute on function public.prevent_reply_to_reply() from anon, authenticated;
+
 drop trigger if exists prevent_reply_to_reply_trigger on public.comments;
 
 create trigger prevent_reply_to_reply_trigger
