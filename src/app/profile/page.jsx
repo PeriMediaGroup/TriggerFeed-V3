@@ -10,7 +10,13 @@ import { getTopGuns } from "@/features/profiles/data/getTopGuns";
 
 import ProfileHeader from "@/features/profiles/components/ProfileHeader";
 import ProfileShowcase from "@/features/profiles/components/ProfileShowcase";
+import { getFriendDashboard } from "@/features/friends/data/getFriendDashboard";
+import { getAcceptedFriends } from "@/features/friends/data/getAcceptedFriends";
+import ProfileDashboardTabs from "@/features/profiles/components/ProfileDashboardTabs";
 import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost";
+import FriendsPanel from "@/features/friends/components/FriendsPanel";
+import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
+import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -41,13 +47,72 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  const [{ stats }, { latestPost }, { topFriends }, { topGuns }] =
-    await Promise.all([
-      getProfileStats(profile.id),
-      getLatestPost(profile.id),
-      getTopFriends(profile.id),
-      getTopGuns(profile.id),
-    ]);
+  const { data: notifications } = await supabase
+    .from("notifications")
+    .select(
+      `
+    id,
+    user_id,
+    actor_id,
+    type,
+    title,
+    body,
+    is_read,
+    read_at,
+    dismissed_at,
+    created_at,
+    post_id,
+    comment_id,
+    friend_id,
+    metadata
+  `,
+    )
+    .eq("user_id", user.id)
+    .is("dismissed_at", null)
+    .order("created_at", { ascending: false });
+
+  const actorIds = [
+    ...new Set(
+      notifications
+        ?.map((notification) => notification.actor_id)
+        .filter(Boolean),
+    ),
+  ];
+
+  const { data: actors } = actorIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, username, first_name")
+        .in("id", actorIds)
+    : { data: [] };
+
+  const actorsById = new Map(actors?.map((actor) => [actor.id, actor]) ?? []);
+
+  const notificationsWithActors =
+    notifications?.map((notification) => ({
+      ...notification,
+      actor: actorsById.get(notification.actor_id) ?? null,
+    })) ?? [];
+
+  const [
+    { stats },
+    { latestPost },
+    { topFriends },
+    { topGuns },
+    friendDashboard,
+    { acceptedFriends },
+  ] = await Promise.all([
+    getProfileStats(profile.id),
+    getLatestPost(profile.id),
+    getTopFriends(profile.id),
+    getTopGuns(profile.id),
+    getFriendDashboard(),
+    getAcceptedFriends(),
+  ]);
+
+  const incomingRequests = friendDashboard?.incomingRequests ?? [];
+  const outgoingRequests = friendDashboard?.outgoingRequests ?? [];
+  const friends = friendDashboard?.friends ?? [];
 
   return (
     <main className="profile">
@@ -60,7 +125,41 @@ export default async function ProfilePage() {
 
       <ProfileShowcase topFriends={topFriends} topGuns={topGuns} />
 
-      <ProfileLatestPost latestPost={latestPost} />
+      <ProfileDashboardTabs
+        tabs={[
+          {
+            key: "posts",
+            label: "Posts",
+            panel: <ProfileLatestPost latestPost={latestPost} />,
+          },
+          {
+            key: "friends",
+            label: "Friends",
+            panel: (
+              <FriendsPanel
+                incomingRequests={incomingRequests}
+                outgoingRequests={outgoingRequests}
+                friends={friends}
+                acceptedFriends={acceptedFriends}
+                topFriends={topFriends}
+              />
+            ),
+          },
+          {
+            key: "guns",
+            label: "Top Guns",
+            panel: <ManageGunsPanel topGuns={topGuns} />,
+          },
+          {
+            key: "notifications",
+            label: "Notifications",
+            badge: unreadNotifications ?? 0,
+            panel: (
+              <NotificationsPanel notifications={notificationsWithActors} />
+            ),
+          },
+        ]}
+      />
     </main>
   );
 }
