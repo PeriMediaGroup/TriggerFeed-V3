@@ -42,6 +42,11 @@ export async function getPostById(postId) {
           id,
           option_text,
           display_order
+        ),
+        poll_responses (
+          id,
+          option_id,
+          user_id
         )
       )
     `

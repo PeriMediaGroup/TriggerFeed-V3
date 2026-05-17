@@ -27,6 +27,12 @@ h1,
   font-family: var(--font-brand), var(--font-fallback);
 }
 
+button {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
 
 

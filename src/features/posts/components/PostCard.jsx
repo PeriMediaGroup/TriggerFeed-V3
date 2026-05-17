@@ -84,7 +84,13 @@ export default function PostCard({
           downvoteCount={post.downvote_count}
           currentUserVote={post.current_user_vote}
         />
-        {poll && <PollDisplay poll={poll} />}
+        {poll && (
+          <PollDisplay
+            poll={poll}
+            postId={post.id}
+            currentUserId={currentUserId}
+          />
+        )}
         {canManagePost && (
           <div className="post-card__manage-actions">
             <Link href={`/posts/${post.id}/edit`} className="post-card__edit">

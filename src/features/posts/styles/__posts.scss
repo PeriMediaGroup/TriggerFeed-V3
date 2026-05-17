@@ -115,7 +115,17 @@
     color: white;
   }
 
-  &__meta {
+  &__option--selected {
+    border-color: var(--color-accent);
+  }
+
+  &__option-text {
+    font-weight: 600;
+  }
+
+  &__option-meta,
+  &__meta,
+  &__status {
     margin: 0;
     font-size: 0.85rem;
     color: var(--color-text-muted);
