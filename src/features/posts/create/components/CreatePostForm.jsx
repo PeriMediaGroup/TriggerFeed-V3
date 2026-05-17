@@ -13,12 +13,15 @@ import CreatePostToolbar from "./CreatePostToolbar";
 import MediaPicker from "./MediaPicker";
 import MediaPreviewGrid from "./MediaPreviewGrid";
 import CreatePostEmojiPicker from "./CreatePostEmojiPicker";
+import CreatePostPollBuilder from "./CreatePostPollBuilder";
 
 import {
   createMediaItemsFromFiles,
   revokeMediaPreview,
   revokeMediaPreviews,
 } from "../utils/mediaHelpers";
+
+import { cleanPollDraft, createEmptyPollDraft } from "../utils/pollHelpers";
 
 export default function CreatePostForm() {
   const router = useRouter();
@@ -35,6 +38,7 @@ export default function CreatePostForm() {
   const [isPending, startTransition] = useTransition();
 
   const mediaItemsRef = useRef([]);
+  const [poll, setPoll] = useState(null);
 
   useEffect(() => {
     mediaItemsRef.current = mediaItems;
@@ -66,8 +70,19 @@ export default function CreatePostForm() {
     });
   }
 
+  function handleSelectTool(toolName) {
+    if (toolName === "poll" && !poll) {
+      setPoll(createEmptyPollDraft());
+    }
+
+    setActiveTool((currentTool) => {
+      return currentTool === toolName ? null : toolName;
+    });
+  }
+
   function resetForm(form) {
     form.reset();
+    setPoll(null);
 
     revokeMediaPreviews(mediaItemsRef.current);
 
@@ -83,6 +98,21 @@ export default function CreatePostForm() {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const cleanedPoll = cleanPollDraft(poll);
+
+    if (cleanedPoll?.poll) {
+      formData.append("poll", JSON.stringify(cleanedPoll.poll));
+    }
+
+    if (cleanedPoll?.error) {
+      setErrors((currentErrors) => ({
+        ...currentErrors,
+        poll: cleanedPoll.error,
+      }));
+
+      setStatus(cleanedPoll.error);
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -133,7 +163,6 @@ export default function CreatePostForm() {
         setStatus("Post created.");
 
         resetForm(form);
-
         setTimeout(() => {
           window.location.assign(`/posts/${result.postId}`);
         }, 150);
@@ -186,12 +215,27 @@ export default function CreatePostForm() {
         <p className="post-form__error">{errors.visibility}</p>
       )}
 
-      <CreatePostToolbar activeTool={activeTool} onSelectTool={setActiveTool} />
+      <CreatePostToolbar
+        activeTool={activeTool}
+        onSelectTool={handleSelectTool}
+      />
 
       {activeTool === "media" && <MediaPicker onAddMedia={handleAddMedia} />}
       {activeTool === "emoji" && (
         <CreatePostEmojiPicker onSelectEmoji={handleInsertEmoji} />
       )}
+      {activeTool === "poll" && (
+        <CreatePostPollBuilder
+          poll={poll}
+          onChange={setPoll}
+          onRemove={() => {
+            setPoll(null);
+            setActiveTool(null);
+          }}
+        />
+      )}
+
+      {errors.poll && <p className="post-form__error">{errors.poll}</p>}
 
       <MediaPreviewGrid
         mediaItems={mediaItems}
