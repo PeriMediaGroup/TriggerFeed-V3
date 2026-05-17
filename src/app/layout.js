@@ -42,7 +42,7 @@ export default async function RootLayout({ children }) {
     unreadNotifications = count ?? 0;
   }
   return (
-    <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`} style={{ padding: ".5rem", maxWidth: "620px", margin: "0 auto" }}>
+    <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`}>
       <body>
         <AppHeader />
         <div className="content">
