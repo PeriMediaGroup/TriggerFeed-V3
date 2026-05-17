@@ -33,6 +33,21 @@ export async function getPostById(postId) {
         height,
         alt_text,
         sort_order
+      ),
+      polls (
+        id,
+        question,
+        allows_multiple,
+        poll_options (
+          id,
+          option_text,
+          display_order
+        ),
+        poll_responses (
+          id,
+          option_id,
+          user_id
+        )
       )
     `
     )

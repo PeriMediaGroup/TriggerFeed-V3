@@ -10,6 +10,7 @@ import MediaGallery from "@/features/media/components/MediaGallery";
 import SmartText from "@/components/ui/SmartText";
 import SharePostButton from "./SharePostButton";
 import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
+import PollDisplay from "@/features/polls/components/PollDisplay";
 
 export default function PostCard({
   post,
@@ -30,6 +31,7 @@ export default function PostCard({
   const canManagePost = currentUserId === post.user_id;
   const postImages = post.images || post.media || post.post_images || [];
   const mentionProfiles = post.mentionProfiles || [];
+  const poll = post.polls?.[0] || null;
 
   return (
     <>
@@ -51,7 +53,7 @@ export default function PostCard({
           <p className="post-card__date" suppressHydrationWarning>
             {formatRelativeTime(post.created_at)}
           </p>
-          
+
           <h2 className="post-card__title">
             <SmartText text={post.title} mentionProfiles={mentionProfiles} />
           </h2>
@@ -82,7 +84,13 @@ export default function PostCard({
           downvoteCount={post.downvote_count}
           currentUserVote={post.current_user_vote}
         />
-
+        {poll && (
+          <PollDisplay
+            poll={poll}
+            postId={post.id}
+            currentUserId={currentUserId}
+          />
+        )}
         {canManagePost && (
           <div className="post-card__manage-actions">
             <Link href={`/posts/${post.id}/edit`} className="post-card__edit">
