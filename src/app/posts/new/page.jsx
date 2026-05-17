@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-import CreatePostForm from "@/features/posts/components/CreatePostForm";
+import CreatePostForm from "@/features/posts/create";
 
 export default async function NewPostPage() {
   const user = await getCurrentUser();

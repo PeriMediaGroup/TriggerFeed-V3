@@ -33,10 +33,6 @@ export default function PostCard({
 
   return (
     <>
-      <br />
-      <hr />
-      <br />
-
       <article className="post-card">
         <header className="post-card__header">
           <p>
