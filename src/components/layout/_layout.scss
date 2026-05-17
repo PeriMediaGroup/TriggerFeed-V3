@@ -1,14 +1,23 @@
+.app-header {
+}
+
 .app-shell {
   border: 1px solid blue;
 }
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  left: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-bg);
+  max-width: 100%;
+  margin: 3px 5px;
+  padding: 5px;
+  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
+  border-radius: 15px;
+  background: var(--color-surface-transparent, rgba(31, 41, 47, 0.14));
 }
 .app-header__actions {
   background: blue;
