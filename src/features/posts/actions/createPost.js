@@ -47,6 +47,9 @@ export async function createPost(formData) {
     };
   }
 
+  // -----------------------------
+  // Poll parsing + validation
+  // -----------------------------
   const rawPoll = formData.get("poll");
   let poll = null;
 
@@ -108,6 +111,55 @@ export async function createPost(formData) {
     };
   }
 
+  // -----------------------------
+  // GIF parsing + validation
+  // -----------------------------
+  const rawGif = formData.get("gif");
+  let gif = null;
+
+  if (rawGif) {
+    try {
+      gif = JSON.parse(rawGif);
+    } catch {
+      return {
+        success: false,
+        message: "Invalid GIF data.",
+        errors: {
+          gif: "Invalid GIF data.",
+        },
+      };
+    }
+  }
+
+  if (gif) {
+    const gifUrl = gif.url?.trim();
+    const gifId = gif.id?.trim();
+
+    if (!gifUrl || !gifId) {
+      return {
+        success: false,
+        message: "Invalid GIF data.",
+        errors: {
+          gif: "Invalid GIF data.",
+        },
+      };
+    }
+
+    gif = {
+      id: gifId,
+      title: gif.title?.trim() || null,
+      url: gifUrl,
+      previewUrl: gif.previewUrl?.trim() || gifUrl,
+      giphyUrl: gif.giphyUrl?.trim() || null,
+      username: gif.username?.trim() || null,
+      sourcePostUrl: gif.sourcePostUrl?.trim() || null,
+      source: "giphy",
+    };
+  }
+
+  // -----------------------------
+  // Create post
+  // -----------------------------
   const { data: post, error: postError } = await supabase
     .from("posts")
     .insert({
@@ -155,6 +207,60 @@ export async function createPost(formData) {
     };
   }
 
+  // -----------------------------
+  // Create GIF media
+  // -----------------------------
+  if (gif) {
+    const { error: gifError } = await supabase.from("post_media").insert({
+      post_id: post.id,
+      user_id: user.id,
+      media_type: "gif",
+      provider: "giphy",
+      source: "giphy",
+      external_id: gif.id,
+      external_url: gif.url,
+      thumbnail_url: gif.previewUrl,
+      title: gif.title,
+      sort_order: 0,
+      display_order: 0,
+    });
+
+    if (gifError) {
+      console.error("CREATE GIF MEDIA ERROR:", {
+        code: gifError.code,
+        message: gifError.message,
+        details: gifError.details,
+        hint: gifError.hint,
+      });
+
+      await supabase.from("post_audit_logs").insert({
+        post_id: post.id,
+        user_id: user.id,
+        event_type: "gif_create_failed",
+        success: false,
+        error_code: gifError.code,
+        error_message: gifError.message,
+        metadata: {
+          source: "createPost",
+          details: gifError.details,
+          hint: gifError.hint,
+        },
+      });
+
+      return {
+        success: false,
+        message: "Post created, but GIF failed to save.",
+        errors: {
+          gif: "Post created, but GIF failed to save.",
+        },
+        postId: post.id,
+      };
+    }
+  }
+
+  // -----------------------------
+  // Create poll
+  // -----------------------------
   if (poll) {
     const { data: createdPoll, error: pollError } = await supabase
       .from("polls")
@@ -241,6 +347,9 @@ export async function createPost(formData) {
     }
   }
 
+  // -----------------------------
+  // Audit success
+  // -----------------------------
   await supabase.from("post_audit_logs").insert({
     post_id: post.id,
     user_id: user.id,
@@ -249,9 +358,13 @@ export async function createPost(formData) {
     metadata: {
       source: "createPost",
       has_poll: Boolean(poll),
+      has_gif: Boolean(gif),
     },
   });
 
+  // -----------------------------
+  // Mentions
+  // -----------------------------
   const mentionText = `${validation.values.title || ""} ${
     validation.values.body || ""
   }`;

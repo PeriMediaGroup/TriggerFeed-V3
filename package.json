@@ -15,6 +15,9 @@
     "check:full": "npm run lint && npm run build && npm run test && npm run test:e2e"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@giphy/js-fetch-api": "^5.8.0",
+    "@giphy/react-components": "^10.1.2",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "cloudinary": "^2.10.0",

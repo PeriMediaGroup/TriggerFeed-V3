@@ -24,15 +24,23 @@ export async function getPostById(postId) {
       updated_at,
       post_media (
         id,
+        post_id,
+        user_id,
         media_type,
         provider,
+        source,
         cloudinary_url,
         cloudinary_secure_url,
         cloudinary_public_id,
+        external_id,
+        external_url,
+        thumbnail_url,
+        title,
         width,
         height,
         alt_text,
-        sort_order
+        sort_order,
+        display_order
       ),
       polls (
         id,

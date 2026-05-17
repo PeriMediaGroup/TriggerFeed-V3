@@ -23,15 +23,23 @@ export async function getPosts() {
       updated_at,
       post_media (
         id,
+        post_id,
+        user_id,
         media_type,
         provider,
+        source,
         cloudinary_url,
         cloudinary_secure_url,
         cloudinary_public_id,
+        external_id,
+        external_url,
+        thumbnail_url,
+        title,
         width,
         height,
         alt_text,
-        sort_order
+        sort_order,
+        display_order
       ),
       polls (
         id,
@@ -60,7 +68,12 @@ export async function getPosts() {
     .limit(50);
 
   if (postsError) {
-    console.error("GET POSTS ERROR:", postsError);
+    console.error("GET POSTS ERROR:", {
+      code: postsError.code,
+      message: postsError.message,
+      details: postsError.details,
+      hint: postsError.hint,
+    });
 
     return {
       posts: [],

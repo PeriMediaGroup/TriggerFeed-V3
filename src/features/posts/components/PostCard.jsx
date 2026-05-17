@@ -29,7 +29,8 @@ export default function PostCard({
   const authorId = post.user_id || post.author?.id;
   const commentCount = post.comment_count || 0;
   const canManagePost = currentUserId === post.user_id;
-  const postImages = post.images || post.media || post.post_images || [];
+  const postMedia =
+    post.post_media || post.media || post.images || post.post_images || [];
   const mentionProfiles = post.mentionProfiles || [];
   const poll = post.polls?.[0] || null;
 
@@ -65,10 +66,10 @@ export default function PostCard({
           )}
         </header>
 
-        {postImages.length > 0 && (
+        {postMedia.length > 0 && (
           <MediaGallery
-            images={postImages}
-            fallbackAlt={post.title || "Post image"}
+            images={postMedia}
+            fallbackAlt={post.title || "Post media"}
           />
         )}
 

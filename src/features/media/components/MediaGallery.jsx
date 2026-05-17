@@ -18,9 +18,12 @@ import "./MediaGallery.scss";
 
 function getImageUrl(image) {
   return (
+    image?.external_url ||
+    image?.thumbnail_url ||
+    image?.cloudinary_secure_url ||
+    image?.cloudinary_url ||
     image?.url ||
     image?.secure_url ||
-    image?.cloudinary_url ||
     image?.image_url ||
     image?.src ||
     ""
@@ -28,7 +31,13 @@ function getImageUrl(image) {
 }
 
 function getImageAlt(image, index, fallbackAlt) {
-  return image?.alt || image?.description || `${fallbackAlt} ${index + 1}`;
+  return (
+    image?.alt_text ||
+    image?.alt ||
+    image?.title ||
+    image?.description ||
+    `${fallbackAlt} ${index + 1}`
+  );
 }
 
 function getImageWidth(image) {
@@ -40,7 +49,13 @@ function getImageHeight(image) {
 }
 
 function normalizeImages(images = [], fallbackAlt = "Post image") {
-  return images
+  return [...images]
+    .sort((a, b) => {
+      const orderA = a?.display_order ?? a?.sort_order ?? 0;
+      const orderB = b?.display_order ?? b?.sort_order ?? 0;
+
+      return orderA - orderB;
+    })
     .map((image, index) => {
       const src = typeof image === "string" ? image : getImageUrl(image);
 
@@ -48,7 +63,10 @@ function normalizeImages(images = [], fallbackAlt = "Post image") {
 
       return {
         src,
-        alt: typeof image === "string" ? `${fallbackAlt} ${index + 1}` : getImageAlt(image, index, fallbackAlt),
+        alt:
+          typeof image === "string"
+            ? `${fallbackAlt} ${index + 1}`
+            : getImageAlt(image, index, fallbackAlt),
         width: typeof image === "string" ? 1200 : getImageWidth(image),
         height: typeof image === "string" ? 900 : getImageHeight(image),
       };
@@ -65,7 +83,7 @@ export default function MediaGallery({
 
   const photos = useMemo(
     () => normalizeImages(images, fallbackAlt),
-    [images, fallbackAlt]
+    [images, fallbackAlt],
   );
 
   if (!photos.length) return null;
@@ -81,12 +99,18 @@ export default function MediaGallery({
           onClick={() => setIndex(0)}
           aria-label="Open image full size"
         >
-          <img
-            src={photo.src}
-            alt={photo.alt}
-            className="media-gallery__single-image"
-            loading="lazy"
-          />
+          <figure className="media-gallery__item media-gallery__item--gif">
+            <img
+              className="media-gallery__image media-gallery__image--gif"
+              src={photo.src}
+              alt={photo.alt}
+              loading="lazy"
+            />
+
+            <figcaption className="media-gallery__credit">
+              GIF via GIPHY
+            </figcaption>
+          </figure>
         </button>
 
         <Lightbox
