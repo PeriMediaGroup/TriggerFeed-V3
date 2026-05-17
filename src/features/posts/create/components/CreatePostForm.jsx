@@ -14,6 +14,7 @@ import MediaPicker from "./MediaPicker";
 import MediaPreviewGrid from "./MediaPreviewGrid";
 import CreatePostEmojiPicker from "./CreatePostEmojiPicker";
 import CreatePostPollBuilder from "./CreatePostPollBuilder";
+import CreatePostGifPicker from "./CreatePostGifPicker";
 
 import {
   createMediaItemsFromFiles,
@@ -39,6 +40,7 @@ export default function CreatePostForm() {
 
   const mediaItemsRef = useRef([]);
   const [poll, setPoll] = useState(null);
+  const [selectedGif, setSelectedGif] = useState(null);
 
   useEffect(() => {
     mediaItemsRef.current = mediaItems;
@@ -83,6 +85,7 @@ export default function CreatePostForm() {
   function resetForm(form) {
     form.reset();
     setPoll(null);
+    setSelectedGif(null);
 
     revokeMediaPreviews(mediaItemsRef.current);
 
@@ -114,12 +117,19 @@ export default function CreatePostForm() {
       return;
     }
 
+    if (selectedGif) {
+      formData.append("gif", JSON.stringify(selectedGif));
+    }
+
     startTransition(async () => {
       try {
         setErrors({});
         setMediaErrors([]);
         setStatus("");
         setSubmitStep("Creating post...");
+
+console.log("SELECTED GIF BEFORE SUBMIT:", selectedGif);
+console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
 
         const result = await createPost(formData);
 
@@ -232,6 +242,14 @@ export default function CreatePostForm() {
             setPoll(null);
             setActiveTool(null);
           }}
+        />
+      )}
+      {activeTool === "gif" && (
+        <CreatePostGifPicker
+          selectedGif={selectedGif}
+          onSelectGif={setSelectedGif}
+          onRemoveGif={() => setSelectedGif(null)}
+          onClose={() => setActiveTool(null)}
         />
       )}
 
