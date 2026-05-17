@@ -1,9 +1,38 @@
-.post-card {
+.post-card,
+.post-form {
     display: flex;
     flex-direction: column;
     max-width: 75%;
     background: grey;
-    border-radius: 25px;
-    padding: 20px;
+    border-radius: 5px;
+    padding: 15px 25px;
     margin: .5em auto;
+}
+
+.create-post {
+  &__emoji-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.5rem, 1fr));
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin-block: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+  }
+
+  &__emoji-button {
+    min-height: 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: var(--color-surface-muted);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-surface-hover);
+    }
+  }
 }

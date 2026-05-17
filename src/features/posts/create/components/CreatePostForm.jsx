@@ -12,6 +12,7 @@ import MentionTextarea from "@/features/mentions/components/MentionTextarea";
 import CreatePostToolbar from "./CreatePostToolbar";
 import MediaPicker from "./MediaPicker";
 import MediaPreviewGrid from "./MediaPreviewGrid";
+import CreatePostEmojiPicker from "./CreatePostEmojiPicker";
 
 import {
   createMediaItemsFromFiles,
@@ -44,6 +45,10 @@ export default function CreatePostForm() {
       revokeMediaPreviews(mediaItemsRef.current);
     };
   }, []);
+
+  function handleInsertEmoji(emoji) {
+    setBody((currentBody) => `${currentBody}${emoji}`);
+  }
 
   function handleAddMedia(files) {
     const nextMediaItems = createMediaItemsFromFiles(files);
@@ -181,12 +186,12 @@ export default function CreatePostForm() {
         <p className="post-form__error">{errors.visibility}</p>
       )}
 
-      <CreatePostToolbar
-        activeTool={activeTool}
-        onSelectTool={setActiveTool}
-      />
+      <CreatePostToolbar activeTool={activeTool} onSelectTool={setActiveTool} />
 
       {activeTool === "media" && <MediaPicker onAddMedia={handleAddMedia} />}
+      {activeTool === "emoji" && (
+        <CreatePostEmojiPicker onSelectEmoji={handleInsertEmoji} />
+      )}
 
       <MediaPreviewGrid
         mediaItems={mediaItems}
