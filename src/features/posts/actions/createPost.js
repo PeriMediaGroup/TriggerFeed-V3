@@ -107,7 +107,7 @@ export async function createPost(formData) {
     poll = {
       question,
       options,
-      allowsMultiple: Boolean(poll.allowsMultiple),
+      allowsMultiple: false,
     };
   }
 

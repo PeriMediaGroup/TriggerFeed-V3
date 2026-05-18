@@ -1,28 +1,42 @@
 .media-gallery {
   margin-top: var(--space-md);
-}
+  &--mixed {
+    display: grid;
+    gap: 0.75rem;
+  }
 
-.media-gallery__image {
-  border-radius: var(--radius-md);
-  cursor: zoom-in;
-}
+  &__item--video {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
 
-.media-gallery__single {
-  display: block;
-  width: 100%;
-  margin-top: var(--space-md);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: zoom-in;
-}
-
-.media-gallery__single-image {
-  display: block;
-  width: 100%;
-  max-height: 560px;
-  object-fit: cover;
-  border-radius: var(--radius-lg);
+  &__video {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    background: black;
+  }
+  &__image {
+    border-radius: var(--radius-md);
+    cursor: zoom-in;
+  }
+  &__single {
+    display: block;
+    width: 100%;
+    margin-top: var(--space-md);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+  &__single-image {
+    display: block;
+    width: 100%;
+    max-height: 560px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
 }
 
 /* Yet Another React Lightbox theme adjustments */

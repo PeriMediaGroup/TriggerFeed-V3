@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createPost } from "../../actions/createPost";
 import PostMediaUploader from "@/features/posts/components/PostMediaUploader";
-import { uploadPostMedia } from "@/features/posts/actions/uploadPostMedia";
+import { uploadPostMedia } from "@/features/posts/actions/XXX-uploadPostMedia";
 import MentionInput from "@/features/mentions/components/MentionInputs";
 import MentionTextarea from "@/features/mentions/components/MentionTextarea";
 

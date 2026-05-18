@@ -65,14 +65,16 @@ export async function uploadProfileImage({ file, userId, imageType }) {
   });
 }
 
-export async function uploadPostImage({ file, folder }) {
+export async function uploadPostMediaAsset({ file, folder, mediaType }) {
   if (!file || file.size === 0) {
     return null;
   }
 
-  if (!file.type?.startsWith("image/")) {
-    throw new Error("Only image uploads are allowed");
+  if (!["image", "video"].includes(mediaType)) {
+    throw new Error("Unsupported post media type");
   }
+
+  const resourceType = mediaType === "video" ? "video" : "image";
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
@@ -81,7 +83,7 @@ export async function uploadPostImage({ file, folder }) {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
-        resource_type: "image",
+        resource_type: resourceType,
         use_filename: true,
         unique_filename: true,
         overwrite: false,
@@ -100,6 +102,8 @@ export async function uploadPostImage({ file, folder }) {
           height: result.height,
           format: result.format,
           bytes: result.bytes,
+          duration: result.duration || null,
+          resourceType: result.resource_type,
         });
       },
     );
@@ -108,12 +112,24 @@ export async function uploadPostImage({ file, folder }) {
   });
 }
 
-export async function deleteCloudinaryImage(publicId) {
+export async function uploadPostImage({ file, folder }) {
+  return uploadPostMediaAsset({
+    file,
+    folder,
+    mediaType: "image",
+  });
+}
+
+export async function deleteCloudinaryMedia(publicId, resourceType = "image") {
   if (!publicId) {
     return null;
   }
 
   return cloudinary.uploader.destroy(publicId, {
-    resource_type: "image",
+    resource_type: resourceType,
   });
+}
+
+export async function deleteCloudinaryImage(publicId) {
+  return deleteCloudinaryMedia(publicId, "image");
 }

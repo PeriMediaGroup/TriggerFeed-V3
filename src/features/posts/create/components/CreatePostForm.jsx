@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { createPost } from "../../actions/createPost";
-import { uploadPostMedia } from "@/features/posts/actions/uploadPostMedia";
+import { uploadFilesToCloudinary } from "@/features/media/uploadToCloudinaryClient";
+import { savePostMedia } from "@/features/posts/actions/savePostMedia";
 
 import MentionInput from "@/features/mentions/components/MentionInputs";
 import MentionTextarea from "@/features/mentions/components/MentionTextarea";
@@ -128,9 +129,6 @@ export default function CreatePostForm() {
         setStatus("");
         setSubmitStep("Creating post...");
 
-console.log("SELECTED GIF BEFORE SUBMIT:", selectedGif);
-console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
-
         const result = await createPost(formData);
 
         if (!result.success) {
@@ -147,30 +145,32 @@ console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
               : `Uploading ${mediaItems.length} media files...`,
           );
 
-          const mediaFormData = new FormData();
-
-          mediaFormData.append("postId", result.postId);
-
-          mediaItems.forEach((item) => {
-            mediaFormData.append("files", item.file);
+          const uploadedMedia = await uploadFilesToCloudinary({
+            files: mediaItems.map((item) => item.file),
+            postId: result.postId,
+            onProgress: ({ index, total }) => {
+              setSubmitStep(`Uploading media ${index + 1} of ${total}...`);
+            },
           });
 
-          const uploadMediaResult = await uploadPostMedia(mediaFormData);
+          setSubmitStep("Saving media...");
 
-          if (!uploadMediaResult.success) {
-            const uploadErrors = uploadMediaResult.errors || [];
+          const saveMediaResult = await savePostMedia({
+            postId: result.postId,
+            media: uploadedMedia,
+          });
 
-            setMediaErrors(uploadErrors);
+          if (!saveMediaResult.success) {
+            setMediaErrors(saveMediaResult.errors || []);
             setStatus(
-              uploadErrors[0] || "Post created, but media failed to upload.",
+              saveMediaResult.errors?.[0] ||
+                "Post created, but media failed to save.",
             );
-            setSubmitStep("");
+            setSubmitStep("Finishing up...");
+            setStatus("Post created.");
             return;
           }
         }
-
-        setSubmitStep("Finishing up...");
-        setStatus("Post created.");
 
         resetForm(form);
         setTimeout(() => {

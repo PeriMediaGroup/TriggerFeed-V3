@@ -89,16 +89,22 @@ export default function CreatePostGifPicker({
   return (
     <section className="create-post__gif-picker">
       <div className="create-post__gif-header">
-        <div onSubmit={handleSearch} className="create-post__gif-search-form">
+        <div className="create-post__gif-search-form">
           <input
             type="text"
             placeholder="Search GIFs..."
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handleSearch();
+              }
+            }}
             className="create-post__gif-search"
           />
 
-          <button type="submit" disabled={isLoading}>
+          <button type="button" onClick={handleSearch} disabled={isLoading}>
             Search
           </button>
         </div>

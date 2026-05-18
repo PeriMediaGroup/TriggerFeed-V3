@@ -37,7 +37,7 @@ export function cleanPollDraft(poll) {
     poll: {
       question,
       options,
-      allowsMultiple: Boolean(poll.allowsMultiple),
+      allowsMultiple: false,
     },
   };
 }
