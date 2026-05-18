@@ -145,6 +145,14 @@ export async function createPost(formData) {
       };
     }
 
+    const sortOrder = Number.isInteger(gif.sortOrder)
+      ? gif.sortOrder
+      : Number.parseInt(gif.sortOrder, 10);
+
+    const displayOrder = Number.isInteger(gif.displayOrder)
+      ? gif.displayOrder
+      : Number.parseInt(gif.displayOrder, 10);
+
     gif = {
       id: gifId,
       title: gif.title?.trim() || null,
@@ -154,6 +162,8 @@ export async function createPost(formData) {
       username: gif.username?.trim() || null,
       sourcePostUrl: gif.sourcePostUrl?.trim() || null,
       source: "giphy",
+      sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
+      displayOrder: Number.isFinite(displayOrder) ? displayOrder : 0,
     };
   }
 
@@ -221,8 +231,8 @@ export async function createPost(formData) {
       external_url: gif.url,
       thumbnail_url: gif.previewUrl,
       title: gif.title,
-      sort_order: 0,
-      display_order: 0,
+      sort_order: gif.sortOrder,
+      display_order: gif.displayOrder,
     });
 
     if (gifError) {
@@ -365,9 +375,8 @@ export async function createPost(formData) {
   // -----------------------------
   // Mentions
   // -----------------------------
-  const mentionText = `${validation.values.title || ""} ${
-    validation.values.body || ""
-  }`;
+  const mentionText = `${validation.values.title || ""} ${validation.values.body || ""
+    }`;
 
   const mentionResult = await createMentionNotifications({
     text: mentionText,

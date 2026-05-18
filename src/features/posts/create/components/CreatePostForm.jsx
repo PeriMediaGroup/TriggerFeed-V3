@@ -119,7 +119,14 @@ export default function CreatePostForm() {
     }
 
     if (selectedGif) {
-      formData.append("gif", JSON.stringify(selectedGif));
+      formData.append(
+        "gif",
+        JSON.stringify({
+          ...selectedGif,
+          sortOrder: mediaItems.length,
+          displayOrder: mediaItems.length,
+        }),
+      );
     }
 
     startTransition(async () => {
