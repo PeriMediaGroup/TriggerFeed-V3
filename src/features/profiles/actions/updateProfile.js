@@ -29,7 +29,6 @@ export async function updateProfile(_prevState, formData) {
   const city = String(formData.get("city") || "").trim();
   const state = String(formData.get("state") || "").trim();
   const bio = String(formData.get("bio") || "").trim();
-  const profileBadge = String(formData.get("profile_badge") || "").trim();
 
   const errors = {};
 
@@ -90,7 +89,6 @@ export async function updateProfile(_prevState, formData) {
     city: city || null,
     state: state || null,
     bio: bio || null,
-    profile_badge: profileBadge || null,
     updated_at: new Date().toISOString(),
   };
 

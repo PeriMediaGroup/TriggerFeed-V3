@@ -49,9 +49,7 @@ export default function AuthCallbackPage() {
       });
 
       const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, username, is_banned, is_deleted")
-        .eq("id", user.id)
+        .rpc("get_my_profile_auth_status")
         .single();
 
       if (profileError || !profile) {

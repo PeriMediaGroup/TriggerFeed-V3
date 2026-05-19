@@ -9,14 +9,14 @@ export default function PostVoteButtons({
   postId,
   upvoteCount = 0,
   downvoteCount = 0,
-  currentUserVote = null,
+  userVote = null,
 }) {
   const [isPending, startTransition] = useTransition();
 
   const [voteState, setVoteState] = useState({
     upvoteCount,
     downvoteCount,
-    currentUserVote,
+    userVote,
   });
 
   function handleVote(voteType) {
@@ -35,14 +35,14 @@ export default function PostVoteButtons({
         setVoteState({
           upvoteCount: result.vote.upvote_count ?? 0,
           downvoteCount: result.vote.downvote_count ?? 0,
-          currentUserVote: result.vote.current_user_vote ?? null,
+          userVote: result.vote.user_vote ?? null,
         });
       }
     });
   }
 
-  const hasUpvoted = voteState.currentUserVote === "upvote";
-  const hasDownvoted = voteState.currentUserVote === "downvote";
+  const hasUpvoted = voteState.userVote === "upvote";
+  const hasDownvoted = voteState.userVote === "downvote";
 
   return (
     <div className="post-votes" aria-label="Post votes">

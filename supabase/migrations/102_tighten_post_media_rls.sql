@@ -53,10 +53,10 @@ with check (
       and cloudinary_url is not null
       and cloudinary_public_id is not null
       and cloudinary_public_id like ('triggerfeed/posts/' || auth.uid()::text || '/' || post_id::text || '/%')
-      and cloudinary_url like ('https://res.cloudinary.com/' || current_setting('app.cloudinary_cloud_name', true) || '/%')
+      and cloudinary_url like 'https://res.cloudinary.com/triggerfeed/%'
       and (
         cloudinary_secure_url is null
-        or cloudinary_secure_url like ('https://res.cloudinary.com/' || current_setting('app.cloudinary_cloud_name', true) || '/%')
+        or cloudinary_secure_url like 'https://res.cloudinary.com/triggerfeed/%'
       )
     )
     or
@@ -116,10 +116,10 @@ with check (
       and cloudinary_url is not null
       and cloudinary_public_id is not null
       and cloudinary_public_id like ('triggerfeed/posts/' || auth.uid()::text || '/' || post_id::text || '/%')
-      and cloudinary_url like ('https://res.cloudinary.com/' || current_setting('app.cloudinary_cloud_name', true) || '/%')
+      and cloudinary_url like 'https://res.cloudinary.com/triggerfeed/%'
       and (
         cloudinary_secure_url is null
-        or cloudinary_secure_url like ('https://res.cloudinary.com/' || current_setting('app.cloudinary_cloud_name', true) || '/%')
+        or cloudinary_secure_url like 'https://res.cloudinary.com/triggerfeed/%'
       )
     )
     or

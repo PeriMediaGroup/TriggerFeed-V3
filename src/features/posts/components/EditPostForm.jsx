@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { updatePost } from "../actions/updatePost";
 import { deletePostMedia } from "../actions/deletePostMedia";
-import { uploadPostMedia } from "../actions/XXX-uploadPostMedia";
+import { uploadPostMedia } from "../actions/uploadPostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
 
 export default function EditPostForm({ post }) {

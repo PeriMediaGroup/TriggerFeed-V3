@@ -49,36 +49,35 @@ export async function createMentionNotifications({
     new Map(mentionedProfiles.map((profile) => [profile.id, profile])).values()
   );
 
-  const rows = uniqueProfiles.map((profile) => ({
-    user_id: profile.id,
-    actor_id: actorId,
-    type: "mention",
-    post_id: postId,
-    comment_id: commentId,
-    is_read: false,
-    metadata: {
-      source: commentId ? "comment" : "post",
-    },
-  }));
-
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
-  const { error } = await supabase.from("notifications").insert(rows);
+  const notifiedUserIds = [];
 
-  // 23505 = duplicate key violation.
-  // This can happen if the same mention notification already exists.
-  if (error && error.code !== "23505") {
-    return {
-      success: false,
-      notifiedUserIds: [],
-      error,
-    };
+  for (const profile of uniqueProfiles) {
+    const { error } = await supabase.rpc("create_mention_notification", {
+      target_user_id: profile.id,
+      actor_user_id: actorId,
+      target_post_id: postId,
+      target_comment_id: commentId,
+    });
+
+    // 23505 = duplicate key violation.
+    // This can happen if the same mention notification already exists.
+    if (error && error.code !== "23505") {
+      return {
+        success: false,
+        notifiedUserIds: [],
+        error,
+      };
+    }
+
+    notifiedUserIds.push(profile.id);
   }
 
   return {
     success: true,
-    notifiedUserIds: uniqueProfiles.map((profile) => profile.id),
+    notifiedUserIds,
     error: null,
   };
 }
