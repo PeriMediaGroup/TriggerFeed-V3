@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getPostMediaFolder } from "@/features/media/mediaPaths";
 
 export async function savePostMedia({ postId, media }) {
   const supabase = await createClient();
@@ -17,6 +18,11 @@ export async function savePostMedia({ postId, media }) {
       media: [],
     };
   }
+
+  const expectedFolder = getPostMediaFolder({
+    userId: user.id,
+    postId,
+  });
 
   if (!postId || !Array.isArray(media)) {
     return {
@@ -41,14 +47,34 @@ export async function savePostMedia({ postId, media }) {
     };
   }
 
+  function isTrustedCloudinaryUrl(value) {
+    try {
+      const url = new URL(value);
+
+      return (
+        url.protocol === "https:" &&
+        url.hostname === "res.cloudinary.com" &&
+        url.pathname.startsWith(`/${process.env.CLOUDINARY_CLOUD_NAME}/`)
+      );
+    } catch {
+      return false;
+    }
+  }
+
   const cleanedMedia = media
     .filter((item) => {
+      const publicId = item?.cloudinary_public_id || "";
+      const cloudinaryUrl = item?.cloudinary_url || "";
+      const secureUrl = item?.cloudinary_secure_url || cloudinaryUrl;
       return (
         item &&
         item.provider === "cloudinary" &&
         ["image", "video"].includes(item.media_type) &&
         item.cloudinary_url &&
-        item.cloudinary_public_id
+        item.cloudinary_public_id &&
+        publicId.startsWith(`${expectedFolder}/`) &&
+        isTrustedCloudinaryUrl(item.cloudinary_url) &&
+        isTrustedCloudinaryUrl(secureUrl)
       );
     })
     .map((item, index) => ({
@@ -69,10 +95,18 @@ export async function savePostMedia({ postId, media }) {
       display_order: item.display_order ?? index,
     }));
 
-  if (!cleanedMedia.length) {
+  if (!media.length) {
     return {
       success: true,
       errors: [],
+      media: [],
+    };
+  }
+
+  if (!cleanedMedia.length) {
+    return {
+      success: false,
+      errors: ["No valid media records were provided."],
       media: [],
     };
   }

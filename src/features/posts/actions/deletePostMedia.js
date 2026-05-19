@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { deleteCloudinaryImage } from "@/features/media/cloudinary";
+import { deleteCloudinaryMedia } from "@/features/media/cloudinary";
 
 export async function deletePostMedia({ postId, mediaIds }) {
   if (!postId || !Array.isArray(mediaIds) || mediaIds.length === 0) {
@@ -41,7 +41,7 @@ export async function deletePostMedia({ postId, mediaIds }) {
 
   const { data: mediaRows, error: mediaError } = await supabase
     .from("post_media")
-    .select("id, cloudinary_public_id")
+    .select("id, provider, media_type, cloudinary_public_id")
     .eq("post_id", postId)
     .eq("user_id", user.id)
     .in("id", mediaIds);
@@ -57,6 +57,33 @@ export async function deletePostMedia({ postId, mediaIds }) {
     return {
       success: true,
       errors: [],
+    };
+  }
+
+  const cloudinaryRows = mediaRows.filter((row) => {
+    return row.provider === "cloudinary" && row.cloudinary_public_id;
+  });
+
+  const cloudinaryDeleteResults = await Promise.allSettled(
+    cloudinaryRows.map((row) => {
+      const resourceType = row.media_type === "video" ? "video" : "image";
+
+      return deleteCloudinaryMedia(row.cloudinary_public_id, resourceType);
+    }),
+  );
+
+  const failedCloudinaryDeletes = cloudinaryDeleteResults.filter((result) => {
+    return result.status === "rejected";
+  });
+
+  if (failedCloudinaryDeletes.length > 0) {
+    console.error("DELETE CLOUDINARY MEDIA ERROR:", failedCloudinaryDeletes);
+
+    return {
+      success: false,
+      errors: [
+        "Could not delete one or more Cloudinary assets. Media was not removed.",
+      ],
     };
   }
 
@@ -76,10 +103,6 @@ export async function deletePostMedia({ postId, mediaIds }) {
       errors: [deleteRowsError.message],
     };
   }
-
-  await Promise.allSettled(
-    mediaRows.map((row) => deleteCloudinaryImage(row.cloudinary_public_id)),
-  );
 
   return {
     success: true,

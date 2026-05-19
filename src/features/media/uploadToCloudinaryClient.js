@@ -11,6 +11,8 @@ export async function uploadFileToCloudinary({ file, postId }) {
     body: JSON.stringify({
       postId,
       mediaType,
+      fileSize: file.size,
+      mimeType: file.type,
     }),
   });
 
@@ -32,6 +34,7 @@ export async function uploadFileToCloudinary({ file, postId }) {
   cloudinaryFormData.append("use_filename", "true");
   cloudinaryFormData.append("unique_filename", "true");
   cloudinaryFormData.append("overwrite", "false");
+  cloudinaryFormData.append("upload_preset", signaturePayload.uploadPreset);
 
   const uploadUrl = `https://api.cloudinary.com/v1_1/${signaturePayload.cloudName}/${signaturePayload.resourceType}/upload`;
 

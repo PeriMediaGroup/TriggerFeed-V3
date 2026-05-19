@@ -5,6 +5,41 @@ import { createClient } from "@/lib/supabase/server";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 import { validatePostInput } from "../utils/validatePost";
 
+function isTrustedGiphyMediaUrl(value) {
+  try {
+    const url = new URL(value);
+
+    return (
+      url.protocol === "https:" &&
+      (
+        url.hostname === "media.giphy.com" ||
+        /^media\d+\.giphy\.com$/.test(url.hostname) ||
+        url.hostname === "i.giphy.com"
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isTrustedGiphyPageUrl(value) {
+  if (!value) return true;
+
+  try {
+    const url = new URL(value);
+
+    return (
+      url.protocol === "https:" &&
+      (
+        url.hostname === "giphy.com" ||
+        url.hostname === "www.giphy.com"
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function createPost(formData) {
   const supabase = await createClient();
 
@@ -134,6 +169,9 @@ export async function createPost(formData) {
   if (gif) {
     const gifUrl = gif.url?.trim();
     const gifId = gif.id?.trim();
+    const previewUrl = gif.previewUrl?.trim() || gifUrl;
+    const giphyUrl = gif.giphyUrl?.trim() || null;
+    const sourcePostUrl = gif.sourcePostUrl?.trim() || null;
 
     if (!gifUrl || !gifId) {
       return {
@@ -141,6 +179,20 @@ export async function createPost(formData) {
         message: "Invalid GIF data.",
         errors: {
           gif: "Invalid GIF data.",
+        },
+      };
+    }
+
+    if (
+      !isTrustedGiphyMediaUrl(gifUrl) ||
+      !isTrustedGiphyMediaUrl(previewUrl) ||
+      !isTrustedGiphyPageUrl(giphyUrl)
+    ) {
+      return {
+        success: false,
+        message: "Invalid GIPHY media URL.",
+        errors: {
+          gif: "Invalid GIPHY media URL.",
         },
       };
     }
@@ -157,10 +209,10 @@ export async function createPost(formData) {
       id: gifId,
       title: gif.title?.trim() || null,
       url: gifUrl,
-      previewUrl: gif.previewUrl?.trim() || gifUrl,
-      giphyUrl: gif.giphyUrl?.trim() || null,
+      previewUrl,
+      giphyUrl,
       username: gif.username?.trim() || null,
-      sourcePostUrl: gif.sourcePostUrl?.trim() || null,
+      sourcePostUrl,
       source: "giphy",
       sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
       displayOrder: Number.isFinite(displayOrder) ? displayOrder : 0,
