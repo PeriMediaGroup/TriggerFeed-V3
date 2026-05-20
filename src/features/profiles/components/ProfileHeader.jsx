@@ -25,7 +25,6 @@ export default function ProfileHeader({
     "Your Name";
 
   const username = profile?.username || "your_username";
-  const email = profile?.email || "your_email";
   const bannerUrl = profile?.banner_cloudinary_url?.trim();
   const avatarUrl = profile?.avatar_cloudinary_url?.trim();
 
@@ -66,7 +65,6 @@ export default function ProfileHeader({
         <div className="profile-header__identity">
           <h1 className="profile-header__name">{displayName}</h1>
           <p className="profile-header__username">@{username}</p>
-          <p>{email}</p>
 
           {(profile?.profile_badge || profile?.role) && (
             <p className="profile-header__badge">

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { GiphyFetch } from "@giphy/js-fetch-api";
 
 import { createPost } from "../../actions/createPost";
-import { uploadPostMedia } from "@/features/posts/actions/uploadPostMedia";
+import { uploadFilesToCloudinary } from "@/features/media/uploadToCloudinaryClient";
+import { savePostMedia } from "@/features/posts/actions/savePostMedia";
 
 import MentionInput from "@/features/mentions/components/MentionInputs";
 import MentionTextarea from "@/features/mentions/components/MentionTextarea";
@@ -24,6 +26,8 @@ import {
 
 import { cleanPollDraft, createEmptyPollDraft } from "../utils/pollHelpers";
 
+const GIF_LIMIT = 12;
+
 export default function CreatePostForm() {
   const router = useRouter();
 
@@ -42,6 +46,22 @@ export default function CreatePostForm() {
   const [poll, setPoll] = useState(null);
   const [selectedGif, setSelectedGif] = useState(null);
 
+  const [gifSearchTerm, setGifSearchTerm] = useState("");
+  const [gifResults, setGifResults] = useState([]);
+  const [gifOffset, setGifOffset] = useState(0);
+  const [isGifLoading, setIsGifLoading] = useState(false);
+  const [gifStatus, setGifStatus] = useState("");
+
+  const gf = useMemo(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
+
+    if (!apiKey) {
+      return null;
+    }
+
+    return new GiphyFetch(apiKey);
+  }, []);
+
   useEffect(() => {
     mediaItemsRef.current = mediaItems;
   }, [mediaItems]);
@@ -51,6 +71,49 @@ export default function CreatePostForm() {
       revokeMediaPreviews(mediaItemsRef.current);
     };
   }, []);
+
+  async function loadGifs({
+    nextOffset = 0,
+    append = false,
+    searchTerm,
+  } = {}) {
+    if (!gf) {
+      setGifStatus("GIPHY is not configured.");
+      return;
+    }
+
+    setIsGifLoading(true);
+    setGifStatus("");
+
+    try {
+      const trimmedSearchTerm = (searchTerm ?? gifSearchTerm).trim();
+
+      const result = trimmedSearchTerm
+        ? await gf.search(trimmedSearchTerm, {
+            offset: nextOffset,
+            limit: GIF_LIMIT,
+            rating: "pg-13",
+          })
+        : await gf.trending({
+            offset: nextOffset,
+            limit: GIF_LIMIT,
+            rating: "pg-13",
+          });
+
+      const nextGifs = result.data || [];
+
+      setGifResults((currentGifs) => {
+        return append ? [...currentGifs, ...nextGifs] : nextGifs;
+      });
+
+      setGifOffset(nextOffset + GIF_LIMIT);
+    } catch (error) {
+      console.error("GIPHY LOAD ERROR:", error);
+      setGifStatus("Could not load GIFs.");
+    } finally {
+      setIsGifLoading(false);
+    }
+  }
 
   function handleInsertEmoji(emoji) {
     setBody((currentBody) => `${currentBody}${emoji}`);
@@ -77,6 +140,14 @@ export default function CreatePostForm() {
       setPoll(createEmptyPollDraft());
     }
 
+    if (toolName === "gif" && activeTool !== "gif" && gifResults.length === 0) {
+      void loadGifs({
+        nextOffset: 0,
+        append: false,
+        searchTerm: "",
+      });
+    }
+
     setActiveTool((currentTool) => {
       return currentTool === toolName ? null : toolName;
     });
@@ -94,6 +165,11 @@ export default function CreatePostForm() {
     setMediaItems([]);
     setActiveTool(null);
     setMediaErrors([]);
+    setGifSearchTerm("");
+    setGifResults([]);
+    setGifOffset(0);
+    setGifStatus("");
+    setSubmitStep("");
   }
 
   function handleSubmit(event) {
@@ -102,10 +178,6 @@ export default function CreatePostForm() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const cleanedPoll = cleanPollDraft(poll);
-
-    if (cleanedPoll?.poll) {
-      formData.append("poll", JSON.stringify(cleanedPoll.poll));
-    }
 
     if (cleanedPoll?.error) {
       setErrors((currentErrors) => ({
@@ -117,8 +189,19 @@ export default function CreatePostForm() {
       return;
     }
 
+    if (cleanedPoll?.poll) {
+      formData.append("poll", JSON.stringify(cleanedPoll.poll));
+    }
+
     if (selectedGif) {
-      formData.append("gif", JSON.stringify(selectedGif));
+      formData.append(
+        "gif",
+        JSON.stringify({
+          ...selectedGif,
+          sortOrder: mediaItems.length,
+          displayOrder: mediaItems.length,
+        }),
+      );
     }
 
     startTransition(async () => {
@@ -127,9 +210,6 @@ export default function CreatePostForm() {
         setMediaErrors([]);
         setStatus("");
         setSubmitStep("Creating post...");
-
-console.log("SELECTED GIF BEFORE SUBMIT:", selectedGif);
-console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
 
         const result = await createPost(formData);
 
@@ -147,22 +227,27 @@ console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
               : `Uploading ${mediaItems.length} media files...`,
           );
 
-          const mediaFormData = new FormData();
-
-          mediaFormData.append("postId", result.postId);
-
-          mediaItems.forEach((item) => {
-            mediaFormData.append("files", item.file);
+          const uploadedMedia = await uploadFilesToCloudinary({
+            files: mediaItems.map((item) => item.file),
+            postId: result.postId,
+            onProgress: ({ index, total }) => {
+              setSubmitStep(`Uploading media ${index + 1} of ${total}...`);
+            },
           });
 
-          const uploadMediaResult = await uploadPostMedia(mediaFormData);
+          setSubmitStep("Saving media...");
 
-          if (!uploadMediaResult.success) {
-            const uploadErrors = uploadMediaResult.errors || [];
+          const saveMediaResult = await savePostMedia({
+            postId: result.postId,
+            media: uploadedMedia,
+          });
 
-            setMediaErrors(uploadErrors);
+          if (!saveMediaResult.success) {
+            const saveMediaErrors = saveMediaResult.errors || [];
+
+            setMediaErrors(saveMediaErrors);
             setStatus(
-              uploadErrors[0] || "Post created, but media failed to upload.",
+              saveMediaErrors[0] || "Post created, but media failed to save.",
             );
             setSubmitStep("");
             return;
@@ -173,6 +258,7 @@ console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
         setStatus("Post created.");
 
         resetForm(form);
+
         setTimeout(() => {
           window.location.assign(`/posts/${result.postId}`);
         }, 150);
@@ -231,9 +317,11 @@ console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
       />
 
       {activeTool === "media" && <MediaPicker onAddMedia={handleAddMedia} />}
+
       {activeTool === "emoji" && (
         <CreatePostEmojiPicker onSelectEmoji={handleInsertEmoji} />
       )}
+
       {activeTool === "poll" && (
         <CreatePostPollBuilder
           poll={poll}
@@ -244,12 +332,33 @@ console.log("FORMDATA GIF BEFORE SUBMIT:", formData.get("gif"));
           }}
         />
       )}
+
       {activeTool === "gif" && (
         <CreatePostGifPicker
           selectedGif={selectedGif}
           onSelectGif={setSelectedGif}
           onRemoveGif={() => setSelectedGif(null)}
           onClose={() => setActiveTool(null)}
+          searchTerm={gifSearchTerm}
+          onSearchTermChange={setGifSearchTerm}
+          gifs={gifResults}
+          isLoading={isGifLoading}
+          status={gifStatus}
+          onSearch={() => {
+            setGifOffset(0);
+            void loadGifs({
+              nextOffset: 0,
+              append: false,
+              searchTerm: gifSearchTerm,
+            });
+          }}
+          onLoadMore={() => {
+            void loadGifs({
+              nextOffset: gifOffset,
+              append: true,
+              searchTerm: gifSearchTerm,
+            });
+          }}
         />
       )}
 

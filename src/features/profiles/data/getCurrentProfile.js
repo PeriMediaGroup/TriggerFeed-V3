@@ -21,7 +21,6 @@ export async function getCurrentProfile() {
       `
       id,
       username,
-      email,
       first_name,
       last_name,
       display_name,
@@ -37,7 +36,6 @@ export async function getCurrentProfile() {
     `
     )
     .eq("id", user.id)
-    .eq("is_deleted", false)
     .single();
 
   if (profileError) {

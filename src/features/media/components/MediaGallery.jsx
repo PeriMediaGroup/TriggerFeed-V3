@@ -16,112 +16,202 @@ import "yet-another-react-lightbox/plugins/counter.css";
 
 import "./MediaGallery.scss";
 
-function getImageUrl(image) {
+function getMediaUrl(media) {
   return (
-    image?.external_url ||
-    image?.thumbnail_url ||
-    image?.cloudinary_secure_url ||
-    image?.cloudinary_url ||
-    image?.url ||
-    image?.secure_url ||
-    image?.image_url ||
-    image?.src ||
+    media?.external_url ||
+    media?.thumbnail_url ||
+    media?.cloudinary_secure_url ||
+    media?.cloudinary_url ||
+    media?.url ||
+    media?.secure_url ||
+    media?.image_url ||
+    media?.src ||
     ""
   );
 }
 
-function getImageAlt(image, index, fallbackAlt) {
+function getMediaAlt(media, index, fallbackAlt) {
   return (
-    image?.alt_text ||
-    image?.alt ||
-    image?.title ||
-    image?.description ||
+    media?.alt_text ||
+    media?.alt ||
+    media?.title ||
+    media?.description ||
     `${fallbackAlt} ${index + 1}`
   );
 }
 
-function getImageWidth(image) {
-  return image?.width || image?.metadata?.width || 1200;
+function getMediaWidth(media) {
+  return media?.width || media?.metadata?.width || 1200;
 }
 
-function getImageHeight(image) {
-  return image?.height || image?.metadata?.height || 900;
+function getMediaHeight(media) {
+  return media?.height || media?.metadata?.height || 900;
 }
 
-function normalizeImages(images = [], fallbackAlt = "Post image") {
-  return [...images]
+function getMediaType(media) {
+  if (typeof media === "string") return "image";
+
+  return media?.media_type || media?.type || "image";
+}
+
+function normalizeMedia(items = [], fallbackAlt = "Post media") {
+  return [...items]
     .sort((a, b) => {
       const orderA = a?.display_order ?? a?.sort_order ?? 0;
       const orderB = b?.display_order ?? b?.sort_order ?? 0;
 
       return orderA - orderB;
     })
-    .map((image, index) => {
-      const src = typeof image === "string" ? image : getImageUrl(image);
+    .map((media, index) => {
+      const src = typeof media === "string" ? media : getMediaUrl(media);
 
       if (!src) return null;
 
       return {
         src,
         alt:
-          typeof image === "string"
+          typeof media === "string"
             ? `${fallbackAlt} ${index + 1}`
-            : getImageAlt(image, index, fallbackAlt),
-        width: typeof image === "string" ? 1200 : getImageWidth(image),
-        height: typeof image === "string" ? 900 : getImageHeight(image),
+            : getMediaAlt(media, index, fallbackAlt),
+        width: typeof media === "string" ? 1200 : getMediaWidth(media),
+        height: typeof media === "string" ? 900 : getMediaHeight(media),
+        media_type: getMediaType(media),
+        title: typeof media === "string" ? "" : media?.title || "",
       };
     })
     .filter(Boolean);
 }
 
+function VideoMedia({ media }) {
+  return (
+    <figure className="media-gallery__item media-gallery__item--video">
+      <video
+        className="media-gallery__video"
+        src={media.src}
+        controls
+        preload="metadata"
+      >
+        Your browser does not support the video tag.
+      </video>
+    </figure>
+  );
+}
+
+function ImageMedia({ media, onClick, single = false }) {
+  const isGif = media.media_type === "gif";
+
+  const figure = (
+    <figure
+      className={`media-gallery__item${
+        isGif ? " media-gallery__item--gif" : ""
+      }`}
+    >
+      <img
+        className={`media-gallery__image${
+          single ? " media-gallery__single-image" : ""
+        }${isGif ? " media-gallery__image--gif" : ""}`}
+        src={media.src}
+        alt={media.alt}
+        loading="lazy"
+      />
+
+      {isGif && (
+        <figcaption className="media-gallery__credit">
+          GIF via GIPHY
+        </figcaption>
+      )}
+    </figure>
+  );
+
+  if (!onClick) {
+    return figure;
+  }
+
+  return (
+    <button
+      type="button"
+      className="media-gallery__single"
+      onClick={onClick}
+      aria-label="Open media full size"
+    >
+      {figure}
+    </button>
+  );
+}
+
 export default function MediaGallery({
   images = [],
-  fallbackAlt = "Post image",
+  fallbackAlt = "Post media",
   layout = "rows",
 }) {
   const [index, setIndex] = useState(-1);
 
-  const photos = useMemo(
-    () => normalizeImages(images, fallbackAlt),
+  const mediaItems = useMemo(
+    () => normalizeMedia(images, fallbackAlt),
     [images, fallbackAlt],
   );
 
-  if (!photos.length) return null;
+  const lightboxSlides = useMemo(() => {
+    return mediaItems.filter((media) => media.media_type !== "video");
+  }, [mediaItems]);
 
-  if (photos.length === 1) {
-    const photo = photos[0];
+  if (!mediaItems.length) return null;
+
+  if (mediaItems.length === 1) {
+    const media = mediaItems[0];
+
+    if (media.media_type === "video") {
+      return <VideoMedia media={media} />;
+    }
 
     return (
       <>
-        <button
-          type="button"
-          className="media-gallery__single"
-          onClick={() => setIndex(0)}
-          aria-label="Open image full size"
-        >
-          <figure className="media-gallery__item media-gallery__item--gif">
-            <img
-              className="media-gallery__image media-gallery__image--gif"
-              src={photo.src}
-              alt={photo.alt}
-              loading="lazy"
-            />
-
-            <figcaption className="media-gallery__credit">
-              GIF via GIPHY
-            </figcaption>
-          </figure>
-        </button>
+        <ImageMedia media={media} single onClick={() => setIndex(0)} />
 
         <Lightbox
           open={index >= 0}
           index={index}
           close={() => setIndex(-1)}
-          slides={photos}
+          slides={lightboxSlides}
           plugins={[Zoom, Fullscreen, Counter]}
-          carousel={{ finite: photos.length <= 1 }}
+          carousel={{ finite: lightboxSlides.length <= 1 }}
         />
       </>
+    );
+  }
+
+  const hasVideo = mediaItems.some((media) => media.media_type === "video");
+
+  if (hasVideo) {
+    return (
+      <div className="media-gallery media-gallery--mixed">
+        {mediaItems.map((media, mediaIndex) => {
+          if (media.media_type === "video") {
+            return <VideoMedia key={media.src} media={media} />;
+          }
+
+          const lightboxIndex = lightboxSlides.findIndex((slide) => {
+            return slide.src === media.src;
+          });
+
+          return (
+            <ImageMedia
+              key={media.src}
+              media={media}
+              onClick={() => setIndex(lightboxIndex)}
+            />
+          );
+        })}
+
+        <Lightbox
+          open={index >= 0}
+          index={index}
+          close={() => setIndex(-1)}
+          slides={lightboxSlides}
+          plugins={[Zoom, Fullscreen, Thumbnails, Counter]}
+          carousel={{ finite: lightboxSlides.length <= 1 }}
+        />
+      </div>
     );
   }
 
@@ -129,22 +219,41 @@ export default function MediaGallery({
     <div className="media-gallery">
       <PhotoAlbum
         layout={layout}
-        photos={photos}
+        photos={mediaItems}
         targetRowHeight={220}
         spacing={6}
         onClick={({ index: clickedIndex }) => setIndex(clickedIndex)}
         render={{
-          image: ({ alt = "", title, sizes, className, style, ...props }) => (
-            <img
-              {...props}
-              alt={alt}
-              title={title}
-              sizes={sizes}
-              className={`${className || ""} media-gallery__image`}
-              style={style}
-              loading="lazy"
-            />
-          ),
+          image: ({ alt = "", title, sizes, className, style, ...props }) => {
+            const media = mediaItems.find((item) => item.src === props.src);
+            const isGif = media?.media_type === "gif";
+
+            return (
+              <figure
+                className={`media-gallery__item${
+                  isGif ? " media-gallery__item--gif" : ""
+                }`}
+              >
+                <img
+                  {...props}
+                  alt={alt}
+                  title={title}
+                  sizes={sizes}
+                  className={`${className || ""} media-gallery__image${
+                    isGif ? " media-gallery__image--gif" : ""
+                  }`}
+                  style={style}
+                  loading="lazy"
+                />
+
+                {isGif && (
+                  <figcaption className="media-gallery__credit">
+                    GIF via GIPHY
+                  </figcaption>
+                )}
+              </figure>
+            );
+          },
         }}
       />
 
@@ -152,9 +261,9 @@ export default function MediaGallery({
         open={index >= 0}
         index={index}
         close={() => setIndex(-1)}
-        slides={photos}
+        slides={lightboxSlides}
         plugins={[Zoom, Fullscreen, Thumbnails, Counter]}
-        carousel={{ finite: photos.length <= 1 }}
+        carousel={{ finite: lightboxSlides.length <= 1 }}
         thumbnails={{
           position: "bottom",
           width: 96,

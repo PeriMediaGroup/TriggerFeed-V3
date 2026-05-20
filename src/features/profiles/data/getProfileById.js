@@ -27,7 +27,6 @@ export async function getProfileById(userId) {
       `
       id,
       username,
-      email,
       first_name,
       last_name,
       display_name,
@@ -43,11 +42,15 @@ export async function getProfileById(userId) {
     `
     )
     .eq("id", userId)
-    .eq("is_deleted", false)
     .maybeSingle();
 
   if (error) {
-    console.error("Error fetching profile:", error);
+    console.error("Error fetching profile:", {
+      code: error?.code,
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+    });
 
     return {
       profile: null,

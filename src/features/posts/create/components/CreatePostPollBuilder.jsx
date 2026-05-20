@@ -50,12 +50,6 @@ export default function CreatePostPollBuilder({ poll, onChange, onRemove }) {
     });
   }
 
-  function toggleAllowsMultiple() {
-    updatePoll({
-      allowsMultiple: !currentPoll.allowsMultiple,
-    });
-  }
-
   return (
     <section className="create-post__poll-builder">
       <div className="create-post__poll-header">
@@ -118,15 +112,6 @@ export default function CreatePostPollBuilder({ poll, onChange, onRemove }) {
         Add option
       </button>
 
-      <label className="create-post__poll-toggle">
-        <input
-          type="checkbox"
-          checked={currentPoll.allowsMultiple}
-          onChange={toggleAllowsMultiple}
-        />
-
-        Allow multiple answers
-      </label>
     </section>
   );
 }
