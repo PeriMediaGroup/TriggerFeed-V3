@@ -139,26 +139,33 @@ export async function getPosts() {
 
   // -----------------------------
   // Current user's votes
-  // This controls active up/down button state
+  // This controls active up/down button state.
+  // Uses RPC so direct post_votes reads stay locked down.
   // -----------------------------
   let currentUserVotes = [];
 
   if (user) {
-    const { data: userVotes, error: userVotesError } = await supabase
-      .from("post_votes")
-      .select("post_id, vote_type")
-      .eq("user_id", user.id)
-      .in("post_id", postIds);
+    const { data: userVotes, error: userVotesError } = await supabase.rpc(
+      "get_my_post_votes",
+      {
+        p_post_ids: postIds,
+      }
+    );
 
     if (userVotesError) {
-      console.error("GET CURRENT USER POST VOTES ERROR:", userVotesError);
+      console.error("GET CURRENT USER POST VOTES ERROR:", {
+        code: userVotesError.code,
+        message: userVotesError.message,
+        details: userVotesError.details,
+        hint: userVotesError.hint,
+      });
     }
 
     currentUserVotes = userVotes || [];
   }
 
   const currentUserVoteMap = new Map(
-    currentUserVotes.map((vote) => [vote.post_id, vote.vote_type])
+    currentUserVotes.map((vote) => [vote.post_id, vote.user_vote])
   );
 
   // -----------------------------

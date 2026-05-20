@@ -109,23 +109,29 @@ export async function getPostById(postId) {
 
   // -----------------------------
   // Current user's vote
-  // This controls active up/down button state
+  // This controls active up/down button state.
+  // Uses RPC so direct post_votes reads stay locked down.
   // -----------------------------
   let currentUserVote = null;
 
   if (user) {
-    const { data: userVote, error: userVoteError } = await supabase
-      .from("post_votes")
-      .select("vote_type")
-      .eq("post_id", postId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const { data: userVotes, error: userVoteError } = await supabase.rpc(
+      "get_my_post_votes",
+      {
+        p_post_ids: [postId],
+      }
+    );
 
     if (userVoteError) {
-      console.error("GET CURRENT USER POST VOTE ERROR:", userVoteError);
+      console.error("GET CURRENT USER POST VOTE ERROR:", {
+        code: userVoteError.code,
+        message: userVoteError.message,
+        details: userVoteError.details,
+        hint: userVoteError.hint,
+      });
     }
 
-    currentUserVote = userVote?.vote_type || null;
+    currentUserVote = userVotes?.[0]?.user_vote || null;
   }
 
   const mentionProfiles = await getMentionProfilesForText(

@@ -24,17 +24,36 @@ export async function uploadFileToCloudinary({ file, postId }) {
     );
   }
 
+  const requiredPayloadFields = [
+    "apiKey",
+    "cloudName",
+    "folder",
+    "resourceType",
+    "signature",
+    "timestamp",
+    "overwrite",
+    "uniqueFilename",
+    "useFilename",
+  ];
+
+  const missingField = requiredPayloadFields.find(
+    (field) => signaturePayload?.[field] === undefined || signaturePayload?.[field] === null,
+  );
+
+  if (missingField) {
+    throw new Error(`Missing Cloudinary upload field: ${missingField}`);
+  }
+
   const cloudinaryFormData = new FormData();
 
   cloudinaryFormData.append("file", file);
   cloudinaryFormData.append("api_key", signaturePayload.apiKey);
-  cloudinaryFormData.append("timestamp", signaturePayload.timestamp);
+  cloudinaryFormData.append("timestamp", String(signaturePayload.timestamp));
   cloudinaryFormData.append("signature", signaturePayload.signature);
   cloudinaryFormData.append("folder", signaturePayload.folder);
-  cloudinaryFormData.append("use_filename", "true");
-  cloudinaryFormData.append("unique_filename", "true");
-  cloudinaryFormData.append("overwrite", "false");
-  cloudinaryFormData.append("upload_preset", signaturePayload.uploadPreset);
+  cloudinaryFormData.append("use_filename", signaturePayload.useFilename);
+  cloudinaryFormData.append("unique_filename", signaturePayload.uniqueFilename);
+  cloudinaryFormData.append("overwrite", signaturePayload.overwrite);
 
   const uploadUrl = `https://api.cloudinary.com/v1_1/${signaturePayload.cloudName}/${signaturePayload.resourceType}/upload`;
 

@@ -100,18 +100,6 @@ export async function POST(request) {
     }
   }
 
-  const uploadPreset =
-    mediaType === "video"
-      ? process.env.CLOUDINARY_POST_VIDEO_PRESET
-      : process.env.CLOUDINARY_POST_IMAGE_PRESET;
-
-  if (!uploadPreset) {
-    return NextResponse.json(
-      { error: "Cloudinary upload preset is not configured." },
-      { status: 500 },
-    );
-  }
-
   const { data: post, error: postError } = await supabase
     .from("posts")
     .select("id, user_id")
@@ -135,17 +123,20 @@ export async function POST(request) {
 
   const resourceType = mediaType === "video" ? "video" : "image";
 
-  const paramsToSign = {
-    timestamp,
+  // IMPORTANT:
+  // The client must send exactly these signed params to Cloudinary.
+  // Do not include upload_preset here unless the client also sends it
+  // and the preset exists in Cloudinary.
+  const uploadParams = {
     folder,
-    upload_preset: uploadPreset,
-    use_filename: true,
-    unique_filename: true,
-    overwrite: false,
+    overwrite: "false",
+    timestamp,
+    unique_filename: "true",
+    use_filename: "true",
   };
 
   const signature = cloudinary.utils.api_sign_request(
-    paramsToSign,
+    uploadParams,
     process.env.CLOUDINARY_API_SECRET,
   );
 
@@ -156,6 +147,8 @@ export async function POST(request) {
     resourceType,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
-    uploadPreset,
+    overwrite: uploadParams.overwrite,
+    uniqueFilename: uploadParams.unique_filename,
+    useFilename: uploadParams.use_filename,
   });
 }

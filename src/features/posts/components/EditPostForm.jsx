@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { updatePost } from "../actions/updatePost";
 import { deletePostMedia } from "../actions/deletePostMedia";
-import { uploadPostMedia } from "../actions/uploadPostMedia";
+import { savePostMedia } from "../actions/savePostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
 
 export default function EditPostForm({ post }) {
@@ -61,7 +61,7 @@ export default function EditPostForm({ post }) {
             mediaFormData.append("files", file);
           });
 
-          const uploadMediaResult = await uploadPostMedia(mediaFormData);
+          const uploadMediaResult = await savePostMedia(mediaFormData);
 
           if (!uploadMediaResult.success) {
             setStatus("Post updated, but new media could not be uploaded.");

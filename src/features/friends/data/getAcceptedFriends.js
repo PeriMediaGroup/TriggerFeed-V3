@@ -56,20 +56,12 @@ export async function getAcceptedFriends() {
     };
   }
 
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select(
-      `
-      id,
-      username,
-      display_name,
-      first_name,
-      last_name,
-      avatar_cloudinary_url
-    `
-    )
-    .in("id", friendIds)
-    .eq("is_deleted", false);
+  const { data: profiles, error: profilesError } = await supabase.rpc(
+    "get_public_profile_cards",
+    {
+      p_profile_ids: friendIds,
+    }
+  );
 
   if (profilesError) {
     console.error("GET ACCEPTED FRIEND PROFILES ERROR:", {

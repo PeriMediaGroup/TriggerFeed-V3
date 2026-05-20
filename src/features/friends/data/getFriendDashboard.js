@@ -58,22 +58,12 @@ export async function getFriendDashboard() {
   let profiles = [];
 
   if (otherUserIds.length) {
-    const { data: profileRows, error: profilesError } = await supabase
-      .from("profiles")
-      .select(
-        `
-        id,
-        username,
-        display_name,
-        first_name,
-        last_name,
-        avatar_cloudinary_url,
-        city,
-        state
-      `
-      )
-      .in("id", otherUserIds)
-      .eq("is_deleted", false);
+    const { data: profileRows, error: profilesError } = await supabase.rpc(
+      "get_public_profile_cards",
+      {
+        p_profile_ids: otherUserIds,
+      }
+    );
 
     if (profilesError) {
       console.error("GET FRIEND PROFILES ERROR:", {
