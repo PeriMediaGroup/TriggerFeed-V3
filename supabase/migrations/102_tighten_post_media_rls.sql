@@ -10,6 +10,7 @@
 -- -----------------------------
 -- SELECT: readable only when parent post is public and not deleted
 -- -----------------------------
+drop policy if exists "Users can insert media for their own posts" on public.post_media;
 drop policy if exists "Anyone can read post media" on public.post_media;
 drop policy if exists "Anyone can read visible post media" on public.post_media;
 

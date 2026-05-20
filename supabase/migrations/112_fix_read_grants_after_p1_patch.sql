@@ -1,4 +1,11 @@
-begin;
+do $$
+begin
+  if to_regclass('public.post_media') is not null then
+    drop policy if exists "Users can insert media for their own posts" on public.post_media;
+    drop policy if exists "Users can create their own post media" on public.post_media;
+    drop policy if exists "Post owners can create post media" on public.post_media;
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Profiles read grants after P1 lockdown
