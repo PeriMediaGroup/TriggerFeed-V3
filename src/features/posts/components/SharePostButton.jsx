@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { Share } from "lucide-react";
 
 export default function SharePostButton({ postId }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function SharePostButton({ postId }) {
   return (
     <>
       <button type="button" onClick={openShareModal}>
+        <Share size={16} aria-hidden="true" />
         Share
       </button>
 

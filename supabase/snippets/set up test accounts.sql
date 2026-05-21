@@ -14,7 +14,7 @@ declare
   user_name text;
   user_id uuid;
 begin
-  for i in 1..6 loop
+  for i in 6..15 loop
     user_email := 'test_' || i || '@example.com';
     user_name := 'test_' || i;
 

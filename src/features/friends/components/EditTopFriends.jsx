@@ -202,7 +202,7 @@ export default function EditTopFriends({
           </div>
 
           <button type="submit" disabled={isPending}>
-            {isPending ? "Saving..." : "Save Top Friends"}
+            {isPending ? "Saving..." : "Save"}
           </button>
         </form>
       )}

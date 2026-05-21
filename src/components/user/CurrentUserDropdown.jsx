@@ -4,23 +4,28 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Bell,
+  Crosshair,
   Home,
   LogIn,
   LogOut,
   Menu,
+  ShieldAlert,
   User,
   UserPlus,
-  Users,
   X,
 } from "lucide-react";
 
 export default function CurrentUserDropdown({
   isLoggedIn,
   displayName,
+  role,
   unreadNotifications = 0,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+  const cleanRole = typeof role === "string" ? role.trim().toLowerCase() : "";
+
+  const isAdmin = ["admin", "ceo"].includes(cleanRole);
 
   function closeMenu() {
     setIsOpen(false);
@@ -93,6 +98,22 @@ export default function CurrentUserDropdown({
                       <span>Home</span>
                     </Link>
                   </li>
+                  {isAdmin && (
+                    <li>
+                      <Link
+                        href="/admin/reports"
+                        className="current-user-menu__link"
+                        onClick={closeMenu}
+                      >
+                        <ShieldAlert
+                          size={17}
+                          strokeWidth={2}
+                          aria-hidden="true"
+                        />
+                        <span>Moderation</span>
+                      </Link>
+                    </li>
+                  )}
 
                   <li>
                     <Link
@@ -107,7 +128,7 @@ export default function CurrentUserDropdown({
 
                   <li>
                     <Link
-                      href="/profile#notifications"
+                      href="/profile?tab=notifications"
                       className="current-user-menu__link"
                       onClick={closeMenu}
                     >
@@ -124,12 +145,23 @@ export default function CurrentUserDropdown({
 
                   <li>
                     <Link
-                      href="/profile/friends"
+                      href="/profile?tab=friends"
                       className="current-user-menu__link"
                       onClick={closeMenu}
                     >
-                      <Users size={17} strokeWidth={2} aria-hidden="true" />
-                      <span>Friends</span>
+                      <UserPlus size={17} strokeWidth={2} aria-hidden="true" />
+                      <span>Manage Friends</span>
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      href="/profile?tab=guns"
+                      className="current-user-menu__link"
+                      onClick={closeMenu}
+                    >
+                      <Crosshair size={17} strokeWidth={2} aria-hidden="true" />
+                      <span>Edit Top Guns</span>
                     </Link>
                   </li>
 

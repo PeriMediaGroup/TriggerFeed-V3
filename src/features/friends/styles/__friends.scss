@@ -1,1 +1,8 @@
-//coming soon
+.friends-panel {
+    display: flex;
+    flex-wrap: wrap;
+    section {
+        width: 50%;
+        min-width: 250px;
+    }
+}

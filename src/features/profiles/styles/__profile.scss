@@ -65,13 +65,31 @@
   margin-top: 0.35rem;
 }
 
+.profile-showcase {
+  &__title {
+    margin-top: 0;
+  }
+  &__grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.5rem 1rem;
+}
+&__link {
+  display: flex;
+  align-items: center;
+}
+}
+
+
 .profile-showcase__avatar img{
     border-radius: 50px;
     border: 2px solid var(--color-accent);
+    margin-right: 1em;
 }
 
 .profile-dashboard-tabs {
   margin-top: 1rem;
+  height: 100%;
 }
 
 .profile-dashboard-tabs__list {

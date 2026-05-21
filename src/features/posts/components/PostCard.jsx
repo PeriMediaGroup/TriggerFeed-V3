@@ -11,6 +11,7 @@ import SmartText from "@/components/ui/SmartText";
 import SharePostButton from "./SharePostButton";
 import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
 import PollDisplay from "@/features/polls/components/PollDisplay";
+import ReportPostButton from "@/features/reports/components/ReportPostButton";
 
 export default function PostCard({
   post,
@@ -51,6 +52,10 @@ export default function PostCard({
           </p>
 
           <SharePostButton postId={post.id} />
+          <ReportPostButton
+            postId={post.id}
+            viewerHasReported={post.viewer_has_reported}
+          />
 
           <p className="post-card__date" suppressHydrationWarning>
             {formatRelativeTime(post.created_at)}
