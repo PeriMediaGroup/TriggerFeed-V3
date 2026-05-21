@@ -107,7 +107,7 @@ export default function CurrentUserDropdown({
 
                   <li>
                     <Link
-                      href="/profile/notifications"
+                      href="/profile#notifications"
                       className="current-user-menu__link"
                       onClick={closeMenu}
                     >

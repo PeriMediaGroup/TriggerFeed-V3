@@ -1,30 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import PostMediaUploader from "./PostMediaUploader";
 
 function getMediaUrl(item) {
   return (
-    item?.secure_url ||
-    item?.url ||
-    item?.media_url ||
-    item?.cloudinary_secure_url ||
-    item?.cloudinary_url ||
-    item?.thumbnail_url ||
-    item?.external_url ||
-    item?.image_url ||
-    item?.video_url ||
-    item?.previewUrl ||
-    item?.preview_url ||
-    ""
+    item.secure_url ||
+    item.url ||
+    item.media_url ||
+    item.cloudinary_secure_url ||
+    item.cloudinary_url ||
+    item.thumbnail_url ||
+    item.external_url ||
+    item.image_url ||
+    item.video_url ||
+    item.previewUrl ||
+    item.preview_url ||
+    item.preview ||
+    null
   );
 }
 
 function isVideoMedia(item) {
-  const mediaType = `${item?.media_type || item?.type || ""}`.toLowerCase();
-  const resourceType = `${item?.resource_type || ""}`.toLowerCase();
+  const mediaType = item.media_type || item.resource_type || item.type || "";
 
-  return mediaType === "video" || resourceType === "video";
+  return mediaType === "video" || mediaType.startsWith("video/");
 }
 
 export default function EditPostMediaManager({
@@ -36,11 +37,8 @@ export default function EditPostMediaManager({
   onRemovedMediaIdsChange,
 }) {
   const [removedIds, setRemovedIds] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
 
-  const visibleMedia = useMemo(() => {
-    return media.filter((item) => item?.id && !removedIds.includes(item.id));
-  }, [media, removedIds]);
+  const visibleMedia = media.filter((item) => !removedIds.includes(item.id));
 
   function handleRemoveExistingMedia(mediaId) {
     const nextRemovedIds = [...removedIds, mediaId];
@@ -49,33 +47,24 @@ export default function EditPostMediaManager({
     onRemovedMediaIdsChange?.(nextRemovedIds);
   }
 
-  function handleFilesChange(event) {
-    const files = Array.from(event.target.files || []);
+  function handleNewFilesChange(files) {
+    const nextFiles = Array.from(files || []);
 
-    setSelectedFiles(files);
-    onNewFilesChange?.(files);
-    onAddMedia?.(files);
-  }
-
-  function handleRemoveNewMedia(mediaId) {
-    onRemoveMedia?.(mediaId);
-
-    const removedItem = mediaItems.find((item) => item.id === mediaId);
-    const removedFile = removedItem?.file;
-
-    if (!removedFile) {
+    if (nextFiles.length === 0) {
       return;
     }
 
-    const nextFiles = selectedFiles.filter((file) => file !== removedFile);
+    onNewFilesChange?.((currentFiles = []) => [
+      ...Array.from(currentFiles || []),
+      ...nextFiles,
+    ]);
 
-    setSelectedFiles(nextFiles);
-    onNewFilesChange?.(nextFiles);
+    onAddMedia?.(nextFiles);
   }
 
   return (
     <section className="edit-post-media">
-      <h2 className="edit-post-media__title">Post images</h2>
+      <h2 className="edit-post-media__title">Post media</h2>
 
       {visibleMedia.length > 0 && (
         <div className="edit-post-media__existing-grid">
@@ -87,10 +76,6 @@ export default function EditPostMediaManager({
             }
 
             const isVideo = isVideoMedia(item);
-            const isGiphy =
-              `${item.provider || item.source || ""}`.toLowerCase() ===
-                "giphy" ||
-              `${item.media_type || item.type || ""}`.toLowerCase() === "gif";
 
             return (
               <div className="edit-post-media__item" key={item.id}>
@@ -107,7 +92,11 @@ export default function EditPostMediaManager({
                       alt={item.alt_text || item.title || "Post media"}
                       fill
                       sizes="(max-width: 700px) 50vw, 300px"
-                      unoptimized={isGiphy}
+                      unoptimized={
+                        item.provider === "giphy" ||
+                        item.media_type === "gif" ||
+                        item.type === "gif"
+                      }
                     />
                   )}
                 </div>
@@ -126,46 +115,34 @@ export default function EditPostMediaManager({
       )}
 
       {visibleMedia.length === 0 && (
-        <p className="edit-post-media__empty">No images attached.</p>
+        <p className="edit-post-media__empty">No existing media attached.</p>
       )}
-
-      <div className="edit-post-media__uploader">
-        <label className="edit-post-media__label" htmlFor="edit-post-media">
-          Add images
-        </label>
-
-        <input
-          id="edit-post-media"
-          className="edit-post-media__input"
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          onChange={handleFilesChange}
-        />
-      </div>
 
       {mediaItems.length > 0 && (
         <div className="edit-post-media__new-grid">
           {mediaItems.map((item) => {
-            const previewUrl = item.previewUrl || item.preview_url || item.url;
+            const mediaUrl = getMediaUrl(item);
 
-            if (!previewUrl) {
+            if (!mediaUrl) {
               return null;
             }
+
+            const isVideo = isVideoMedia(item);
 
             return (
               <div className="edit-post-media__item" key={item.id}>
                 <div className="edit-post-media__image">
-                  {item.type === "video" || item.media_type === "video" ? (
+                  {isVideo ? (
                     <video
-                      src={previewUrl}
+                      src={mediaUrl}
                       controls
                       className="edit-post-media__video"
                     />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={previewUrl}
-                      alt={item.file?.name || "New post media"}
+                      src={mediaUrl}
+                      alt={item.name || "New post media preview"}
                       className="edit-post-media__preview-image"
                     />
                   )}
@@ -174,7 +151,7 @@ export default function EditPostMediaManager({
                 <button
                   type="button"
                   className="edit-post-media__remove"
-                  onClick={() => handleRemoveNewMedia(item.id)}
+                  onClick={() => onRemoveMedia?.(item.id)}
                 >
                   Remove
                 </button>
@@ -183,6 +160,8 @@ export default function EditPostMediaManager({
           })}
         </div>
       )}
+
+      <PostMediaUploader onFilesChange={handleNewFilesChange} />
     </section>
   );
 }

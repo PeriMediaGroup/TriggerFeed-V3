@@ -11,13 +11,13 @@ import PostComposer from "@/features/posts/components/PostComposer";
 
 function getMediaUrl(item) {
   return (
-    item?.cloudinary_secure_url ||
-    item?.cloudinary_url ||
-    item?.external_url ||
-    item?.thumbnail_url ||
     item?.secure_url ||
     item?.url ||
     item?.media_url ||
+    item?.cloudinary_secure_url ||
+    item?.cloudinary_url ||
+    item?.thumbnail_url ||
+    item?.external_url ||
     item?.image_url ||
     item?.video_url ||
     ""
@@ -49,18 +49,17 @@ function getExistingMedia(post) {
         secure_url: mediaUrl,
         media_url: item.media_url || mediaUrl,
         public_id:
-          item.public_id ||
-          item.cloudinary_public_id ||
-          item.publicId ||
-          item.external_id ||
-          "",
-        media_type: item.media_type || item.type || item.resource_type || "image",
+          item.public_id || item.cloudinary_public_id || item.publicId || "",
+        media_type:
+          item.media_type || item.type || item.resource_type || "image",
         type: item.type || item.media_type || item.resource_type || "image",
-        resource_type: item.resource_type || item.media_type || item.type || "image",
+        resource_type:
+          item.resource_type || item.media_type || item.type || "image",
         provider: item.provider || item.source || "",
         alt_text: item.alt_text || item.alt || item.title || "",
         title: item.title || item.alt_text || "",
-        sort_order: item.sort_order ?? item.display_order ?? item.position ?? index,
+        sort_order:
+          item.sort_order ?? item.display_order ?? item.position ?? index,
       };
     })
     .filter((item) => item.id && getMediaUrl(item));
@@ -88,7 +87,8 @@ function getInitialPoll(post) {
 
   return {
     id: pollSource.id || null,
-    question: pollSource.question || pollSource.title || pollSource.prompt || "",
+    question:
+      pollSource.question || pollSource.title || pollSource.prompt || "",
     options: Array.isArray(optionSource)
       ? optionSource.map((option) => {
           if (typeof option === "string") {
@@ -152,22 +152,42 @@ function getInitialGif(post) {
 
   return {
     ...gifMedia,
-    id:
-      gifMedia.external_id ||
-      gifMedia.public_id ||
-      gifMedia.cloudinary_public_id ||
-      gifMedia.id ||
-      "",
+    id: gifMedia.public_id || gifMedia.id || "",
     mediaId: gifMedia.id,
-    external_id: gifMedia.external_id || "",
-    external_url: gifUrl,
     url: gifUrl,
     secure_url: gifUrl,
-    thumbnail_url: gifMedia.thumbnail_url || gifUrl,
     title: gifMedia.title || gifMedia.alt_text || "GIPHY",
     provider: gifMedia.provider || "giphy",
-    source: gifMedia.source || "giphy",
   };
+}
+
+function applyUploadedMediaDisplayOffset({
+  uploadedMedia,
+  existingMedia,
+  removedMediaIds,
+}) {
+  const remainingExistingMedia = existingMedia.filter((item) => {
+    return !removedMediaIds.includes(item.id);
+  });
+
+  const maxExistingOrder = remainingExistingMedia.reduce((maxOrder, item) => {
+    const itemOrder = Number(item.display_order ?? item.sort_order ?? -1);
+    return Number.isFinite(itemOrder)
+      ? Math.max(maxOrder, itemOrder)
+      : maxOrder;
+  }, -1);
+
+  const startingOrder = maxExistingOrder + 1;
+
+  return uploadedMedia.map((item, index) => {
+    const displayOrder = startingOrder + index;
+
+    return {
+      ...item,
+      sort_order: displayOrder,
+      display_order: displayOrder,
+    };
+  });
 }
 
 export default function EditPostForm({ post }) {
@@ -254,9 +274,15 @@ export default function EditPostForm({ post }) {
               setStatus("Saving uploaded media...");
               setSubmitStep("Saving uploaded media...");
 
+              const orderedUploadedMedia = applyUploadedMediaDisplayOffset({
+                uploadedMedia,
+                existingMedia,
+                removedMediaIds,
+              });
+
               const saveMediaResult = await savePostMedia({
                 postId: post.id,
-                media: uploadedMedia,
+                media: orderedUploadedMedia,
               });
 
               if (!saveMediaResult.success) {
@@ -299,6 +325,7 @@ export default function EditPostForm({ post }) {
 
   return (
     <PostComposer
+      key={post.id}
       mode="edit"
       initialTitle={post.title || ""}
       initialBody={post.body || ""}

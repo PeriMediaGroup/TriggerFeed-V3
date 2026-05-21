@@ -46,23 +46,21 @@ function normalizeInitialPoll(initialPoll) {
     [];
 
   const normalizedOptions = Array.isArray(rawOptions)
-    ? rawOptions
-        .map((option) => {
-          if (typeof option === "string") {
-            return option;
-          }
+    ? rawOptions.map((option) => {
+        if (typeof option === "string") {
+          return option;
+        }
 
-          return (
-            option.text ||
-            option.label ||
-            option.body ||
-            option.option_text ||
-            option.option ||
-            option.title ||
-            ""
-          );
-        })
-        .filter(Boolean)
+        return (
+          option.text ||
+          option.label ||
+          option.body ||
+          option.option_text ||
+          option.option ||
+          option.title ||
+          ""
+        );
+      })
     : [];
 
   return {
@@ -73,27 +71,8 @@ function normalizeInitialPoll(initialPoll) {
   };
 }
 
-function normalizeInitialGif(initialGif) {
-  if (!initialGif) {
-    return null;
-  }
-
-  if (typeof initialGif === "string") {
-    try {
-      return JSON.parse(initialGif);
-    } catch {
-      return {
-        url: initialGif,
-        title: "GIPHY",
-      };
-    }
-  }
-
-  return initialGif;
-}
-
 function getGifId(gif) {
-  return gif?.external_id || gif?.id || gif?.public_id || gif?.publicId || "";
+  return gif?.external_id || gif?.public_id || gif?.publicId || gif?.id || "";
 }
 
 function getGifUrl(gif) {
@@ -113,7 +92,7 @@ function getGifUrl(gif) {
   );
 }
 
-function getGifPreviewUrl(gif) {
+function getGifThumbnailUrl(gif) {
   return (
     gif?.thumbnail_url ||
     gif?.preview_url ||
@@ -125,6 +104,50 @@ function getGifPreviewUrl(gif) {
   );
 }
 
+function getGifTitle(gif) {
+  return gif?.title || gif?.name || "GIPHY";
+}
+
+function normalizeInitialGif(initialGif) {
+  if (!initialGif) {
+    return null;
+  }
+
+  if (typeof initialGif === "string") {
+    try {
+      return normalizeInitialGif(JSON.parse(initialGif));
+    } catch {
+      return null;
+    }
+  }
+
+  const gifId = getGifId(initialGif);
+  const gifUrl = getGifUrl(initialGif);
+  const thumbnailUrl = getGifThumbnailUrl(initialGif);
+
+  if (!gifId && !gifUrl) {
+    return initialGif;
+  }
+
+  return {
+    ...initialGif,
+    id: gifId,
+    external_id: gifId,
+    url: gifUrl,
+    external_url: gifUrl,
+    media_url: gifUrl,
+    secure_url: gifUrl,
+    previewUrl: thumbnailUrl,
+    preview_url: thumbnailUrl,
+    thumbnail_url: thumbnailUrl,
+    title: getGifTitle(initialGif),
+    source: "giphy",
+    provider: "giphy",
+    media_type: "gif",
+    resource_type: "image",
+  };
+}
+
 function normalizeGifForSubmit(gif, sortOrder = 0) {
   if (!gif) {
     return null;
@@ -132,7 +155,7 @@ function normalizeGifForSubmit(gif, sortOrder = 0) {
 
   const gifId = getGifId(gif);
   const gifUrl = getGifUrl(gif);
-  const gifPreviewUrl = getGifPreviewUrl(gif);
+  const thumbnailUrl = getGifThumbnailUrl(gif);
 
   if (!gifUrl) {
     return null;
@@ -141,15 +164,15 @@ function normalizeGifForSubmit(gif, sortOrder = 0) {
   return {
     ...gif,
     id: gifId,
-    public_id: gifId,
     external_id: gifId,
-    external_url: gifUrl,
     url: gifUrl,
+    external_url: gifUrl,
     media_url: gifUrl,
     secure_url: gifUrl,
-    preview_url: gifPreviewUrl,
-    thumbnail_url: gifPreviewUrl,
-    title: gif.title || gif.name || "GIPHY",
+    previewUrl: thumbnailUrl,
+    preview_url: thumbnailUrl,
+    thumbnail_url: thumbnailUrl,
+    title: getGifTitle(gif),
     source: "giphy",
     provider: "giphy",
     media_type: "gif",
@@ -157,6 +180,21 @@ function normalizeGifForSubmit(gif, sortOrder = 0) {
     sortOrder,
     displayOrder: sortOrder,
   };
+}
+
+function getComparableGifKey(gif) {
+  if (!gif) {
+    return "";
+  }
+
+  return getGifId(gif) || getGifUrl(gif);
+}
+
+function isSameGif(leftGif, rightGif) {
+  const leftKey = getComparableGifKey(leftGif);
+  const rightKey = getComparableGifKey(rightGif);
+
+  return Boolean(leftKey && rightKey && leftKey === rightKey);
 }
 
 export default function PostComposer({
@@ -177,19 +215,18 @@ export default function PostComposer({
   renderMediaManager,
   onSubmit,
 }) {
-  const [localErrors, setLocalErrors] = useState({});
-
   const normalizedInitialPoll = useMemo(
     () => normalizeInitialPoll(initialPoll),
     [initialPoll],
   );
-
   const normalizedInitialGif = useMemo(
     () => normalizeInitialGif(initialGif),
     [initialGif],
   );
 
+  const [localErrors, setLocalErrors] = useState({});
   const [mediaItems, setMediaItems] = useState([]);
+
   const [activeTool, setActiveTool] = useState(() => {
     if (normalizedInitialPoll) {
       return "poll";
@@ -201,10 +238,11 @@ export default function PostComposer({
 
     return null;
   });
-  const [title, setTitle] = useState(initialTitle || "");
-  const [body, setBody] = useState(initialBody || "");
-  const [poll, setPoll] = useState(normalizedInitialPoll);
-  const [selectedGif, setSelectedGif] = useState(normalizedInitialGif);
+
+  const [title, setTitle] = useState(() => initialTitle || "");
+  const [body, setBody] = useState(() => initialBody || "");
+  const [poll, setPoll] = useState(() => normalizedInitialPoll);
+  const [selectedGif, setSelectedGif] = useState(() => normalizedInitialGif);
 
   const [gifSearchTerm, setGifSearchTerm] = useState("");
   const [gifResults, setGifResults] = useState([]);
@@ -212,7 +250,6 @@ export default function PostComposer({
   const [isGifLoading, setIsGifLoading] = useState(false);
   const [gifStatus, setGifStatus] = useState("");
 
-  const hasInitializedRef = useRef(false);
   const mediaItemsRef = useRef([]);
 
   const mergedErrors = {
@@ -233,25 +270,6 @@ export default function PostComposer({
   useEffect(() => {
     mediaItemsRef.current = mediaItems;
   }, [mediaItems]);
-
-  useEffect(() => {
-    if (hasInitializedRef.current) {
-      return;
-    }
-
-    setTitle(initialTitle || "");
-    setBody(initialBody || "");
-    setPoll(normalizedInitialPoll);
-    setSelectedGif(normalizedInitialGif);
-
-    if (normalizedInitialPoll) {
-      setActiveTool("poll");
-    } else if (normalizedInitialGif) {
-      setActiveTool("gif");
-    }
-
-    hasInitializedRef.current = true;
-  }, [initialTitle, initialBody, normalizedInitialPoll, normalizedInitialGif]);
 
   useEffect(() => {
     return () => {
@@ -370,8 +388,15 @@ export default function PostComposer({
 
     if (cleanedPoll?.poll) {
       formData.set("poll", JSON.stringify(cleanedPoll.poll));
+      formData.delete("remove_poll");
     } else {
       formData.delete("poll");
+
+      if (mode === "edit" && normalizedInitialPoll) {
+        formData.set("remove_poll", "true");
+      } else {
+        formData.delete("remove_poll");
+      }
     }
 
     const normalizedSelectedGif = normalizeGifForSubmit(
@@ -380,9 +405,24 @@ export default function PostComposer({
     );
 
     if (normalizedSelectedGif) {
-      formData.set("gif", JSON.stringify(normalizedSelectedGif));
+      if (
+        mode === "edit" &&
+        isSameGif(normalizedInitialGif, normalizedSelectedGif)
+      ) {
+        formData.delete("gif");
+        formData.delete("remove_gif");
+      } else {
+        formData.set("gif", JSON.stringify(normalizedSelectedGif));
+        formData.delete("remove_gif");
+      }
     } else {
       formData.delete("gif");
+
+      if (mode === "edit" && normalizedInitialGif) {
+        formData.set("remove_gif", "true");
+      } else {
+        formData.delete("remove_gif");
+      }
     }
 
     const shouldReset = await onSubmit({
@@ -412,7 +452,7 @@ export default function PostComposer({
     .join(" ");
 
   const shouldShowCustomMediaManager =
-    Boolean(renderMediaManager) && (mode === "edit" || activeTool === "media");
+    renderMediaManager && (mode === "edit" || activeTool === "media");
 
   return (
     <form className={formClassName} onSubmit={handleSubmit}>
