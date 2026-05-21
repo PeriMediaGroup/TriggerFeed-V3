@@ -8,6 +8,7 @@ export default function PostDetail({ post, currentUserId }) {
         post={post}
         currentUserId={currentUserId}
         variant="detail"
+        hideCommentsToggle
       />
     </article>
   );

@@ -1,0 +1,18 @@
+.profile-showcase {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: .5em 2em;
+    h2 {
+        width: 100%;
+    }
+}
+
+.profile-showcase__section {
+    width: 50%;
+}
+
+.profile-showcase__grid {
+    list-style: none;
+}

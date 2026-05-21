@@ -17,6 +17,7 @@ export default function PostCard({
   currentUserId = null,
   variant = "feed",
   children,
+  hideCommentsToggle = false,
 }) {
   const [showComments, setShowComments] = useState(false);
 
@@ -66,17 +67,24 @@ export default function PostCard({
           )}
         </header>
 
+        {post.body && (
+          <div className="post-card__body">
+            <SmartText text={post.body} mentionProfiles={mentionProfiles} />
+          </div>
+        )}
+
         {postMedia.length > 0 && (
           <MediaGallery
             images={postMedia}
             fallbackAlt={post.title || "Post media"}
           />
         )}
-
-        {post.body && (
-          <div className="post-card__body">
-            <SmartText text={post.body} mentionProfiles={mentionProfiles} />
-          </div>
+        {poll && (
+          <PollDisplay
+            poll={poll}
+            postId={post.id}
+            currentUserId={currentUserId}
+          />
         )}
 
         <PostVoteButtons
@@ -85,13 +93,6 @@ export default function PostCard({
           downvoteCount={post.downvote_count}
           currentUserVote={post.current_user_vote}
         />
-        {poll && (
-          <PollDisplay
-            poll={poll}
-            postId={post.id}
-            currentUserId={currentUserId}
-          />
-        )}
         {canManagePost && (
           <div className="post-card__manage-actions">
             <Link href={`/posts/${post.id}/edit`} className="post-card__edit">
@@ -102,14 +103,16 @@ export default function PostCard({
           </div>
         )}
 
-        <button
-          type="button"
-          className="post-card__comments"
-          onClick={() => setShowComments((current) => !current)}
-        >
-          <MessageSquare size={16} strokeWidth={2} aria-hidden="true" />
-          {showComments ? "Hide comments" : ` (${commentCount})`}
-        </button>
+        {!hideCommentsToggle && (
+          <button
+            type="button"
+            className="post-card__comments"
+            onClick={() => setShowComments((current) => !current)}
+          >
+            <MessageSquare size={16} strokeWidth={2} aria-hidden="true" />
+            {showComments ? "Hide comments" : ` (${commentCount})`}
+          </button>
+        )}
 
         {showComments && (
           <div className="post-card__comments-panel">{children}</div>

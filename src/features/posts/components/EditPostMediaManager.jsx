@@ -27,17 +27,37 @@ export default function EditPostMediaManager({
       {visibleMedia.length > 0 && (
         <div className="edit-post-media__existing-grid">
           {visibleMedia.map((item) => {
-            const imageUrl = item.cloudinary_secure_url || item.cloudinary_url;
+            const mediaUrl =
+              item.cloudinary_secure_url ||
+              item.cloudinary_url ||
+              item.thumbnail_url ||
+              item.external_url ||
+              null;
+
+            if (!mediaUrl) {
+              return null;
+            }
+
+            const isVideo = item.media_type === "video";
 
             return (
               <div className="edit-post-media__item" key={item.id}>
                 <div className="edit-post-media__image">
-                  <Image
-                    src={imageUrl}
-                    alt={item.alt_text || "Post image"}
-                    fill
-                    sizes="(max-width: 700px) 50vw, 300px"
-                  />
+                  {isVideo ? (
+                    <video
+                      src={mediaUrl}
+                      controls
+                      className="edit-post-media__video"
+                    />
+                  ) : (
+                    <Image
+                      src={mediaUrl}
+                      alt={item.alt_text || item.title || "Post media"}
+                      fill
+                      sizes="(max-width: 700px) 50vw, 300px"
+                      unoptimized={item.provider === "giphy"}
+                    />
+                  )}
                 </div>
 
                 <button

@@ -4,10 +4,11 @@ import Image from "next/image";
 export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
   return (
     <section className="profile-showcase">
+      <h2>Top Four</h2>
       <div className="profile-showcase__section">
         <div className="profile-showcase__header">
-          <h2 className="profile-showcase__title">Top Friends</h2>
-          <span className="profile-showcase__count">{topFriends.length}/4</span>
+          <h2 className="profile-showcase__title">Friends</h2>
+
         </div>
 
         {topFriends.length > 0 ? (
@@ -67,8 +68,7 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
 
       <div className="profile-showcase__section">
         <div className="profile-showcase__header">
-          <h2 className="profile-showcase__title">Top Guns</h2>
-          <span className="profile-showcase__count">{topGuns.length}/4</span>
+          <h2 className="profile-showcase__title">Guns</h2>
         </div>
 
         {topGuns.length > 0 ? (

@@ -52,7 +52,6 @@ export default async function RootLayout({ children }) {
         {user ? (
           <BottomNav unreadNotifications={unreadNotifications} />
         ) : null}
-        <footer>footer</footer>
       </body>
     </html>
   );
