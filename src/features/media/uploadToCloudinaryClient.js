@@ -34,6 +34,7 @@ export async function uploadFileToCloudinary({ file, postId }) {
     "overwrite",
     "uniqueFilename",
     "useFilename",
+    "uploadPreset",
   ];
 
   const missingField = requiredPayloadFields.find(
@@ -54,6 +55,7 @@ export async function uploadFileToCloudinary({ file, postId }) {
   cloudinaryFormData.append("use_filename", signaturePayload.useFilename);
   cloudinaryFormData.append("unique_filename", signaturePayload.uniqueFilename);
   cloudinaryFormData.append("overwrite", signaturePayload.overwrite);
+  cloudinaryFormData.append("upload_preset", signaturePayload.uploadPreset);
 
   const uploadUrl = `https://api.cloudinary.com/v1_1/${signaturePayload.cloudName}/${signaturePayload.resourceType}/upload`;
 

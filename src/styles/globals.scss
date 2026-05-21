@@ -13,6 +13,7 @@
 @use "../features/profiles/styles/_profile-header";
 @use "../features/profiles/styles/_profile-edit-form";
 @use "../features/profiles/styles/_profile-showcase";
+@use "../features/notifications/styles/_notifications";
 
 body {
   background: var(--color-bg);

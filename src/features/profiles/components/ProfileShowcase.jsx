@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
   return (
     <section className="profile-showcase">
-      <h2>Top Four</h2>
+      <h2>My Top Four...</h2>
       <div className="profile-showcase__section">
         <div className="profile-showcase__header">
           <h2 className="profile-showcase__title">Friends</h2>
