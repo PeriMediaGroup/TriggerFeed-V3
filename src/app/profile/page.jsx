@@ -128,9 +128,12 @@ export default async function ProfilePage() {
       <ProfileDashboardTabs
         tabs={[
           {
-            key: "posts",
-            label: "Posts",
-            panel: <ProfileLatestPost latestPost={latestPost} />,
+            key: "notifications",
+            label: "Notifications",
+            badge: unreadNotifications ?? 0,
+            panel: (
+              <NotificationsPanel notifications={notificationsWithActors} />
+            ),
           },
           {
             key: "friends",
@@ -151,12 +154,9 @@ export default async function ProfilePage() {
             panel: <ManageGunsPanel topGuns={topGuns} />,
           },
           {
-            key: "notifications",
-            label: "Notifications",
-            badge: unreadNotifications ?? 0,
-            panel: (
-              <NotificationsPanel notifications={notificationsWithActors} />
-            ),
+            key: "posts",
+            label: "Posts",
+            panel: <ProfileLatestPost latestPost={latestPost} />,
           },
         ]}
       />

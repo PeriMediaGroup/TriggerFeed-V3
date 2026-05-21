@@ -11,7 +11,6 @@ import {
   Handshake,
   Crosshair,
 } from "lucide-react";
-
 export default function ProfileHeader({
   profile,
   stats,
@@ -30,6 +29,7 @@ export default function ProfileHeader({
 
   const location = [profile?.city, profile?.state].filter(Boolean).join(", ");
   const NotificationIcon = Bell;
+  const showProfileBadge = false;
 
   return (
     <section className="profile-header">
@@ -66,23 +66,24 @@ export default function ProfileHeader({
           <h1 className="profile-header__name">{displayName}</h1>
           <p className="profile-header__username">@{username}</p>
 
-          {(profile?.profile_badge || profile?.role) && (
+          {showProfileBadge && (profile?.profile_badge || profile?.role) && (
             <p className="profile-header__badge">
               {profile.profile_badge || profile.role}
             </p>
           )}
+          <div>
+            {location && (
+              <p className="profile-header__location">
+                <MapPin size={15} strokeWidth={2} aria-hidden="true" />
+                {location}
+              </p>
+            )}
 
-          {location && (
-            <p className="profile-header__location">
-              <MapPin size={15} strokeWidth={2} aria-hidden="true" />
-              {location}
+            <p className="profile-header__joined">
+              <CalendarDays size={15} strokeWidth={2} aria-hidden="true" />{" "}
+              Joined {formatShortDate(profile?.created_at)}
             </p>
-          )}
-
-          <p className="profile-header__joined">
-            <CalendarDays size={15} strokeWidth={2} aria-hidden="true" /> Joined{" "}
-            {formatShortDate(profile?.created_at)}
-          </p>
+          </div>
         </div>
 
         {isCurrentUser && (
@@ -90,35 +91,6 @@ export default function ProfileHeader({
             <Link href="/profile/edit" className="profile-header__edit">
               <Pencil size={16} strokeWidth={2} aria-hidden="true" />
               Edit Profile
-            </Link>
-
-            <br />
-
-            <Link
-              href="/profile/notifications"
-              className="profile__action-link"
-            >
-              <NotificationIcon size={16} strokeWidth={2} aria-hidden="true" />
-              Notifications
-              {unreadNotifications > 0 && (
-                <span className="profile__action-count">
-                  {unreadNotifications}
-                </span>
-              )}
-            </Link>
-
-            <br />
-
-            <Link href="/profile/friends" className="profile__action-link">
-              <Handshake size={16} strokeWidth={2} aria-hidden="true" />
-              Manage Friends
-            </Link>
-
-            <br />
-
-            <Link href="/profile/guns" className="profile__action-link">
-              <Crosshair size={16} strokeWidth={2} aria-hidden="true" />
-              Edit Top Guns
             </Link>
           </div>
         )}

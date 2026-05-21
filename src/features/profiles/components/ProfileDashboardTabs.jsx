@@ -1,12 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 export default function ProfileDashboardTabs({
-  defaultTab = "posts",
+  defaultTab = "notifications",
   tabs = [],
 }) {
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+const pathname = usePathname();
+  const tabKeys = useMemo(() => tabs.map((tab) => tab.key), [tabs]);
+
+  const urlTab = searchParams.get("tab");
+
+  const activeTab = useMemo(() => {
+    return tabKeys.includes(urlTab) ? urlTab : defaultTab;
+  }, [urlTab, tabKeys, defaultTab]);
+
+  function handleTabClick(tabKey) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (tabKey === defaultTab) {
+      params.delete("tab");
+    } else {
+      params.set("tab", tabKey);
+    }
+
+    const queryString = params.toString();
+
+    router.push(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  }
 
   const activePanel = tabs.find((tab) => tab.key === activeTab)?.panel;
 
@@ -29,7 +55,7 @@ export default function ProfileDashboardTabs({
                   ? "profile-dashboard-tabs__tab profile-dashboard-tabs__tab--active"
                   : "profile-dashboard-tabs__tab"
               }
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabClick(tab.key)}
               role="tab"
               aria-selected={isActive}
             >
@@ -45,9 +71,7 @@ export default function ProfileDashboardTabs({
         })}
       </div>
 
-      <div className="profile-dashboard-tabs__panel">
-        {activePanel}
-      </div>
+      <div className="profile-dashboard-tabs__panel">{activePanel}</div>
     </section>
   );
 }
