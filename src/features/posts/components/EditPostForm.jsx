@@ -2,12 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { updatePost } from "../actions/updatePost";
+import { uploadFilesToCloudinary } from "@/features/media/uploadToCloudinaryClient";
 import { deletePostMedia } from "../actions/deletePostMedia";
 import { savePostMedia } from "../actions/savePostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
 
 export default function EditPostForm({ post }) {
   const existingMedia = post.media || post.images || post.post_images || [];
+
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -33,7 +35,11 @@ export default function EditPostForm({ post }) {
         }
 
         if (removedMediaIds.length > 0) {
-          setStatus("Removing images...");
+          setStatus(
+            removedMediaIds.length === 1
+              ? "Removing media..."
+              : `Removing ${removedMediaIds.length} media items...`,
+          );
 
           const deleteMediaResult = await deletePostMedia({
             postId: post.id,
@@ -49,23 +55,30 @@ export default function EditPostForm({ post }) {
         if (newMediaFiles.length > 0) {
           setStatus(
             newMediaFiles.length === 1
-              ? "Uploading image..."
-              : `Uploading ${newMediaFiles.length} images...`,
+              ? "Uploading media..."
+              : `Uploading ${newMediaFiles.length} media items...`,
           );
 
-          const mediaFormData = new FormData();
-
-          mediaFormData.append("postId", post.id);
-
-          newMediaFiles.forEach((file) => {
-            mediaFormData.append("files", file);
+          const uploadedMedia = await uploadFilesToCloudinary({
+            files: newMediaFiles,
+            postId: post.id,
           });
 
-          const uploadMediaResult = await savePostMedia(mediaFormData);
+          if (uploadedMedia.length > 0) {
+            setStatus("Saving uploaded media...");
 
-          if (!uploadMediaResult.success) {
-            setStatus("Post updated, but new media could not be uploaded.");
-            return;
+            const saveMediaResult = await savePostMedia({
+              postId: post.id,
+              media: uploadedMedia,
+            });
+
+            if (!saveMediaResult.success) {
+              setStatus(
+                saveMediaResult.message ||
+                  "Post updated, but new media could not be saved.",
+              );
+              return;
+            }
           }
         }
 
@@ -75,7 +88,11 @@ export default function EditPostForm({ post }) {
           window.location.assign(`/posts/${post.id}`);
         }, 150);
       } catch (error) {
-        console.error("EDIT POST SAVE ERROR:", error);
+        console.error("EDIT POST SAVE ERROR:", {
+          message: error?.message,
+          stack: error?.stack,
+        });
+
         setStatus(error?.message || "Post save failed. Check the console.");
       }
     });

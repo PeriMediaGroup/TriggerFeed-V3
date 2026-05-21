@@ -10,34 +10,35 @@ export async function getProfileStats(userId) {
     .eq("is_deleted", false);
 
   if (postsError) {
-    console.error("GET PROFILE POST COUNT ERROR:", postsError);
+    console.error("GET PROFILE POST COUNT ERROR:", {
+      code: postsError.code,
+      message: postsError.message,
+      details: postsError.details,
+      hint: postsError.hint,
+    });
   }
 
-  const { count: friendCountA, error: friendsAError } = await supabase
-    .from("friends")
-    .select("id", { count: "exact", head: true })
-    .eq("requester_id", userId)
-    .eq("status", "accepted");
+  const { data: friendCount, error: friendCountError } = await supabase.rpc(
+    "get_profile_friend_count",
+    {
+      target_user_id: userId,
+    },
+  );
 
-  if (friendsAError) {
-    console.error("GET PROFILE FRIEND COUNT A ERROR:", friendsAError);
-  }
-
-  const { count: friendCountB, error: friendsBError } = await supabase
-    .from("friends")
-    .select("id", { count: "exact", head: true })
-    .eq("addressee_id", userId)
-    .eq("status", "accepted");
-
-  if (friendsBError) {
-    console.error("GET PROFILE FRIEND COUNT B ERROR:", friendsBError);
+  if (friendCountError) {
+    console.error("GET PROFILE FRIEND COUNT ERROR:", {
+      code: friendCountError.code,
+      message: friendCountError.message,
+      details: friendCountError.details,
+      hint: friendCountError.hint,
+    });
   }
 
   return {
     stats: {
       posts: postCount || 0,
-      friends: (friendCountA || 0) + (friendCountB || 0),
+      friends: friendCount || 0,
     },
-    error: postsError || friendsAError || friendsBError || null,
+    error: postsError || friendCountError || null,
   };
 }

@@ -135,4 +135,29 @@ $$;
 revoke all on function public.get_profile_friend_count(uuid) from public;
 grant execute on function public.get_profile_friend_count(uuid) to anon, authenticated;
 
+create or replace function public.are_users_accepted_friends(
+  p_user_id uuid,
+  p_friend_user_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.friends f
+    where f.status = 'accepted'
+      and (
+        (f.requester_id = p_user_id and f.addressee_id = p_friend_user_id)
+        or
+        (f.requester_id = p_friend_user_id and f.addressee_id = p_user_id)
+      )
+  );
+$$;
+
+revoke all on function public.are_users_accepted_friends(uuid, uuid) from public;
+grant execute on function public.are_users_accepted_friends(uuid, uuid) to authenticated;
+
 commit;

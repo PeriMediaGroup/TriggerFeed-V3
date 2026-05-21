@@ -250,7 +250,16 @@ revoke all on public.comments from anon;
 revoke all on public.comments from authenticated;
 
 grant select on public.comments to anon, authenticated;
-grant insert, update on public.comments to authenticated;
+grant insert on public.comments to authenticated;
+
+revoke update on public.comments from authenticated;
+
+grant update (
+  body,
+  is_deleted,
+  deleted_at,
+  updated_at
+) on public.comments to authenticated;
 
 create policy "comments_select_visible_public_post"
 on public.comments

@@ -56,10 +56,9 @@ export async function createMentionNotifications({
 
   for (const profile of uniqueProfiles) {
     const { error } = await supabase.rpc("create_mention_notification", {
-      target_user_id: profile.id,
-      actor_user_id: actorId,
-      target_post_id: postId,
-      target_comment_id: commentId,
+      p_user_id: profile.id,
+      p_post_id: postId,
+      p_comment_id: commentId,
     });
 
     // 23505 = duplicate key violation.

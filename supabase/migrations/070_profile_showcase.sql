@@ -122,7 +122,10 @@ on public.profile_top_friends
 for all
 to authenticated
 using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+with check (
+  auth.uid() = user_id
+  and public.are_users_accepted_friends(user_id, friend_user_id)
+)
 
 create policy "profile_top_guns_select_visible_profiles"
 on public.profile_top_guns
