@@ -1,130 +1,355 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
+
 import { updatePost } from "../actions/updatePost";
+import { uploadFilesToCloudinary } from "@/features/media/uploadToCloudinaryClient";
 import { deletePostMedia } from "../actions/deletePostMedia";
-import { uploadPostMedia } from "../actions/uploadPostMedia";
+import { savePostMedia } from "../actions/savePostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
+import PostComposer from "@/features/posts/components/PostComposer";
+
+function getMediaUrl(item) {
+  return (
+    item?.secure_url ||
+    item?.url ||
+    item?.media_url ||
+    item?.cloudinary_secure_url ||
+    item?.cloudinary_url ||
+    item?.thumbnail_url ||
+    item?.external_url ||
+    item?.image_url ||
+    item?.video_url ||
+    ""
+  );
+}
+
+function getExistingMedia(post) {
+  const mediaSource =
+    post?.media ||
+    post?.post_media ||
+    post?.postMedia ||
+    post?.images ||
+    post?.post_images ||
+    [];
+
+  if (!Array.isArray(mediaSource)) {
+    return [];
+  }
+
+  return mediaSource
+    .map((item, index) => {
+      const mediaUrl = getMediaUrl(item);
+
+      return {
+        ...item,
+        id: item.id,
+        post_id: item.post_id || item.postId || post?.id,
+        url: mediaUrl,
+        secure_url: mediaUrl,
+        media_url: item.media_url || mediaUrl,
+        public_id:
+          item.public_id || item.cloudinary_public_id || item.publicId || "",
+        media_type:
+          item.media_type || item.type || item.resource_type || "image",
+        type: item.type || item.media_type || item.resource_type || "image",
+        resource_type:
+          item.resource_type || item.media_type || item.type || "image",
+        provider: item.provider || item.source || "",
+        alt_text: item.alt_text || item.alt || item.title || "",
+        title: item.title || item.alt_text || "",
+        sort_order:
+          item.sort_order ?? item.display_order ?? item.position ?? index,
+      };
+    })
+    .filter((item) => item.id && getMediaUrl(item));
+}
+
+function getInitialPoll(post) {
+  const pollSource = Array.isArray(post?.polls)
+    ? post.polls[0]
+    : post?.poll ||
+      post?.post_poll ||
+      post?.post_polls ||
+      post?.poll_draft ||
+      null;
+
+  if (!pollSource) {
+    return null;
+  }
+
+  const optionSource =
+    pollSource.options ||
+    pollSource.poll_options ||
+    pollSource.post_poll_options ||
+    pollSource.pollOptions ||
+    [];
+
+  return {
+    id: pollSource.id || null,
+    question:
+      pollSource.question || pollSource.title || pollSource.prompt || "",
+    options: Array.isArray(optionSource)
+      ? optionSource.map((option) => {
+          if (typeof option === "string") {
+            return option;
+          }
+
+          return (
+            option.text ||
+            option.label ||
+            option.option_text ||
+            option.body ||
+            option.value ||
+            option.option ||
+            option.title ||
+            ""
+          );
+        })
+      : [],
+  };
+}
+
+function isGifMedia(item) {
+  const mediaType = `${item?.media_type || item?.type || ""}`.toLowerCase();
+  const provider = `${item?.provider || item?.source || ""}`.toLowerCase();
+
+  return mediaType === "gif" || mediaType === "giphy" || provider === "giphy";
+}
+
+function getInitialGif(post) {
+  const directGif =
+    post?.gif ||
+    post?.selectedGif ||
+    post?.giphy ||
+    post?.post_gif ||
+    post?.gif_media ||
+    null;
+
+  if (directGif) {
+    return directGif;
+  }
+
+  const mediaSource =
+    post?.media ||
+    post?.post_media ||
+    post?.postMedia ||
+    post?.images ||
+    post?.post_images ||
+    [];
+
+  if (!Array.isArray(mediaSource)) {
+    return null;
+  }
+
+  const gifMedia = mediaSource.find(isGifMedia);
+
+  if (!gifMedia) {
+    return null;
+  }
+
+  const gifUrl = getMediaUrl(gifMedia);
+
+  return {
+    ...gifMedia,
+    id: gifMedia.public_id || gifMedia.id || "",
+    mediaId: gifMedia.id,
+    url: gifUrl,
+    secure_url: gifUrl,
+    title: gifMedia.title || gifMedia.alt_text || "GIPHY",
+    provider: gifMedia.provider || "giphy",
+  };
+}
+
+function applyUploadedMediaDisplayOffset({
+  uploadedMedia,
+  existingMedia,
+  removedMediaIds,
+}) {
+  const remainingExistingMedia = existingMedia.filter((item) => {
+    return !removedMediaIds.includes(item.id);
+  });
+
+  const maxExistingOrder = remainingExistingMedia.reduce((maxOrder, item) => {
+    const itemOrder = Number(item.display_order ?? item.sort_order ?? -1);
+    return Number.isFinite(itemOrder)
+      ? Math.max(maxOrder, itemOrder)
+      : maxOrder;
+  }, -1);
+
+  const startingOrder = maxExistingOrder + 1;
+
+  return uploadedMedia.map((item, index) => {
+    const displayOrder = startingOrder + index;
+
+    return {
+      ...item,
+      sort_order: displayOrder,
+      display_order: displayOrder,
+    };
+  });
+}
 
 export default function EditPostForm({ post }) {
-  const existingMedia = post.media || post.images || post.post_images || [];
   const [errors, setErrors] = useState({});
+  const [mediaErrors, setMediaErrors] = useState([]);
   const [status, setStatus] = useState("");
+  const [submitStep, setSubmitStep] = useState("");
   const [isPending, startTransition] = useTransition();
   const [newMediaFiles, setNewMediaFiles] = useState([]);
   const [removedMediaIds, setRemovedMediaIds] = useState([]);
 
-  function handleSubmit(event) {
-    event.preventDefault();
+  const existingMedia = useMemo(() => getExistingMedia(post), [post]);
+  const initialPoll = useMemo(() => getInitialPoll(post), [post]);
+  const initialGif = useMemo(() => getInitialGif(post), [post]);
 
-    const formData = new FormData(event.currentTarget);
+  async function handleComposerSubmit({ formData, selectedGif, cleanedPoll }) {
+    if (initialGif && !selectedGif) {
+      formData.set("remove_gif", "true");
+    }
 
-    startTransition(async () => {
-      try {
-        setErrors({});
-        setStatus("");
+    if (initialPoll && !cleanedPoll) {
+      formData.set("remove_poll", "true");
+    }
 
-        const result = await updatePost(post.id, formData);
+    return new Promise((resolve) => {
+      startTransition(async () => {
+        try {
+          setErrors({});
+          setMediaErrors([]);
+          setStatus("");
+          setSubmitStep("Saving post...");
 
-        if (!result.success) {
-          setErrors(result.errors || {});
-          setStatus(result.message || "Something went wrong.");
-          return;
-        }
+          const result = await updatePost(post.id, formData);
 
-        if (removedMediaIds.length > 0) {
-          setStatus("Removing images...");
-
-          const deleteMediaResult = await deletePostMedia({
-            postId: post.id,
-            mediaIds: removedMediaIds,
-          });
-
-          if (!deleteMediaResult.success) {
-            setStatus("Post updated, but some media could not be removed.");
+          if (!result.success) {
+            setErrors(result.errors || {});
+            setStatus(result.message || "Something went wrong.");
+            setSubmitStep("");
+            resolve(false);
             return;
           }
-        }
 
-        if (newMediaFiles.length > 0) {
-          setStatus(
-            newMediaFiles.length === 1
-              ? "Uploading image..."
-              : `Uploading ${newMediaFiles.length} images...`,
-          );
+          if (removedMediaIds.length > 0) {
+            setStatus(
+              removedMediaIds.length === 1
+                ? "Removing media..."
+                : `Removing ${removedMediaIds.length} media items...`,
+            );
+            setSubmitStep("Removing media...");
 
-          const mediaFormData = new FormData();
+            const deleteMediaResult = await deletePostMedia({
+              postId: post.id,
+              mediaIds: removedMediaIds,
+            });
 
-          mediaFormData.append("postId", post.id);
+            if (!deleteMediaResult.success) {
+              setStatus("Post updated, but some media could not be removed.");
+              setSubmitStep("");
+              resolve(false);
+              return;
+            }
+          }
 
-          newMediaFiles.forEach((file) => {
-            mediaFormData.append("files", file);
+          if (newMediaFiles.length > 0) {
+            setStatus(
+              newMediaFiles.length === 1
+                ? "Uploading media..."
+                : `Uploading ${newMediaFiles.length} media items...`,
+            );
+
+            const uploadedMedia = await uploadFilesToCloudinary({
+              files: newMediaFiles,
+              postId: post.id,
+              onProgress: ({ index, total } = {}) => {
+                if (typeof index === "number" && typeof total === "number") {
+                  setSubmitStep(`Uploading media ${index + 1} of ${total}...`);
+                } else {
+                  setSubmitStep("Uploading media...");
+                }
+              },
+            });
+
+            if (uploadedMedia.length > 0) {
+              setStatus("Saving uploaded media...");
+              setSubmitStep("Saving uploaded media...");
+
+              const orderedUploadedMedia = applyUploadedMediaDisplayOffset({
+                uploadedMedia,
+                existingMedia,
+                removedMediaIds,
+              });
+
+              const saveMediaResult = await savePostMedia({
+                postId: post.id,
+                media: orderedUploadedMedia,
+              });
+
+              if (!saveMediaResult.success) {
+                const saveMediaErrors = saveMediaResult.errors || [];
+
+                setMediaErrors(saveMediaErrors);
+                setStatus(
+                  saveMediaResult.message ||
+                    saveMediaErrors[0] ||
+                    "Post updated, but new media could not be saved.",
+                );
+                setSubmitStep("");
+                resolve(false);
+                return;
+              }
+            }
+          }
+
+          setSubmitStep("Finishing up...");
+          setStatus("Post updated.");
+
+          setTimeout(() => {
+            window.location.assign(`/posts/${post.id}`);
+          }, 150);
+
+          resolve(false);
+        } catch (error) {
+          console.error("EDIT POST SAVE ERROR:", {
+            message: error?.message,
+            stack: error?.stack,
           });
 
-          const uploadMediaResult = await uploadPostMedia(mediaFormData);
-
-          if (!uploadMediaResult.success) {
-            setStatus("Post updated, but new media could not be uploaded.");
-            return;
-          }
+          setStatus(error?.message || "Post save failed. Check the console.");
+          setSubmitStep("");
+          resolve(false);
         }
-
-        setStatus("Post updated.");
-
-        setTimeout(() => {
-          window.location.assign(`/posts/${post.id}`);
-        }, 150);
-      } catch (error) {
-        console.error("EDIT POST SAVE ERROR:", error);
-        setStatus(error?.message || "Post save failed. Check the console.");
-      }
+      });
     });
   }
 
   return (
-    <form className="post-form" onSubmit={handleSubmit}>
-      <div className="post-form__field">
-        <label htmlFor="title">Title</label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          maxLength={120}
-          required
-          defaultValue={post.title}
+    <PostComposer
+      key={post.id}
+      mode="edit"
+      initialTitle={post.title || ""}
+      initialBody={post.body || ""}
+      initialPoll={initialPoll}
+      initialGif={initialGif}
+      errors={errors}
+      mediaErrors={mediaErrors}
+      status={status}
+      submitStep={submitStep}
+      isPending={isPending}
+      submitLabel="Save Changes"
+      pendingLabel="Saving..."
+      bodyPlaceholder="Update your post..."
+      renderMediaManager={({ mediaItems, onAddMedia, onRemoveMedia }) => (
+        <EditPostMediaManager
+          media={existingMedia}
+          mediaItems={mediaItems}
+          onAddMedia={onAddMedia}
+          onRemoveMedia={onRemoveMedia}
+          onNewFilesChange={setNewMediaFiles}
+          onRemovedMediaIdsChange={setRemovedMediaIds}
         />
-        {errors.title && <p className="post-form__error">{errors.title}</p>}
-      </div>
-
-      <EditPostMediaManager
-        media={existingMedia}
-        onNewFilesChange={setNewMediaFiles}
-        onRemovedMediaIdsChange={setRemovedMediaIds}
-      />
-
-      <div className="post-form__field">
-        <label htmlFor="body">Body</label>
-        <textarea
-          id="body"
-          name="body"
-          rows={6}
-          maxLength={5000}
-          defaultValue={post.body || ""}
-        />
-        {errors.body && <p className="post-form__error">{errors.body}</p>}
-      </div>
-
-      <input type="hidden" name="visibility" value="public" />
-
-      {errors.visibility && (
-        <p className="post-form__error">{errors.visibility}</p>
       )}
-
-      <button type="submit" disabled={isPending}>
-        {isPending ? "Saving..." : "Save Changes"}
-      </button>
-
-      {status && <p className="post-form__status">{status}</p>}
-    </form>
+      onSubmit={handleComposerSubmit}
+    />
   );
 }

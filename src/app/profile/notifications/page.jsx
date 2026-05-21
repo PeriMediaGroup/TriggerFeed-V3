@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import NotificationsReadMarker from "@/features/notifications/components/NotificationsReadMarker";
-import DismissNotificationButton from "@/features/notifications/components/DismissNotificationButton";
-import NotificationTargetLink from "@/features/notifications/components/NotificationTargetLink";
+import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 
 export default async function NotificationsPage() {
   const supabase = await createClient();
@@ -89,119 +88,14 @@ export default async function NotificationsPage() {
         <Link href="/profile/friends">Friends</Link>
       </header>
 
-      {!notifications?.length ? (
-        <p>No notifications at this time.</p>
-      ) : (
-        <ul className="profile-notifications-page__list">
-          {notifications.map((notification) => {
-            const actor = actorsById.get(notification.actor_id);
-
-            const actorLabel = actor?.username
-              ? `@${actor.username}`
-              : actor?.first_name
-                ? actor.first_name
-                : "Someone";
-
-            const actorHref = notification.actor_id
-              ? `/profiles/${notification.actor_id}`
-              : null;
-
-            let actionText = notification.body;
-
-            if (notification.type === "friend_request") {
-              actionText = "sent you a friend request";
-            }
-
-            if (notification.type === "friend_accepted") {
-              actionText = "accepted your friend request";
-            }
-
-            if (notification.type === "mention") {
-              actionText = notification.comment_id
-                ? "mentioned you in a comment"
-                : "mentioned you in a post";
-            }
-
-            if (notification.type === "comment") {
-              actionText = "commented on your post";
-            }
-
-            if (notification.type === "reply") {
-              actionText = "replied to your comment";
-            }
-
-            let targetHref = null;
-            let targetLabel = null;
-
-            if (
-              ["mention", "comment", "reply"].includes(notification.type) &&
-              notification.post_id
-            ) {
-              targetHref = notification.comment_id
-                ? `/posts/${notification.post_id}#comment-${notification.comment_id}`
-                : `/posts/${notification.post_id}`;
-
-              targetLabel = notification.comment_id
-                ? "View comment"
-                : "View post";
-            }
-
-            if (notification.type === "friend_request") {
-              targetHref = "/profile/friends";
-              targetLabel = "View request";
-            }
-
-            if (
-              notification.type === "friend_accepted" &&
-              notification.actor_id
-            ) {
-              targetHref = `/profiles/${notification.actor_id}`;
-              targetLabel = "View profile";
-            }
-
-            return (
-              <li
-                key={notification.id}
-                className={
-                  notification.is_read
-                    ? "profile-notifications-page__item"
-                    : "profile-notifications-page__item profile-notifications-page__item--unread"
-                }
-              >
-                <p>
-                  {actorHref ? (
-                    <Link
-                      href={actorHref}
-                      className="profile-notifications-page__actor"
-                    >
-                      {actorLabel}
-                    </Link>
-                  ) : (
-                    <span>{actorLabel}</span>
-                  )}{" "}
-                  {actionText}
-                  {targetHref && targetLabel ? (
-                    <>
-                      {" "}
-                      <NotificationTargetLink
-                        notificationId={notification.id}
-                        href={targetHref}
-                      >
-                        {targetLabel}
-                      </NotificationTargetLink>
-                    </>
-                  ) : null}
-                </p>
-
-                <time dateTime={notification.created_at}>
-                  {new Date(notification.created_at).toLocaleString()}
-                </time>
-                <DismissNotificationButton notificationId={notification.id} />
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <NotificationsPanel
+        notifications={
+          notifications?.map((notification) => ({
+            ...notification,
+            actor: actorsById.get(notification.actor_id) ?? null,
+          })) ?? []
+        }
+      />
     </main>
   );
 }

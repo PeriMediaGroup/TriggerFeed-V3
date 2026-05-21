@@ -12,6 +12,8 @@
 @use "../features/profiles/styles/_profile";
 @use "../features/profiles/styles/_profile-header";
 @use "../features/profiles/styles/_profile-edit-form";
+@use "../features/profiles/styles/_profile-showcase";
+@use "../features/notifications/styles/_notifications";
 
 body {
   background: var(--color-bg);
@@ -31,6 +33,12 @@ button {
   background: transparent;
   border: 0;
   cursor: pointer;
+  color: #fff;
+}
+
+a {
+  color: var(--color-accent);
+  font-weight: bold;
 }
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //

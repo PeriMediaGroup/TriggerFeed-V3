@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 
 export default function OnboardingPage() {
-  const supabase = createClient();
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
 
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
@@ -30,11 +30,17 @@ export default function OnboardingPage() {
     }
 
     loadUser();
-  }, [router]);
+  }, [router, supabase]);
 
   async function handleSubmit(event) {
     event.preventDefault();
     setStatus("");
+
+    if (!user) {
+      setStatus("Please log in to finish setting up your profile.");
+      router.replace("/login");
+      return;
+    }
 
     const cleanUsername = username.trim();
 
@@ -79,6 +85,13 @@ export default function OnboardingPage() {
       if (error.code === "23505") {
         setStatus("That username is already taken.");
       } else {
+        console.error("ONBOARDING PROFILE UPDATE ERROR:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
+
         setStatus("We could not save your username. Please try again.");
       }
 

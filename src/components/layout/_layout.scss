@@ -1,5 +1,3 @@
-.app-header {
-}
 
 .app-shell {
   border: 1px solid blue;
@@ -21,4 +19,10 @@
 }
 .app-header__actions {
   background: blue;
+}
+
+
+.app-footer {
+  position: sticky;
+  bottom: 0;
 }

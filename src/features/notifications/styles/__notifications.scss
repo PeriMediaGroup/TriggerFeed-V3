@@ -1,1 +1,51 @@
-// coming soon
+.notifications-panel {
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    list-style: none;
+  }
+
+  &__icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.15rem;
+
+    svg {
+      display: block;
+    }
+
+    &--comment,
+    &--reply {
+      color: var(--color-info);
+    }
+
+    &--friend_accepted,
+    &--friend_request {
+      color: var(--color-success);
+    }
+
+    &--mention {
+      color: var(--color-accent);
+    }
+
+    &--default {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 1em;
+    justify-content: space-between;
+    a {
+        margin-right: .5em;
+    }
+    time {
+        font-size: .8rem;
+    }
+  }
+}

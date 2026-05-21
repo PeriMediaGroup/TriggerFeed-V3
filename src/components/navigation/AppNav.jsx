@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getProfileById } from "@/features/profiles/data/getProfileById";
-import { Home, User, LogIn, LogOut, PlusCircle, UserPlus } from "lucide-react";
+import { LogIn, PlusCircle, UserPlus } from "lucide-react";
 
 export default async function AppNav() {
   const user = await getCurrentUser();

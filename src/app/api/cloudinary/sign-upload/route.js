@@ -100,18 +100,6 @@ export async function POST(request) {
     }
   }
 
-  const uploadPreset =
-    mediaType === "video"
-      ? process.env.CLOUDINARY_POST_VIDEO_PRESET
-      : process.env.CLOUDINARY_POST_IMAGE_PRESET;
-
-  if (!uploadPreset) {
-    return NextResponse.json(
-      { error: "Cloudinary upload preset is not configured." },
-      { status: 500 },
-    );
-  }
-
   const { data: post, error: postError } = await supabase
     .from("posts")
     .select("id, user_id")
@@ -126,6 +114,18 @@ export async function POST(request) {
     );
   }
 
+  const uploadPreset =
+    mediaType === "video"
+      ? process.env.CLOUDINARY_POST_VIDEO_PRESET
+      : process.env.CLOUDINARY_POST_IMAGE_PRESET;
+
+  if (!uploadPreset) {
+    return NextResponse.json(
+      { error: "Cloudinary upload preset is not configured." },
+      { status: 500 },
+    );
+  }
+
   const timestamp = Math.round(Date.now() / 1000);
 
   const folder = getPostMediaFolder({
@@ -135,17 +135,25 @@ export async function POST(request) {
 
   const resourceType = mediaType === "video" ? "video" : "image";
 
-  const paramsToSign = {
-    timestamp,
+  // Security note:
+  // This route validates the client-reported file size and MIME type before
+  // issuing a signature, but the browser could still upload a different file
+  // after receiving the signature. Cloudinary signed upload presets must enforce
+  // allowed formats and any available file-size restrictions.
+  // Current required presets:
+  // - triggerfeed_post_images
+  // - triggerfeed_post_videos
+  const uploadParams = {
     folder,
+    overwrite: "false",
+    timestamp,
+    unique_filename: "true",
     upload_preset: uploadPreset,
-    use_filename: true,
-    unique_filename: true,
-    overwrite: false,
+    use_filename: "true",
   };
 
   const signature = cloudinary.utils.api_sign_request(
-    paramsToSign,
+    uploadParams,
     process.env.CLOUDINARY_API_SECRET,
   );
 
@@ -156,6 +164,9 @@ export async function POST(request) {
     resourceType,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
-    uploadPreset,
+    overwrite: uploadParams.overwrite,
+    uniqueFilename: uploadParams.unique_filename,
+    uploadPreset: uploadParams.upload_preset,
+    useFilename: uploadParams.use_filename,
   });
 }

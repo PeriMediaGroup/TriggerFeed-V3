@@ -1,6 +1,23 @@
 import Link from "next/link";
 import DismissNotificationButton from "@/features/notifications/components/DismissNotificationButton";
 import NotificationTargetLink from "@/features/notifications/components/NotificationTargetLink";
+import { icons } from "@/lib/icons";
+
+const notificationIconMap = {
+  comment: icons.comment,
+  friend_accepted: icons.usercheck,
+  friend_request: icons.userplus,
+  mention: icons.mention,
+  reply: icons.reply,
+};
+
+function getNotificationIcon(type) {
+  return notificationIconMap[type] || icons.notifications;
+}
+
+function getNotificationIconClass(type) {
+  return `notifications-panel__icon notifications-panel__icon--${type || "default"}`;
+}
 
 export default function NotificationsPanel({ notifications = [] }) {
   if (!notifications.length) {
@@ -10,6 +27,8 @@ export default function NotificationsPanel({ notifications = [] }) {
   return (
     <ul className="notifications-panel">
       {notifications.map((notification) => {
+        const Icon = getNotificationIcon(notification.type);
+
         const actorLabel = notification.actor?.username
           ? `@${notification.actor.username}`
           : notification.actor?.first_name
@@ -77,30 +96,28 @@ export default function NotificationsPanel({ notifications = [] }) {
                 : "notifications-panel__item notifications-panel__item--unread"
             }
           >
+            <div className={getNotificationIconClass(notification.type)}>
+              <Icon aria-hidden="true" size={20} strokeWidth={2.25} />
+            </div>
+
             <div className="notifications-panel__content">
-              <p>
-                {actorHref ? (
-                  <Link href={actorHref}>{actorLabel}</Link>
-                ) : (
-                  <span>{actorLabel}</span>
-                )}
-
-                {" "}
-                {actionText}
-
-                {targetHref && targetLabel ? (
-                  <>
-                    {" "}
-                    <NotificationTargetLink
-                      notificationId={notification.id}
-                      href={targetHref}
-                    >
-                      {targetLabel}
-                    </NotificationTargetLink>
-                  </>
-                ) : null}
-              </p>
-
+              {actorHref ? (
+                <Link href={actorHref}>{actorLabel}</Link>
+              ) : (
+                <span>{actorLabel}</span>
+              )}{" "}
+              {actionText}
+              {targetHref && targetLabel ? (
+                <>
+                  {" "}
+                  <NotificationTargetLink
+                    notificationId={notification.id}
+                    href={targetHref}
+                  >
+                    {targetLabel}
+                  </NotificationTargetLink>
+                </>
+              ) : null}
               <time dateTime={notification.created_at}>
                 {new Date(notification.created_at).toLocaleString()}
               </time>

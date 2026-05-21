@@ -6,11 +6,11 @@ import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 
 export default function AuthCallbackPage() {
-  const supabase = createClient();
   const router = useRouter();
   const [status, setStatus] = useState("Finishing sign in...");
 
   useEffect(() => {
+    const supabase = createClient();
     async function handleCallback() {
       const { data, error } = await supabase.auth.getSession();
 

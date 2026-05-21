@@ -3,6 +3,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+function cleanSearchQuery(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^@+/, "")
+    .replace(/[^\w.-]/g, "")
+    .toLowerCase();
+}
+
 export async function GET(request) {
   const supabase = await createClient();
 
@@ -15,13 +23,11 @@ export async function GET(request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const query = String(searchParams.get("q") || "").trim();
+  const cleanedQuery = cleanSearchQuery(searchParams.get("q"));
 
-  if (query.length < 2) {
+  if (cleanedQuery.length < 1) {
     return NextResponse.json({ users: [] });
   }
-
-  const cleanedQuery = query.replace(/^@/, "");
 
   const { data: friendRows, error: friendRowsError } = await supabase
     .from("friends")
@@ -64,10 +70,9 @@ export async function GET(request) {
       state
     `
     )
-    .eq("is_deleted", false)
-    .or(
-      `username.ilike.%${cleanedQuery}%,display_name.ilike.%${cleanedQuery}%,first_name.ilike.%${cleanedQuery}%,last_name.ilike.%${cleanedQuery}%`
-    )
+    .not("username", "is", null)
+    .ilike("username_lower", `${cleanedQuery}%`)
+    .order("username_lower", { ascending: true })
     .limit(8);
 
   for (const excludedUserId of excludedUserIds) {

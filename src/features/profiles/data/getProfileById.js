@@ -32,7 +32,6 @@ export async function getProfileById(userId) {
       display_name,
       avatar_cloudinary_url,
       banner_cloudinary_url,
-      role,
       profile_badge,
       city,
       state,
