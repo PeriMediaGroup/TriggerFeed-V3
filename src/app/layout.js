@@ -1,7 +1,6 @@
 import { Black_Ops_One, Tomorrow } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
-import AppHeader from "@/components/layout/AppHeader";
-import BottomNav from "@/components/navigation/BottomNav";
+import AppShell from "@/components/layout/AppShell";
 import { Toaster } from "react-hot-toast";
 import "@/styles/globals.scss";
 
@@ -44,14 +43,10 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`}>
       <body>
-        <AppHeader />
-        <div className="content">
+        <AppShell>
           {children}
-        </div>
+        </AppShell>
         <Toaster position="bottom-center" />
-        {user ? (
-          <BottomNav unreadNotifications={unreadNotifications} />
-        ) : null}
       </body>
     </html>
   );

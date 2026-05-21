@@ -1,28 +1,52 @@
+// temp 
+.temp-block {
+  background-color: #fff;
+  color: black;
+  height: 200px;
+  padding: 15px;
+  margin-bottom: 2em;
+  border-radius: 5px;
+}
+
+// END temp
 
 .app-shell {
-  border: 1px solid blue;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 720px) 240px;
+  justify-content: center;
 }
-.app-header {
+
+.app-shell__sidebar {
   position: sticky;
   top: 0;
-  left: 0;
-  z-index: 50;
+  height: 100vh;
+  align-self: start;
+  border-right: 1px solid var(--color-border);
+}
+
+.app-shell__right-rail {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 100%;
-  margin: 3px 5px;
-  padding: 5px;
-  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
-  border-radius: 15px;
-  background: var(--color-surface-transparent, rgba(31, 41, 47, 0.14));
-}
-.app-header__actions {
-  background: blue;
+  justify-content: center;
+  border-left: 1px solid var(--color-border);
 }
 
+.app-shell__main {
+  min-width: 0;
+  min-height: 100vh;
+}
 
-.app-footer {
-  position: sticky;
-  bottom: 0;
+@media (max-width: 768px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-shell__sidebar,
+  .app-shell__right-rail {
+    display: none;
+  }
+
+  .app-shell__main {
+    border-inline: 0;
+  }
 }

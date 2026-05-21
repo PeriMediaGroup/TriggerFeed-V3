@@ -1,12 +1,7 @@
+import FeedPage from "../features/feed/components/FeedPage";
 
-import PostsPage from "./posts/page";
+export default function Home({ searchParams }) {
+  const feedType = searchParams?.feed || "main";
 
-export default function Home() {
-  return (
-    <div>
-      <main>
-          <PostsPage />
-      </main>
-    </div>
-  );
+  return <FeedPage feedType={feedType} />;
 }
