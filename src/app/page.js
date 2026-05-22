@@ -1,12 +1,16 @@
+import FeedPage from "@/features/feed/components/FeedPage";
 
-import PostsPage from "./posts/page";
+const VALID_FEEDS = ["main", "friends", "trending"];
 
-export default function Home() {
-  return (
-    <div>
-      <main>
-          <PostsPage />
-      </main>
-    </div>
-  );
+export default async function Home({ searchParams }) {
+  const params = await searchParams;
+
+  const requestedFeed =
+    typeof params?.feed === "string" ? params.feed : "main";
+
+  const feedType = VALID_FEEDS.includes(requestedFeed)
+    ? requestedFeed
+    : "main";
+
+  return <FeedPage feedType={feedType} />;
 }
