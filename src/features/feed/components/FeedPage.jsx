@@ -1,5 +1,5 @@
 import FeedTabs from "./FeedTabs";
-import { getFeedPosts } from "../data/getFeedPosts";
+import { getPosts } from "@/features/posts/data/getPosts";
 import PostFeed from "@/features/posts/components/PostFeed";
 
 const VALID_FEEDS = ["main", "friends", "trending"];
@@ -7,7 +7,12 @@ const VALID_FEEDS = ["main", "friends", "trending"];
 export default async function FeedPage({ feedType = "main" }) {
   const activeFeed = VALID_FEEDS.includes(feedType) ? feedType : "main";
 
-  const { posts, message } = await getFeedPosts(activeFeed);
+  const {
+    posts,
+    commentsByPostId,
+    currentUserId,
+    message,
+  } = await getPosts({ feedType: activeFeed });
 
   return (
     <section className="feed-page">
@@ -19,7 +24,11 @@ export default async function FeedPage({ feedType = "main" }) {
         </div>
       ) : null}
 
-      <PostFeed posts={posts} />
+      <PostFeed
+        posts={posts}
+        commentsByPostId={commentsByPostId}
+        currentUserId={currentUserId}
+      />
     </section>
   );
 }

@@ -31,6 +31,7 @@ export default function FeedTabs({ activeFeed = "main" }) {
             className={`feed-tabs__link ${
               isActive ? "feed-tabs__link--active" : ""
             }`}
+            aria-current={isActive ? "page" : undefined}
           >
             {tab.label}
           </Link>
