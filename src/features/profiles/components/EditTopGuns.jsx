@@ -71,8 +71,6 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
 
   return (
     <section className="edit-top-guns">
-      <h2>Top Guns</h2>
-      <p>Add up to 4 favorite guns to show on your profile.</p>
 
       {state?.message && (
         <p className="edit-top-guns__message">{state.message}</p>
@@ -143,7 +141,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
         </ol>
 
         <button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : "Save Top Guns"}
+          {isPending ? "Saving..." : "Save"}
         </button>
       </form>
     </section>

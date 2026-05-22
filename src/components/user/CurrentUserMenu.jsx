@@ -14,6 +14,7 @@ export default async function CurrentUserMenu() {
       <CurrentUserDropdown
         isLoggedIn={false}
         displayName={null}
+        role={null}
         unreadNotifications={0}
       />
     );
@@ -21,7 +22,7 @@ export default async function CurrentUserMenu() {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("username, first_name")
+    .select("username, first_name, last_name, display_name, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -51,6 +52,7 @@ export default async function CurrentUserMenu() {
     <CurrentUserDropdown
       isLoggedIn
       displayName={displayName}
+      role={profile?.role}
       unreadNotifications={unreadNotifications ?? 0}
     />
   );

@@ -78,7 +78,7 @@ export default function NotificationsPanel({ notifications = [] }) {
         }
 
         if (notification.type === "friend_request") {
-          targetHref = "/profile/friends";
+          targetHref = "/profile?tab=friends";
           targetLabel = "View request";
         }
 

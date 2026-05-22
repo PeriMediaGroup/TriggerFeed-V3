@@ -7,13 +7,11 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
       <h2>My Top Four...</h2>
       <div className="profile-showcase__section">
         <div className="profile-showcase__header">
-          <h2 className="profile-showcase__title">Friends</h2>
-
+          <h3 className="profile-showcase__title">Friends</h3>
         </div>
-
         {topFriends.length > 0 ? (
           <ul className="profile-showcase__grid">
-            {topFriends.map((item) => {
+            {topFriends.map((item, index) => {
               const friend = item.friend || item.profile || item;
 
               const displayName =
@@ -24,11 +22,15 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
                 friend?.username ||
                 "Unknown Friend";
 
+              const rank =
+                (item.display_order ?? friend?.display_order ?? index) + 1;
+
               return (
                 <li
                   key={item.id || friend.id}
                   className="profile-showcase__item"
                 >
+                  <span className="profile-showcase__rank">#{rank} &nbsp;</span>
                   <Link
                     href={`/profiles/${friend.id}`}
                     className="profile-showcase__link"
@@ -42,18 +44,16 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
                         />
                       ) : (
                         <Image
-                          className="profile-showcase__avatar"
+                          className="profile-showcase__avatar-image"
                           src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
                           alt="Default Avatar"
-                          width="50"
-                          height="50"
+                          width={50}
+                          height={50}
                         />
                       )}
                     </div>
 
-                    <span className="profile-showcase__name">
-                      {displayName}
-                    </span>
+                    <div className="profile-showcase__name">{displayName}</div>
                   </Link>
                 </li>
               );
@@ -68,18 +68,17 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
 
       <div className="profile-showcase__section">
         <div className="profile-showcase__header">
-          <h2 className="profile-showcase__title">Guns</h2>
+          <h3 className="profile-showcase__title">Guns</h3>
         </div>
 
         {topGuns.length > 0 ? (
           <ol className="profile-showcase__grid">
             {topGuns.map((gun) => (
               <li key={gun.id} className="profile-showcase__item">
+                <span className="profile-showcase__rank">
+                  #{gun.display_order + 1} &nbsp;
+                </span>
                 <div className="profile-showcase__gun">
-                  <span className="profile-showcase__rank">
-                    #{gun.display_order + 1} &nbsp;
-                  </span>
-
                   <span className="profile-showcase__name">{gun.name}</span>
                 </div>
               </li>
