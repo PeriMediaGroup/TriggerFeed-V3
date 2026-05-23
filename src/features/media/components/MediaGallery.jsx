@@ -14,7 +14,7 @@ import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 
-import "./MediaGallery.scss";
+import "../styles/MediaGallery.scss";
 
 function getMediaUrl(media) {
   return (

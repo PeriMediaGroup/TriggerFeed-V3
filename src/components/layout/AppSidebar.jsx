@@ -1,6 +1,5 @@
 import AppLogo from "../logo/AppLogo"
 import AppNav from "../navigation/AppNav"
-import CurrentUserDropdown from "../user/CurrentUserDropdown"
 import CurrentUserMenu from "../user/CurrentUserMenu"
 
 export default function AppSidebar() {
@@ -8,8 +7,8 @@ export default function AppSidebar() {
     <>
       <div className="app-sidebar">
         <AppLogo />
-        <CurrentUserMenu />
         <AppNav />
+        <CurrentUserMenu />
       </div>
       </>
   )}

@@ -70,8 +70,8 @@ export default function PostVoteButtons({
         aria-pressed={hasDownvoted}
         title="Downvote"
       >
-        <ThumbsDown className="post-votes__icon" aria-hidden="true" />
         <span className="post-votes__count">{voteState.downvoteCount}</span>
+        <ThumbsDown className="post-votes__icon" aria-hidden="true" />
       </button>
     </div>
   );

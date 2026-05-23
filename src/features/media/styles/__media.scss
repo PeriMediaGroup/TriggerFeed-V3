@@ -1,5 +1,7 @@
-// coming soon
 .media-gallery {
+  &__item {
+    margin: 0;
+  }
   &__item--gif {
     overflow: hidden;
     border-radius: var(--radius-lg);

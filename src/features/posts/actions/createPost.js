@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
-import { validatePostInput } from "../utils/validatePost";
+import {
+  getFirstPostError,
+  validatePostInput,
+} from "../utils/validatePost";
 
 function isTrustedGiphyMediaUrl(value) {
   try {
@@ -77,7 +80,7 @@ export async function createPost(formData) {
 
     return {
       success: false,
-      message: "Please fix the post errors.",
+      message: getFirstPostError(validation.errors),
       errors: validation.errors,
     };
   }

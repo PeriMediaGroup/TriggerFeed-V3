@@ -1,9 +1,7 @@
 "use client";
 
 export default function CreatePostGifPicker({
-  selectedGif,
   onSelectGif,
-  onRemoveGif,
   onClose,
   searchTerm,
   onSearchTermChange,
@@ -58,19 +56,6 @@ export default function CreatePostGifPicker({
           </button>
         )}
       </div>
-
-      {selectedGif && (
-        <div className="create-post__gif-selected">
-          <img
-            src={selectedGif.previewUrl || selectedGif.url}
-            alt={selectedGif.title || "Selected GIF"}
-          />
-
-          <button type="button" onClick={onRemoveGif}>
-            Remove GIF
-          </button>
-        </div>
-      )}
 
       {isLoading && gifs.length === 0 && (
         <p className="create-post__gif-status">Loading GIFs...</p>

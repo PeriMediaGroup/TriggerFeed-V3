@@ -1,11 +1,17 @@
-// temp 
+// temp
 .temp-block {
-  background-color: #fff;
+  background-color: rgba($color: #fff, $alpha: .25);
   color: black;
-  height: 200px;
+  height: 150px;
   padding: 15px;
-  margin-bottom: 2em;
-  border-radius: 5px;
+  margin-bottom: 1em;
+  border-radius: var(--radius-md);
+  &--small {
+    height: auto;
+  }
+  &--large {
+    height: 250px;
+  }
 }
 
 // END temp
@@ -23,12 +29,14 @@
   height: 100vh;
   align-self: start;
   border-right: 1px solid var(--color-border);
+  padding: 15px 0;
 }
 
 .app-shell__right-rail {
   display: flex;
   justify-content: center;
   border-left: 1px solid var(--color-border);
+  padding: 15px 0;
 }
 
 .app-shell__main {

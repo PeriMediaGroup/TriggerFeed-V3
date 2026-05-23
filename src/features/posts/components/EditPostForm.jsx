@@ -204,9 +204,6 @@ export default function EditPostForm({ post }) {
   const initialGif = useMemo(() => getInitialGif(post), [post]);
 
   async function handleComposerSubmit({ formData, selectedGif, cleanedPoll }) {
-    if (initialGif && !selectedGif) {
-      formData.set("remove_gif", "true");
-    }
 
     if (initialPoll && !cleanedPoll) {
       formData.set("remove_poll", "true");
@@ -330,7 +327,6 @@ export default function EditPostForm({ post }) {
       initialTitle={post.title || ""}
       initialBody={post.body || ""}
       initialPoll={initialPoll}
-      initialGif={initialGif}
       errors={errors}
       mediaErrors={mediaErrors}
       status={status}

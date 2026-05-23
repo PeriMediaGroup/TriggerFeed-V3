@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
 const DEFAULT_BLOCKED_BACK_PATHS = [
+  "/posts",
   "/posts/new",
   "/edit",
   "/login",

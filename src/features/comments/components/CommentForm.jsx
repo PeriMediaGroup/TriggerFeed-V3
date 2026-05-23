@@ -47,7 +47,9 @@ export default function CommentForm({ postId, isLoggedIn }) {
 
   return (
     <section className="comment-form">
+      {/*
       <p className="comment-form__title">Add a comment</p>
+      */}
 
       <form className="comment-form__form" onSubmit={handleSubmit}>
         <MentionTextarea

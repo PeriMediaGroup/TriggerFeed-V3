@@ -27,7 +27,7 @@ export default async function PostDetailPage({ params }) {
 
   return (
     <main className="post-detail-page">
-      <BackLink label="Back" fallbackHref="/posts" />
+      <BackLink label="Back" fallbackHref="/" />
 
       <PostDetail post={post} currentUserId={user?.id || null} />
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import DeletePostButton from "./DeletePostButton";
 import { MessageSquare } from "lucide-react";
 
@@ -22,11 +23,20 @@ export default function PostCard({
 }) {
   const [showComments, setShowComments] = useState(false);
 
-  const authorName =
+  const avatarUrl =
+    post.author?.avatar_cloudinary_url || post.avatarUrl || null;
+
+  const displayName =
+    post.author?.display_name ||
+    [post.author?.first_name, post.author?.last_name]
+      .filter(Boolean)
+      .join(" ") ||
     post.author?.username ||
-    post.author?.first_name ||
-    post.author?.email ||
     "Unknown user";
+
+  const authorName = post.author?.username
+    ? `@${post.author.username}`
+    : "Unknown user";
 
   const authorId = post.user_id || post.author?.id;
   const commentCount = post.comment_count || 0;
@@ -40,38 +50,59 @@ export default function PostCard({
     <>
       <article className="post-card">
         <header className="post-card__header">
-          <p>
-            Posted by{" "}
-            {authorId ? (
-              <Link href={`/profiles/${authorId}`}>
-                <strong>{authorName}</strong>
-              </Link>
+          <div className="post-card__header-avatar">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={`${displayName} avatar`}
+                className="post-card__header-avatar-image"
+              />
             ) : (
-              <strong>{authorName}</strong>
+              <Image
+                className="post-card__header-avatar-image"
+                src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
+                alt="Default Avatar"
+                width="150"
+                height="150"
+              />
+            )}{" "}
+          </div>
+          <div className="post-card__header-name">
+            {authorId ? (
+              <>
+                <strong className="post-card__author-display-name">
+                  {displayName}
+                </strong>
+
+                <Link
+                  href={`/profiles/${authorId}`}
+                  className="post-card__author-username"
+                >
+                  {authorName}
+                </Link>
+              </>
+            ) : (
+              <>
+                <strong>{displayName}</strong>
+                {authorName}
+              </>
             )}
-          </p>
-
-          <SharePostButton postId={post.id} />
-          <ReportPostButton
-            postId={post.id}
-            viewerHasReported={post.viewer_has_reported}
-          />
-
-          <p className="post-card__date" suppressHydrationWarning>
-            {formatRelativeTime(post.created_at)}
-          </p>
-
-          <h2 className="post-card__title">
-            <SmartText text={post.title} mentionProfiles={mentionProfiles} />
-          </h2>
-
-          {variant === "feed" && (
-            <Link href={`/posts/${post.id}`} className="post-card__detail-link">
-              View post
-            </Link>
-          )}
+            <p className="post-card__date" suppressHydrationWarning>
+              {formatRelativeTime(post.created_at)}
+            </p>
+          </div>
+          <div className="post-card__header-tools">
+            <SharePostButton postId={post.id} />
+            <ReportPostButton
+              postId={post.id}
+              viewerHasReported={post.viewer_has_reported}
+            />
+          </div>
         </header>
 
+        <h2 className="post-card__title">
+          <SmartText text={post.title} mentionProfiles={mentionProfiles} />
+        </h2>
         {post.body && (
           <div className="post-card__body">
             <SmartText text={post.body} mentionProfiles={mentionProfiles} />
@@ -115,7 +146,7 @@ export default function PostCard({
             onClick={() => setShowComments((current) => !current)}
           >
             <MessageSquare size={16} strokeWidth={2} aria-hidden="true" />
-            {showComments ? "Hide comments" : ` (${commentCount})`}
+            {showComments ? `Hide comments` : `(${commentCount}) Add comments`}
           </button>
         )}
 
@@ -124,7 +155,11 @@ export default function PostCard({
         )}
 
         <footer className="post-card__footer">
-          <span>{post.visibility}</span>
+          {variant === "feed" && (
+            <Link href={`/posts/${post.id}`} className="post-card__detail-link">
+              View post
+            </Link>
+          )}
         </footer>
       </article>
     </>
