@@ -1,5 +1,6 @@
 // src/components/layout/AppShell.jsx
 
+import ToastProvider from "../../components/ui/ToastProvider";
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
 import AppRightRail from "./AppRightRail";
@@ -21,6 +22,7 @@ export default function AppShell({ children, user, unreadNotifications = 0 }) {
           <AppRightRail user={user} />
         </aside>
         <BottomNav />
+        <ToastProvider />
       </div>
     </>
   );
