@@ -24,7 +24,7 @@ $$;
 create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  title text not null,
+  title text,
   body text,
   visibility text not null default 'public',
   is_deleted boolean not null default false,
@@ -32,11 +32,18 @@ create table if not exists public.posts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
-  constraint posts_title_length_check
-    check (char_length(title) <= 120),
+constraint posts_title_or_body_required_check
+  check (
+    nullif(trim(coalesce(title, '')), '') is not null
+    or
+    nullif(trim(coalesce(body, '')), '') is not null
+  ),
 
-  constraint posts_body_length_check
-    check (body is null or char_length(body) <= 5000),
+constraint posts_title_length_check
+  check (title is null or char_length(title) <= 120),
+
+constraint posts_body_length_check
+  check (body is null or char_length(body) <= 5000),
 
   constraint posts_visibility_public_only_check
     check (visibility = 'public'),

@@ -234,8 +234,11 @@ export async function getPosts({ feedType = "main" } = {}) {
       `
       id,
       username,
-      first_name
-    `
+      display_name,
+      first_name,
+      last_name,
+      avatar_cloudinary_url
+      `
     )
     .in("id", userIds);
 
@@ -292,18 +295,18 @@ export async function getPosts({ feedType = "main" } = {}) {
   const finalPosts =
     feedType === "trending"
       ? [...postsWithAuthors].sort((a, b) => {
-          const aScore =
-            (a.score || 0) * 2 +
-            (a.comment_count || 0) +
-            (a.interaction_count || 0);
+        const aScore =
+          (a.score || 0) * 2 +
+          (a.comment_count || 0) +
+          (a.interaction_count || 0);
 
-          const bScore =
-            (b.score || 0) * 2 +
-            (b.comment_count || 0) +
-            (b.interaction_count || 0);
+        const bScore =
+          (b.score || 0) * 2 +
+          (b.comment_count || 0) +
+          (b.interaction_count || 0);
 
-          return bScore - aScore;
-        })
+        return bScore - aScore;
+      })
       : postsWithAuthors;
 
   return {

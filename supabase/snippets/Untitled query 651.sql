@@ -1,7 +1,7 @@
 select
-  grantee,
-  privilege_type
-from information_schema.role_table_grants
+  column_name,
+  is_nullable
+from information_schema.columns
 where table_schema = 'public'
-  and table_name = 'profiles'
-order by grantee, privilege_type;
+  and table_name = 'posts'
+  and column_name = 'title';

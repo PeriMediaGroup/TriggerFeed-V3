@@ -146,7 +146,6 @@ export default function MentionInput({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={className}
-        required={required}
         maxLength={maxLength}
         disabled={disabled}
       />

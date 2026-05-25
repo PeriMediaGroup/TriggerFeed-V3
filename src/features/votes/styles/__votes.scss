@@ -2,5 +2,40 @@
 .post-votes {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 999px;
+  width: fit-content;
+  margin: .5em .25em .25em 0;
+}
+
+.post-votes__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text);
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.post-votes__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.post-votes__button--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.post-votes__icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.post-votes__count {
+  line-height: 1;
+  font-size: 0.9rem;
 }

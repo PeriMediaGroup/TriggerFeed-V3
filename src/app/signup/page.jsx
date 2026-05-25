@@ -88,8 +88,8 @@ export default function SignupPage() {
   }
 
   return (
-    <main>
-      <h1>Start your TriggerFeed account</h1>
+    <main className="signup-form">
+      <h2>Start your TriggerFeed account</h2>
 
       <form onSubmit={handleSignup}>
         <label>
@@ -99,7 +99,6 @@ export default function SignupPage() {
             value={email}
             autoComplete="email"
             onChange={(event) => setEmail(event.target.value)}
-            style={{ display: "block", width: "100%", padding: "0.75rem" }}
           />
         </label>
 
@@ -110,7 +109,6 @@ export default function SignupPage() {
             value={password}
             autoComplete="new-password"
             onChange={(event) => setPassword(event.target.value)}
-            style={{ display: "block", width: "100%", padding: "0.75rem" }}
           />
         </label>
 
@@ -121,7 +119,6 @@ export default function SignupPage() {
             value={confirmPassword}
             autoComplete="new-password"
             onChange={(event) => setConfirmPassword(event.target.value)}
-            style={{ display: "block", width: "100%", padding: "0.75rem" }}
           />
         </label>
 
@@ -147,7 +144,7 @@ export default function SignupPage() {
         </button>
       </form>
 
-      {status ? <p style={{ marginTop: "1rem" }}>{status}</p> : null}
+      {status ? <p>{status}</p> : null}
     </main>
   );
 }

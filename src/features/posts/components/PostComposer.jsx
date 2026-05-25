@@ -210,7 +210,7 @@ export default function PostComposer({
   isPending = false,
   submitLabel = "Post",
   pendingLabel = "Posting...",
-  bodyPlaceholder = "What's on your mind?",
+  bodyPlaceholder = "What's going on?",
   className = "",
   renderMediaManager,
   onSubmit,
@@ -354,6 +354,15 @@ export default function PostComposer({
     });
   }
 
+  function handleSelectGif(gif) {
+    setSelectedGif(gif);
+    setActiveTool(null);
+  }
+
+  function handleRemoveGif() {
+    setSelectedGif(null);
+  }
+
   function resetComposer(form) {
     form.reset();
     setPoll(null);
@@ -457,14 +466,12 @@ export default function PostComposer({
   return (
     <form className={formClassName} onSubmit={handleSubmit}>
       <div className="post-form__field post-composer__field">
-        <label htmlFor="title">Title</label>
-
         <MentionInput
           id="title"
           name="title"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          placeholder="Post title"
+          placeholder="Headline"
           maxLength={120}
           required
         />
@@ -475,8 +482,6 @@ export default function PostComposer({
       </div>
 
       <div className="post-form__field post-composer__field">
-        <label htmlFor="body">Body</label>
-
         <MentionTextarea
           id="body"
           name="body"
@@ -528,12 +533,36 @@ export default function PostComposer({
           }}
         />
       )}
+      
+      {selectedGif && (
+        <div className="create-post__selected-gif">
+          <div className="create-post__selected-gif-preview">
+            <img
+              src={
+                selectedGif.previewUrl ||
+                selectedGif.preview_url ||
+                selectedGif.thumbnail_url ||
+                selectedGif.url ||
+                selectedGif.external_url
+              }
+              alt={selectedGif.title || "Selected GIF"}
+              className="create-post__selected-gif-image"
+            />
+          </div>
+
+          <button
+            type="button"
+            className="create-post__selected-gif-remove"
+            onClick={handleRemoveGif}
+          >
+            Remove GIF
+          </button>
+        </div>
+      )}
 
       {activeTool === "gif" && (
         <CreatePostGifPicker
-          selectedGif={selectedGif}
-          onSelectGif={setSelectedGif}
-          onRemoveGif={() => setSelectedGif(null)}
+          onSelectGif={handleSelectGif}
           onClose={() => setActiveTool(null)}
           searchTerm={gifSearchTerm}
           onSearchTermChange={setGifSearchTerm}

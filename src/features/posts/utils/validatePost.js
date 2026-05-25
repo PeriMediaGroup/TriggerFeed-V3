@@ -9,8 +9,11 @@ export function validatePostInput({ title, body, visibility }) {
   const cleanBody = body?.trim() || "";
   const cleanVisibility = visibility || "public";
 
-  if (!cleanTitle) {
-    errors.title = "Post title is required.";
+  const hasTitle = cleanTitle.length > 0;
+  const hasBody = cleanBody.length > 0;
+
+  if (!hasTitle && !hasBody) {
+    errors.content = "Add a headline or content before posting.";
   }
 
   if (cleanTitle.length > 120) {
@@ -18,7 +21,7 @@ export function validatePostInput({ title, body, visibility }) {
   }
 
   if (cleanBody.length > 5000) {
-    errors.body = "Post body must be 5000 characters or less.";
+    errors.body = "Post content must be 5000 characters or less.";
   }
 
   if (!VALID_VISIBILITIES.includes(cleanVisibility)) {
@@ -29,9 +32,19 @@ export function validatePostInput({ title, body, visibility }) {
     isValid: Object.keys(errors).length === 0,
     errors,
     values: {
-      title: cleanTitle,
-      body: cleanBody,
+      title: hasTitle ? cleanTitle : null,
+      body: hasBody ? cleanBody : null,
       visibility: cleanVisibility,
     },
   };
+}
+
+export function getFirstPostError(errors = {}) {
+  return (
+    errors.content ||
+    errors.title ||
+    errors.body ||
+    errors.visibility ||
+    "Please fix the post errors."
+  );
 }

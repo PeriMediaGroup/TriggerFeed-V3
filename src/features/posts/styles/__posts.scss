@@ -137,3 +137,28 @@
     color: var(--color-text-muted);
   }
 }
+
+.post-card__date {
+  font-size: small;
+}
+
+.post-card__comments {
+  padding: .5em;
+}
+
+.post-card__header {
+  display: flex;
+  p {
+    margin: 0;
+  }
+}
+
+.post-card__header-avatar-image {
+  width: 50px;
+  height: auto;
+  border-radius: 999px;
+}
+
+.post-card__header-tools {
+  justify-content: flex-end;
+}
