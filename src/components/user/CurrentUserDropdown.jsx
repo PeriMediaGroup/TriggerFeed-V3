@@ -46,19 +46,6 @@ export default function CurrentUserDropdown({
             </Link>
           </li>
 
-          {isAdmin && (
-            <li>
-              <Link
-                href="/admin/reports"
-                className="current-user-menu__link"
-                onClick={onItemClick}
-              >
-                <ShieldAlert size={17} strokeWidth={2} aria-hidden="true" />
-                <span>Moderation</span>
-              </Link>
-            </li>
-          )}
-
           <li>
             <Link
               href="/profile"
@@ -227,6 +214,13 @@ export default function CurrentUserDropdown({
             <strong>{displayName}</strong>
           </span>
         ) : null}
+
+        {isAdmin && (
+          <a href="/admin/reports" className="current-user-menu__link">
+            <ShieldAlert size={17} strokeWidth={2} aria-hidden="true" />
+            <span>Moderation</span>
+          </a>
+        )}
       </div>
     </div>
   );

@@ -1,20 +1,26 @@
 // temp
 .temp-block {
-  background-color: rgba($color: #fff, $alpha: .25);
+  background-color: rgba($color: #fff, $alpha: 0.25);
   color: black;
   height: 150px;
   padding: 15px;
   margin-bottom: 1em;
   border-radius: var(--radius-md);
+
   &--small {
     height: auto;
   }
+
   &--large {
     height: 250px;
   }
 }
 
 // END temp
+
+.app-header {
+  display: none;
+}
 
 .app-shell {
   min-height: 100vh;
@@ -32,6 +38,13 @@
   padding: 15px 0;
 }
 
+.app-sidebar {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
 .app-shell__right-rail {
   display: flex;
   justify-content: center;
@@ -45,8 +58,22 @@
 }
 
 @media (max-width: 768px) {
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    padding: 0 15px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-background);
+  }
+
   .app-shell {
     display: block;
+    min-height: calc(100vh - 56px);
   }
 
   .app-shell__sidebar,
@@ -55,6 +82,7 @@
   }
 
   .app-shell__main {
+    min-height: calc(100vh - 56px);
     border-inline: 0;
   }
 }
