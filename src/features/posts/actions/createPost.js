@@ -444,7 +444,7 @@ export async function createPost(formData) {
   }
 
   revalidatePath("/");
-  revalidatePath("/posts");
+  revalidatePath("/");
 
   return {
     success: true,

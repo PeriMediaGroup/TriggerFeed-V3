@@ -1,7 +1,6 @@
 // src/app/profile/friends/page.jsx
 
 import { redirect } from "next/navigation";
-import BackLink from "@/components/navigation/BackLink";
 
 import { getFriendDashboard } from "@/features/friends/data/getFriendDashboard";
 import { getAcceptedFriends } from "@/features/friends/data/getAcceptedFriends";
@@ -25,11 +24,6 @@ export default async function FriendsPage() {
   return (
     <main className="friends-page">
       <header className="friends-page__header">
-        <BackLink
-          label="Back to Profile"
-          fallbackHref="/profile"
-          mode="history"
-        />
       </header>
 
       <FriendsPanel

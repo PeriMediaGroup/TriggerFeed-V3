@@ -1,4 +1,3 @@
-import BackLink from "@/components/navigation/BackLink";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getPostById } from "@/features/posts/data/getPostById";
 
@@ -17,7 +16,6 @@ export default async function PostDetailPage({ params }) {
   if (error || !post) {
     return (
       <main className="post-detail-page">
-        <BackLink label="Back" fallbackHref="/" mode="smart" />
         <p>Post not found.</p>
       </main>
     );
@@ -27,7 +25,6 @@ export default async function PostDetailPage({ params }) {
 
   return (
     <main className="post-detail-page">
-      <BackLink label="Back" fallbackHref="/" />
 
       <PostDetail post={post} currentUserId={user?.id || null} />
 

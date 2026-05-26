@@ -7,6 +7,7 @@ import { createPost } from "../../actions/createPost";
 import { uploadFilesToCloudinary } from "@/features/media/uploadToCloudinaryClient";
 import { savePostMedia } from "@/features/posts/actions/savePostMedia";
 import PostComposer from "@/features/posts/components/PostComposer";
+import toast from "react-hot-toast";
 
 export default function CreatePostForm() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function CreatePostForm() {
               setMediaErrors(saveMediaErrors);
               setStatus(
                 saveMediaErrors[0] || "Post created, but media failed to save.",
+                toast.error(result.message || "Post created, but media failed to save."),
               );
               setSubmitStep("");
               resolve(false);
@@ -73,6 +75,7 @@ export default function CreatePostForm() {
 
           setSubmitStep("Finishing up...");
           setStatus("Post created.");
+          toast.success("Post created.");
 
           setTimeout(() => {
             window.location.assign(`/posts/${result.postId}`);

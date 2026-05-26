@@ -93,7 +93,7 @@ export async function answerPoll({ pollId, optionId, postId }) {
   }
 
   revalidatePath("/");
-  revalidatePath("/posts");
+  revalidatePath("/");
 
   if (postId) {
     revalidatePath(`/posts/${postId}`);

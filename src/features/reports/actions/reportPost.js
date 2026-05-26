@@ -78,7 +78,6 @@ export async function reportPost({ postId, reason, details = "" }) {
   }
 
   revalidatePath("/");
-  revalidatePath("/posts");
   revalidatePath(`/posts/${cleanPostId}`);
 
   return {

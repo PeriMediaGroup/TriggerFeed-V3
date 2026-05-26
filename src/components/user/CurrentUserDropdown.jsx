@@ -216,10 +216,10 @@ export default function CurrentUserDropdown({
         ) : null}
 
         {isAdmin && (
-          <a href="/admin/reports" className="current-user-menu__link">
+          <Link href="/admin/reports" className="current-user-menu__link">
             <ShieldAlert size={17} strokeWidth={2} aria-hidden="true" />
             <span>Moderation</span>
-          </a>
+          </Link>
         )}
       </div>
     </div>
