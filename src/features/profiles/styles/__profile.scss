@@ -1,12 +1,12 @@
 .profile__banner {
   position: relative;
-  width: 100%;
+  width: auto;
   height: 160px;
   overflow: hidden;
-  border-radius: 12px 12px 0 0;
+  border-radius: 0 0 12px 12px;
   background:
-    linear-gradient(90deg, rgba(178, 34, 34, 0.28), transparent 52%),
-    #232c30;
+    linear-gradient(90deg, rgba(178, 34, 34, 0.28), transparent 52%), #232c30;
+  border: 4px solid #1c1c1c;
 }
 
 .profile__banner-image {
@@ -28,9 +28,8 @@
   line-height: 1;
   color: rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(90deg, rgba(178, 34, 34, 0.28), transparent 52%),
-    #232c30;
-    z-index: 1;
+    linear-gradient(90deg, rgba(178, 34, 34, 0.28), transparent 52%), #232c30;
+  z-index: 1;
 }
 
 .profile__avatar {
@@ -56,8 +55,7 @@
 .profile__avatar-placeholder {
   background:
     radial-gradient(circle at 50% 32%, #1c1c1c 0 17%, transparent 18%),
-    radial-gradient(ellipse at 50% 78%, #1c1c1c 0 34%, transparent 35%),
-    #777;
+    radial-gradient(ellipse at 50% 78%, #1c1c1c 0 34%, transparent 35%), #777;
 }
 
 .profile__action-link {
@@ -70,21 +68,20 @@
     margin-top: 0;
   }
   &__grid {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 0.5rem 1rem;
-}
-&__link {
-  display: flex;
-  align-items: center;
-}
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.5rem 1rem;
+  }
+  &__link {
+    display: flex;
+    align-items: center;
+  }
 }
 
-
-.profile-showcase__avatar img{
-    border-radius: 50px;
-    border: 2px solid var(--color-accent);
-    margin-right: 1em;
+.profile-showcase__avatar img {
+  border-radius: 50px;
+  border: 2px solid var(--color-accent);
+  margin-right: 1em;
 }
 
 .profile-dashboard-tabs {
@@ -181,4 +178,43 @@
 
 .profile-dashboard-tabs__notification--unread {
   border-color: var(--color-accent, #b22222);
+}
+
+.profile-privacy-settings {
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-privacy-settings__header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.profile-privacy-settings__header p {
+  margin: 0;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.72));
+}
+
+.profile-privacy-settings__form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.profile-privacy-settings__option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.profile-privacy-settings__message,
+.profile-privacy-settings__error {
+  margin: 0;
+}
+
+.profile-privacy-settings__error {
+  color: var(--color-danger, #b22222);
+}
+
+.profile-privacy-settings__actions {
+  margin-top: 0.5rem;
 }

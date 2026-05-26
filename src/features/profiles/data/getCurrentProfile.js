@@ -18,25 +18,7 @@ export async function getCurrentProfile() {
   const [{ data: profile, error: profileError }, { data: authStatus, error: authStatusError }] =
     await Promise.all([
       supabase
-        .from("profiles")
-        .select(
-          `
-          id,
-          username,
-          first_name,
-          last_name,
-          display_name,
-          avatar_cloudinary_url,
-          banner_cloudinary_url,
-          profile_badge,
-          city,
-          state,
-          bio,
-          created_at,
-          updated_at
-        `
-        )
-        .eq("id", user.id)
+        .rpc("get_my_profile")
         .single(),
 
       supabase.rpc("get_my_profile_auth_status").single(),

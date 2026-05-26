@@ -22,9 +22,7 @@ export async function updatePostReportStatus({ reportId, status }) {
   }
 
   const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, role")
-    .eq("id", user.id)
+    .rpc("get_my_profile_auth_status")
     .maybeSingle();
 
   if (profileError) {

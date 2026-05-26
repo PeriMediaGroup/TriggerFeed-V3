@@ -1,6 +1,5 @@
 .profile-header {
   overflow: hidden;
-  border-radius: 12px;
 }
 
 .profile-header__body {
@@ -14,6 +13,7 @@
   height: 144px;
   margin-top: -32px;
   margin-left: 4px;
+  z-index: 5;
 }
 
 .profile-header__identity {

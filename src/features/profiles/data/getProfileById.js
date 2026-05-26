@@ -22,25 +22,9 @@ export async function getProfileById(userId) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("profiles")
-    .select(
-      `
-      id,
-      username,
-      first_name,
-      last_name,
-      display_name,
-      avatar_cloudinary_url,
-      banner_cloudinary_url,
-      profile_badge,
-      city,
-      state,
-      bio,
-      created_at,
-      updated_at
-    `
-    )
-    .eq("id", userId)
+    .rpc("get_public_profile", {
+      p_profile_id: userId,
+    })
     .maybeSingle();
 
   if (error) {
