@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Flag } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { reportPost } from "../actions/reportPost";
 
@@ -22,13 +23,10 @@ export default function ReportPostButton({
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState("spam");
   const [details, setDetails] = useState("");
-  const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(event) {
     event.preventDefault();
-
-    setMessage("");
 
     startTransition(async () => {
       const result = await reportPost({
@@ -37,11 +35,13 @@ export default function ReportPostButton({
         details,
       });
 
-      setMessage(result.message);
-
       if (result.ok) {
+        toast.success(result.message || "Post reported.");
         setIsOpen(false);
+        return;
       }
+
+      toast.error(result.message || "Could not report this post.");
     });
   }
 
@@ -118,8 +118,6 @@ export default function ReportPostButton({
           </div>
         </form>
       )}
-
-      {message && <p className="post-report__message">{message}</p>}
     </div>
   );
 }

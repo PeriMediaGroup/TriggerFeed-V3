@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export default function MediaPreviewGrid({ mediaItems, onRemoveMedia }) {
   if (!mediaItems?.length) return null;
 
@@ -15,10 +17,13 @@ export default function MediaPreviewGrid({ mediaItems, onRemoveMedia }) {
               muted
             />
           ) : (
-            <img
+            <Image
               className="create-post__media-preview"
               src={item.previewUrl}
               alt={item.name || "Selected upload"}
+              width={300}
+              height={300}
+              unoptimized
             />
           )}
 

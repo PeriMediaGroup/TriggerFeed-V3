@@ -1,5 +1,5 @@
 import AppLogo from "@/components/logo/AppLogo";
-import CurrentUserMenu from "@/components/user/CurrentUserMenu";
+import AppNav from "@/components/navigation/AppNav";
 
 export default function AppHeader() {
   return (
@@ -7,7 +7,7 @@ export default function AppHeader() {
       <AppLogo />
 
       <div className="app-header__right">
-        <CurrentUserMenu />
+        <AppNav />
       </div>
     </header>
   );

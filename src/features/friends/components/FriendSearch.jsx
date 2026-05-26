@@ -4,6 +4,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { sendFriendRequest } from "@/features/friends/actions/sendFriendRequest";
 
 function getDisplayName(user) {
@@ -18,13 +19,11 @@ function getDisplayName(user) {
 export default function FriendSearch() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-  const [message, setMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   async function handleSearch(value) {
     setQuery(value);
-    setMessage("");
 
     if (value.trim().length < 2) {
       setResults([]);
@@ -43,11 +42,14 @@ export default function FriendSearch() {
   function handleSendRequest(userId) {
     startTransition(async () => {
       const result = await sendFriendRequest(userId);
-      setMessage(result.message);
 
       if (result.success) {
         setResults((current) => current.filter((user) => user.id !== userId));
+        toast.success(result.message || "Friend request sent.");
+        return;
       }
+
+      toast.error(result.message || "Could not send friend request.");
     });
   }
 
@@ -65,7 +67,6 @@ export default function FriendSearch() {
       />
 
       {isSearching && <p>Searching...</p>}
-      {message && <p>{message}</p>}
 
       {results.length > 0 && (
         <ul className="friends-search__results">

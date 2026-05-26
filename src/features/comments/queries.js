@@ -37,6 +37,7 @@ export async function getCommentsByPostId(postId) {
     `,
     )
     .eq("post_id", postId)
+    .eq("is_deleted", false)
     .order("created_at", { ascending: true });
 
   if (commentsError) {

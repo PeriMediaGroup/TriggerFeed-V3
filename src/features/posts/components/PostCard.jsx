@@ -52,9 +52,11 @@ export default function PostCard({
         <header className="post-card__header">
           <div className="post-card__header-avatar">
             {avatarUrl ? (
-              <img
+              <Image
                 src={avatarUrl}
                 alt={`${displayName} avatar`}
+                width={50}
+                height={50}
                 className="post-card__header-avatar-image"
               />
             ) : (

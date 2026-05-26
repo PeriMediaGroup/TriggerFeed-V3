@@ -3,6 +3,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Camera } from "lucide-react";
 
@@ -120,10 +121,13 @@ export default function EditProfileForm({ profile }) {
       <div className="profile-edit__visuals">
         <div className="profile__banner">
           {bannerPreviewUrl ? (
-            <img
+            <Image
               src={bannerPreviewUrl}
               alt=""
+              fill
+              sizes="(max-width: 640px) 100vw, 604px"
               className="profile__banner-image"
+              unoptimized={bannerPreviewUrl.startsWith("blob:")}
             />
           ) : (
             <div className="profile__banner-placeholder">TF</div>
@@ -145,10 +149,13 @@ export default function EditProfileForm({ profile }) {
         <div className="profile-edit__avatar-wrap">
           <div className="profile__avatar">
             {avatarPreviewUrl ? (
-              <img
+              <Image
                 src={avatarPreviewUrl}
                 alt=""
+                width={144}
+                height={144}
                 className="profile__avatar-image"
+                unoptimized={avatarPreviewUrl.startsWith("blob:")}
               />
             ) : (
               <div className="profile__avatar-placeholder" />

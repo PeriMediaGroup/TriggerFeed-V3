@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export default function CreatePostGifPicker({
   onSelectGif,
   onClose,
@@ -72,10 +74,13 @@ export default function CreatePostGifPicker({
               className="create-post__gif-option"
               onClick={() => onSelectGif(normalizedGif)}
             >
-              <img
+              <Image
                 src={normalizedGif.previewUrl}
                 alt={normalizedGif.title || "GIF"}
+                width={200}
+                height={150}
                 loading="lazy"
+                unoptimized
               />
             </button>
           );

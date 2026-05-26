@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Image from "next/image";
 import { searchMentionProfiles } from "../actions/searchMentionProfiles";
 
 function getMentionQueryBeforeCursor(value, cursorPosition) {
@@ -167,9 +168,11 @@ export default function MentionInput({
               }}
             >
               {profile.avatar_cloudinary_url ? (
-                <img
+                <Image
                   src={profile.avatar_cloudinary_url}
                   alt=""
+                  width={32}
+                  height={32}
                   className="mention-input__avatar"
                 />
               ) : (

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { markNotificationsRead } from "@/features/notifications/actions/markNotificationsRead";
 
 export default function NotificationsReadMarker() {
@@ -12,7 +13,7 @@ export default function NotificationsReadMarker() {
       const result = await markNotificationsRead();
 
       if (!result?.success) {
-        console.error("MARK NOTIFICATIONS READ CLIENT ERROR:", result);
+        toast.error(result?.message || "Could not mark notifications as read.");
         return;
       }
 

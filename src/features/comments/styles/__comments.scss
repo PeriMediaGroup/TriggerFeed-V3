@@ -1,3 +1,136 @@
 .comment-item {
   scroll-margin-top: 6rem;
 }
+
+.comment-item {
+  list-style: none;
+
+  &--reply {
+    margin-left: 2.75rem;
+    margin-top: 0.75rem;
+  }
+
+  &__content {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  &__avatar-link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    text-decoration: none;
+  }
+
+  &__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-surface-muted);
+  }
+
+  &__avatar--fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.25rem;
+  }
+
+  &__name {
+    color: var(--color-text);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__username,
+  &__date,
+  &__edited {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  &__username {
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-accent);
+    }
+  }
+
+  &__body {
+    color: var(--color-text);
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.35rem;
+  }
+
+  &__action-button,
+  &__icon-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      color: var(--color-accent);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__icon-button {
+    gap: 0;
+  }
+
+  &__reply-form,
+  &__edit-form {
+    margin-top: 0.75rem;
+  }
+
+  &__status,
+  &__deleted {
+    margin-top: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  &__replies {
+    margin-top: 0.75rem;
+    padding-left: 0;
+  }
+}

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { dismissNotification } from "@/features/notifications/actions/dismissNotifications";
 
@@ -15,7 +16,7 @@ export default function DismissNotificationButton({ notificationId }) {
       const result = await dismissNotification(notificationId);
 
       if (!result?.success) {
-        console.error("DISMISS NOTIFICATION CLIENT ERROR:", result);
+        toast.error(result?.message || "Could not dismiss notification.");
         return;
       }
 

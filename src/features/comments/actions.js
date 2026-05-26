@@ -298,17 +298,12 @@ export async function deleteComment({ commentId }) {
     };
   }
 
-  const now = new Date().toISOString();
-
-  const { error: deleteError } = await supabase
-    .from("comments")
-    .update({
-      is_deleted: true,
-      deleted_at: now,
-      updated_at: now,
-    })
-    .eq("id", commentId)
-    .eq("user_id", user.id);
+  const { error: deleteError } = await supabase.rpc(
+    "soft_delete_comment_thread",
+    {
+      target_comment_id: commentId,
+    },
+  );
 
   if (deleteError) {
     console.error("Error deleting comment:", {
@@ -320,7 +315,7 @@ export async function deleteComment({ commentId }) {
 
     return {
       success: false,
-      error: deleteError.message,
+      error: deleteError.message || "Could not delete comment",
     };
   }
 

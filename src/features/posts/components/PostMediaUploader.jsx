@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 const MAX_FILES = 4;
 const MAX_FILE_SIZE_MB = 5;
@@ -106,10 +107,13 @@ export default function PostMediaUploader({ onFilesChange }) {
         <div className="post-media-uploader__preview-grid">
           {previews.map(({ file, url }) => (
             <div className="post-media-uploader__preview" key={url}>
-              <img
+              <Image
                 src={url}
                 alt={file.name}
+                width={288}
+                height={288}
                 className="post-media-uploader__preview-image"
+                unoptimized
               />
 
               <button

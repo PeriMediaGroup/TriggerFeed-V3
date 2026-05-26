@@ -37,9 +37,11 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
                   >
                     <div className="profile-showcase__avatar">
                       {friend?.avatar_cloudinary_url ? (
-                        <img
+                        <Image
                           src={friend.avatar_cloudinary_url}
                           alt={`${displayName} avatar`}
+                          width={50}
+                          height={50}
                           className="profile-showcase__avatar-image"
                         />
                       ) : (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import toast from "react-hot-toast";
 
 import { updatePostReportStatus } from "../actions/updatePostReportStatus";
 
@@ -27,7 +28,6 @@ function getProfileName(profile) {
 
 export default function ReportCard({ report }) {
   const [status, setStatus] = useState(report.status || "open");
-  const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const reporterName = getProfileName(report.reporter);
@@ -35,19 +35,19 @@ export default function ReportCard({ report }) {
   const postTitle = report.post?.title || "Untitled post";
 
   function handleStatusChange(nextStatus) {
-    setMessage("");
-
     startTransition(async () => {
       const result = await updatePostReportStatus({
         reportId: report.id,
         status: nextStatus,
       });
 
-      setMessage(result.message);
-
       if (result.ok) {
         setStatus(nextStatus);
+        toast.success(result.message || "Report status updated.");
+        return;
       }
+
+      toast.error(result.message || "Could not update report status.");
     });
   }
 
@@ -146,7 +146,6 @@ export default function ReportCard({ report }) {
         )}
       </footer>
 
-      {message && <p className="report-card__message">{message}</p>}
     </article>
   );
 }

@@ -1,43 +1,59 @@
-import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-import { getProfileById } from "@/features/profiles/data/getProfileById";
-import { LogIn, PlusCircle, UserPlus } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import AppNavMenu from "@/components/navigation/AppNavMenu";
 
 export default async function AppNav() {
-  const user = await getCurrentUser();
+  const supabase = await createClient();
 
-  let profile = null;
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (user?.id) {
-    const result = await getProfileById(user.id);
-    profile = result.profile;
+  if (userError || !user) {
+    return (
+      <AppNavMenu
+        isLoggedIn={false}
+        displayName={null}
+        role={null}
+        unreadNotifications={0}
+      />
+    );
   }
 
-  const username =
-    profile?.username || user?.user_metadata?.username || user?.email || null;
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("username, first_name, last_name, display_name, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("APP NAV PROFILE ERROR:", {
+      code: profileError.code,
+      message: profileError.message,
+      details: profileError.details,
+      hint: profileError.hint,
+    });
+  }
+
+  const { count: unreadNotifications } = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("is_read", false)
+    .is("dismissed_at", null);
+
+  const displayName = profile?.username
+    ? `@${profile.username}`
+    : profile?.first_name
+      ? profile.first_name
+      : user.email || "Account";
 
   return (
-    <nav aria-label="Main navigation" className="app-nav">
-      {user ? (
-        <span className="app-nav__link app-nav__link-create">
-          <Link href="/posts/new">
-            <PlusCircle size={18} strokeWidth={2} aria-hidden="true" />CREATE
-          </Link>
-        </span>
-      ) : (
-        <>
-          <Link href="/login" className="app-nav__link">
-            <LogIn size={18} strokeWidth={2} aria-hidden="true" />
-            <span>Login</span>
-          </Link>
-
-          {" | "}
-          <Link href="/signup" className="app-nav__link">
-            <UserPlus size={18} strokeWidth={2} aria-hidden="true" />
-            <span>Signup</span>
-          </Link>
-        </>
-      )}
-    </nav>
+    <AppNavMenu
+      isLoggedIn
+      displayName={displayName}
+      role={profile?.role}
+      unreadNotifications={unreadNotifications ?? 0}
+    />
   );
 }

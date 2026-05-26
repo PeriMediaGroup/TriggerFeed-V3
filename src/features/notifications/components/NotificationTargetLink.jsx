@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import toast from "react-hot-toast";
 
 import { dismissNotification } from "@/features/notifications/actions/dismissNotifications";
 
@@ -20,7 +21,7 @@ export default function NotificationTargetLink({
       const result = await dismissNotification(notificationId);
 
       if (!result?.success) {
-        console.error("DISMISS NOTIFICATION TARGET LINK ERROR:", result);
+        toast.error(result?.message || "Could not dismiss notification.");
       }
 
       router.push(href);

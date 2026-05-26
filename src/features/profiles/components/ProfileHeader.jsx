@@ -35,7 +35,13 @@ export default function ProfileHeader({
     <section className="profile-header">
       <div className="profile__banner">
         {bannerUrl ? (
-          <img src={bannerUrl} alt="" className="profile__banner-image" />
+          <Image
+            src={bannerUrl}
+            alt=""
+            fill
+            sizes="100vw"
+            className="profile__banner-image"
+          />
         ) : (
           <div className="profile__banner-placeholder">TF</div>
         )}
@@ -45,9 +51,11 @@ export default function ProfileHeader({
         <div className="profile-header__avatar-wrap">
           <div className="profile__avatar">
             {avatarUrl ? (
-              <img
+              <Image
                 src={avatarUrl}
                 alt={`${displayName} avatar`}
+                width={144}
+                height={144}
                 className="profile__avatar-image"
               />
             ) : (

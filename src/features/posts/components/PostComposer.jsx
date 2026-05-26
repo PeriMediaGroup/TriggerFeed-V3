@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 
 import MentionInput from "@/features/mentions/components/MentionInputs";
@@ -537,7 +538,7 @@ export default function PostComposer({
       {selectedGif && (
         <div className="create-post__selected-gif">
           <div className="create-post__selected-gif-preview">
-            <img
+            <Image
               src={
                 selectedGif.previewUrl ||
                 selectedGif.preview_url ||
@@ -546,7 +547,10 @@ export default function PostComposer({
                 selectedGif.external_url
               }
               alt={selectedGif.title || "Selected GIF"}
+              width={240}
+              height={180}
               className="create-post__selected-gif-image"
+              unoptimized
             />
           </div>
 

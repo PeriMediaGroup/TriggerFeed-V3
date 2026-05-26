@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import toast from "react-hot-toast";
 import { sendFriendRequest } from "@/features/friends/actions/sendFriendRequest";
 import { respondToFriendRequest } from "@/features/friends/actions/respondToFriendRequest";
 
@@ -12,7 +13,6 @@ export default function ProfileFriendAction({
   friendship,
 }) {
   const [friendStatus, setFriendStatus] = useState(initialFriendStatus);
-  const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
   if (friendStatus === "self") {
@@ -28,39 +28,41 @@ export default function ProfileFriendAction({
   }
 
   function handleSendRequest() {
-    setMessage("");
-
     startTransition(async () => {
       const result = await sendFriendRequest(profileUserId);
 
-      setMessage(result.message || "");
-
       if (result.success) {
         setFriendStatus("outgoing_pending");
+        toast.success(result.message || "Friend request sent.");
+        return;
       }
+
+      toast.error(result.message || "Could not send friend request.");
     });
   }
 
   function handleResponse(response) {
     if (!friendship?.id) {
-      setMessage("Friend request not found.");
+      toast.error("Friend request not found.");
       return;
     }
-
-    setMessage("");
 
     startTransition(async () => {
       const result = await respondToFriendRequest(friendship.id, response);
 
-      setMessage(result.message || "");
-
       if (result.success && response === "accepted") {
         setFriendStatus("friends");
+        toast.success(result.message || "Friend request accepted.");
+        return;
       }
 
       if (result.success && response === "declined") {
         setFriendStatus("none");
+        toast.success(result.message || "Friend request declined.");
+        return;
       }
+
+      toast.error(result.message || "Could not update friend request.");
     });
   }
 
@@ -115,8 +117,6 @@ export default function ProfileFriendAction({
           Unavailable
         </button>
       )}
-
-      {message && <p className="profile-friend-action__message">{message}</p>}
     </div>
   );
 }

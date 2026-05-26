@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { MessageSquareReply, Pencil, Trash2 } from "lucide-react";
 
@@ -42,6 +43,17 @@ export default function CommentItem({
   const isOwner = currentUserId && currentUserId === comment.user_id;
 
   const authorName = getAuthorName(comment.author);
+
+  const authorUsername = comment.author?.username
+    ? `@${comment.author.username}`
+    : "";
+
+  const authorAvatarUrl =
+    comment.author?.avatar_cloudinary_url ||
+    comment.author?.profile_image_url ||
+    "";
+
+  const authorInitial = authorName?.charAt(0)?.toUpperCase() || "?";
 
   const authorHref = comment.author?.id
     ? `/profiles/${comment.author.id}`
@@ -129,143 +141,182 @@ export default function CommentItem({
       className={isReply ? "comment-item comment-item--reply" : "comment-item"}
     >
       <article className="comment-item__content">
-        <header className="comment-item__header">
-          <Link href={authorHref} className="comment-item__author">
-            {authorName}
-          </Link>
-
-          <span className="comment-item__date">
-            {formatShortDate(comment.created_at)}
-          </span>
-
-          {comment.updated_at &&
-            comment.updated_at !== comment.created_at &&
-            !comment.is_deleted && (
-              <span className="comment-item__edited">
-                {formatEditedDate(comment.updated_at)}
-              </span>
-            )}
-        </header>
-
-        {comment.is_deleted ? (
-          <p className="comment-item__deleted">
-            {isReply ? "Reply removed." : "Comment removed."}
-          </p>
-        ) : isEditing ? (
-          <form onSubmit={handleEditSubmit} className="comment-item__edit-form">
-            <label htmlFor={`edit-comment-${comment.id}`}>Edit comment</label>
-
-            <MentionTextarea
-              id={`edit-comment-${comment.id}`}
-              value={editBody}
-              onChange={(event) => setEditBody(event.target.value)}
-              maxLength={5000}
-              placeholder="Edit your comment..."
+        <Link
+          href={authorHref}
+          className="comment-item__avatar-link"
+          aria-label={`View ${authorName}'s profile`}
+        >
+          {authorAvatarUrl ? (
+            <Image
+              src={authorAvatarUrl}
+              alt={`${authorName} avatar`}
+              width={40}
+              height={40}
+              className="comment-item__avatar"
             />
+          ) : (
+            <Image
+              className="post-card__header-avatar-image"
+              src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
+              alt="Default Avatar"
+              width="40"
+              height="40"
+            />
+          )}
+        </Link>
 
-            <div className="comment-item__actions">
-              <button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : "Save"}
-              </button>
+        <div className="comment-item__main">
+          <header className="comment-item__header">
+            <Link href={authorHref} className="comment-item__name">
+              <strong>{authorName}</strong>
+            </Link>
 
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={() => {
-                  setEditBody(comment.body || "");
-                  setIsEditing(false);
-                  setStatus("");
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div id={`comment-${comment.id}`} className="comment-item__body">
-            <SmartText text={comment.body} />
-          </div>
-        )}
-
-        {!comment.is_deleted && (
-          <div className="comment-item__actions">
-            {!isReply && currentUserId && (
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={() => setIsReplying((current) => !current)}
-                aria-label="Reply to comment"
-              >
-                <MessageSquareReply
-                  size={15}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-              </button>
+            {authorUsername && (
+              <Link href={authorHref} className="comment-item__username">
+                {authorUsername}
+              </Link>
             )}
 
-            {isOwner && !isEditing && (
-              <>
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => setIsEditing(true)}
-                  aria-label="Edit comment"
-                >
-                  <Pencil size={15} strokeWidth={2} aria-hidden="true" />
+            <time dateTime={comment.created_at} className="comment-item__date">
+              {formatShortDate(comment.created_at)}
+            </time>
+
+            {comment.updated_at &&
+              comment.updated_at !== comment.created_at &&
+              !comment.is_deleted && (
+                <span className="comment-item__edited">
+                  {formatEditedDate(comment.updated_at)}
+                </span>
+              )}
+          </header>
+
+          {comment.is_deleted ? (
+            <p className="comment-item__deleted">
+              {isReply ? "Reply removed." : "Comment removed."}
+            </p>
+          ) : isEditing ? (
+            <form
+              onSubmit={handleEditSubmit}
+              className="comment-item__edit-form"
+            >
+              <label htmlFor={`edit-comment-${comment.id}`}>Edit comment</label>
+
+              <MentionTextarea
+                id={`edit-comment-${comment.id}`}
+                value={editBody}
+                onChange={(event) => setEditBody(event.target.value)}
+                maxLength={5000}
+                placeholder="Edit your comment..."
+              />
+
+              <div className="comment-item__actions">
+                <button type="submit" disabled={isPending}>
+                  {isPending ? "Saving..." : "Save"}
                 </button>
 
                 <button
                   type="button"
                   disabled={isPending}
-                  onClick={handleDelete}
-                  aria-label="Delete comment"
+                  onClick={() => {
+                    setEditBody(comment.body || "");
+                    setIsEditing(false);
+                    setStatus("");
+                  }}
                 >
-                  <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
+                  Cancel
                 </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {isReplying && !comment.is_deleted && (
-          <form
-            onSubmit={handleReplySubmit}
-            className="comment-item__reply-form"
-          >
-            <label htmlFor={`reply-comment-${comment.id}`}>
-              Reply to {authorName}
-            </label>
-
-            <MentionTextarea
-              id={`reply-comment-${comment.id}`}
-              value={replyBody}
-              onChange={(event) => setReplyBody(event.target.value)}
-              maxLength={5000}
-              placeholder="Write a reply..."
-            />
-
-            <div className="comment-item__actions">
-              <button type="submit" disabled={isPending}>
-                {isPending ? "Replying..." : "Post Reply"}
-              </button>
-
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={() => {
-                  setReplyBody("");
-                  setIsReplying(false);
-                  setStatus("");
-                }}
-              >
-                Cancel
-              </button>
+              </div>
+            </form>
+          ) : (
+            <div id={`comment-${comment.id}`} className="comment-item__body">
+              <SmartText text={comment.body} />
             </div>
-          </form>
-        )}
+          )}
 
-        {status && <p className="comment-item__status">{status}</p>}
+          {!comment.is_deleted && (
+            <div className="comment-item__actions">
+              {!isReply && currentUserId && (
+                <button
+                  type="button"
+                  className="comment-item__action-button"
+                  disabled={isPending}
+                  onClick={() => setIsReplying((current) => !current)}
+                  aria-label="Reply to comment"
+                >
+                  <MessageSquareReply
+                    size={15}
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />{" "}
+                  Reply
+                </button>
+              )}
+
+              {isOwner && !isEditing && (
+                <>
+                  <button
+                    type="button"
+                    className="comment-item__icon-button"
+                    disabled={isPending}
+                    onClick={() => setIsEditing(true)}
+                    aria-label="Edit comment"
+                  >
+                    <Pencil size={15} strokeWidth={2} aria-hidden="true" />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="comment-item__icon-button"
+                    disabled={isPending}
+                    onClick={handleDelete}
+                    aria-label="Delete comment"
+                  >
+                    <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {isReplying && !comment.is_deleted && (
+            <form
+              onSubmit={handleReplySubmit}
+              className="comment-item__reply-form"
+            >
+              <label htmlFor={`reply-comment-${comment.id}`}>
+                Reply to {authorName}
+              </label>
+
+              <MentionTextarea
+                id={`reply-comment-${comment.id}`}
+                value={replyBody}
+                onChange={(event) => setReplyBody(event.target.value)}
+                maxLength={5000}
+                placeholder="Write a reply..."
+              />
+
+              <div className="comment-item__actions">
+                <button type="submit" disabled={isPending}>
+                  {isPending ? "Replying..." : "Post Reply"}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => {
+                    setReplyBody("");
+                    setIsReplying(false);
+                    setStatus("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
+          {status && <p className="comment-item__status">{status}</p>}
+        </div>
       </article>
 
       {!isReply && replies.length > 0 && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import PhotoAlbum from "react-photo-album";
 import Lightbox from "yet-another-react-lightbox";
 
@@ -106,13 +107,16 @@ function ImageMedia({ media, onClick, single = false }) {
         isGif ? " media-gallery__item--gif" : ""
       }`}
     >
-      <img
+      <Image
         className={`media-gallery__image${
           single ? " media-gallery__single-image" : ""
         }${isGif ? " media-gallery__image--gif" : ""}`}
         src={media.src}
         alt={media.alt}
+        width={media.width}
+        height={media.height}
         loading="lazy"
+        unoptimized={isGif}
       />
 
       {isGif && (
@@ -234,16 +238,19 @@ export default function MediaGallery({
                   isGif ? " media-gallery__item--gif" : ""
                 }`}
               >
-                <img
+                <Image
                   {...props}
                   alt={alt}
                   title={title}
                   sizes={sizes}
+                  width={media?.width || props.width || 1200}
+                  height={media?.height || props.height || 900}
                   className={`${className || ""} media-gallery__image${
                     isGif ? " media-gallery__image--gif" : ""
                   }`}
                   style={style}
                   loading="lazy"
+                  unoptimized={isGif}
                 />
 
                 {isGif && (
