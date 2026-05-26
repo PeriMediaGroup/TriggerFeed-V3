@@ -32,6 +32,7 @@ export async function getCurrentProfile() {
           city,
           state,
           bio,
+          privacy_settings,
           created_at,
           updated_at
         `

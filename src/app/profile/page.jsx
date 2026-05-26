@@ -17,6 +17,7 @@ import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost"
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
+import ProfilePrivacySettings from "@/features/profiles/components/ProfilePrivacySettings";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -154,9 +155,9 @@ export default async function ProfilePage() {
             panel: <ManageGunsPanel topGuns={topGuns} />,
           },
           {
-            key: "posts",
-            label: "Posts",
-            panel: <ProfileLatestPost latestPost={latestPost} />,
+            key: "settings",
+            label: "Settings",
+            panel: <ProfilePrivacySettings profile={profile} />,
           },
         ]}
       />
