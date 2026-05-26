@@ -40,7 +40,6 @@ export async function togglePostVote({ postId, voteType }) {
   }
 
   revalidatePath("/");
-  revalidatePath("/posts");
   revalidatePath(`/posts/${postId}`);
 
   return {

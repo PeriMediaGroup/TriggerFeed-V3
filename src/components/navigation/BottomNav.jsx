@@ -23,7 +23,7 @@ export default function BottomNav({ unreadNotifications = 0 }) {
       match: (pathname) => pathname === "/",
     },
     {
-      href: "/profile/friends",
+      href: "/profile?tab=friends",
       label: "Friends",
       icon: Users,
       match: (pathname) => pathname === "/profile/friends",
@@ -36,7 +36,7 @@ export default function BottomNav({ unreadNotifications = 0 }) {
       match: (pathname) => pathname === "/posts/new",
     },
     {
-      href: "/profile/notifications",
+      href: "/profile?tab=notifications",
       label: "Notifications",
       icon: Bell,
       badge: unreadNotifications,

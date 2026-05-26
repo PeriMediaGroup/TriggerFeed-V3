@@ -42,7 +42,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`}>
       <body>
-        <AppShell>
+        <AppShell user={user} unreadNotifications={unreadNotifications}>
           {children}
         </AppShell>
       </body>

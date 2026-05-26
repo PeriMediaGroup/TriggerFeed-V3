@@ -84,7 +84,6 @@ export async function deletePost(postId) {
   }
 
   revalidatePath("/");
-  revalidatePath("/posts");
   revalidatePath(`/posts/${postId}`);
 
   redirect("/");

@@ -1010,7 +1010,6 @@ export async function updatePost(postId, formData) {
   });
 
   revalidatePath("/");
-  revalidatePath("/posts");
   revalidatePath(`/posts/${postId}`);
 
   return {

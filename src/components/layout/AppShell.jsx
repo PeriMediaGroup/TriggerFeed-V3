@@ -21,7 +21,7 @@ export default function AppShell({ children, user, unreadNotifications = 0 }) {
         <aside className="app-shell__right-rail">
           <AppRightRail user={user} />
         </aside>
-        <BottomNav />
+        <BottomNav unreadNotifications={unreadNotifications} />
         <ToastProvider />
       </div>
     </>
