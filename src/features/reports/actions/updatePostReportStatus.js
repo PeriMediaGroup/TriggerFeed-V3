@@ -21,6 +21,31 @@ export async function updatePostReportStatus({ reportId, status }) {
     };
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("UPDATE POST REPORT ROLE CHECK ERROR:", profileError);
+
+    return {
+      ok: false,
+      message: "Could not verify report permissions.",
+    };
+  }
+
+  const cleanRole =
+    typeof profile?.role === "string" ? profile.role.trim().toLowerCase() : "";
+
+  if (!["admin", "ceo"].includes(cleanRole)) {
+    return {
+      ok: false,
+      message: "You do not have permission to update reports.",
+    };
+  }
+
   const cleanReportId = typeof reportId === "string" ? reportId.trim() : "";
   const cleanStatus = typeof status === "string" ? status.trim() : "";
 
@@ -51,10 +76,12 @@ export async function updatePostReportStatus({ reportId, status }) {
           reviewed_at: new Date().toISOString(),
         };
 
-  const { error } = await supabase
+  const { data: updatedReport, error } = await supabase
     .from("post_reports")
     .update(reviewFields)
-    .eq("id", cleanReportId);
+    .eq("id", cleanReportId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     console.error("UPDATE POST REPORT STATUS ERROR:", error);
@@ -62,6 +89,13 @@ export async function updatePostReportStatus({ reportId, status }) {
     return {
       ok: false,
       message: "Could not update report status.",
+    };
+  }
+
+  if (!updatedReport) {
+    return {
+      ok: false,
+      message: "Report was not found or could not be updated.",
     };
   }
 

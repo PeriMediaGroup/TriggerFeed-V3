@@ -142,6 +142,12 @@
   font-size: small;
 }
 
+.post-card__body,
+.post-detail__body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .post-card__comments {
   padding: .5em;
 }
