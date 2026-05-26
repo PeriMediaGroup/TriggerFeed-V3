@@ -65,9 +65,7 @@ export async function GET(request) {
       display_name,
       first_name,
       last_name,
-      avatar_cloudinary_url,
-      city,
-      state
+      avatar_cloudinary_url
     `
     )
     .not("username", "is", null)

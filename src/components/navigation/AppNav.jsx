@@ -20,11 +20,13 @@ export default async function AppNav() {
     );
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("username, first_name, last_name, display_name, role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [
+    { data: profile, error: profileError },
+    { data: authStatus, error: authStatusError },
+  ] = await Promise.all([
+    supabase.rpc("get_my_profile").maybeSingle(),
+    supabase.rpc("get_my_profile_auth_status").maybeSingle(),
+  ]);
 
   if (profileError) {
     console.error("APP NAV PROFILE ERROR:", {
@@ -32,6 +34,15 @@ export default async function AppNav() {
       message: profileError.message,
       details: profileError.details,
       hint: profileError.hint,
+    });
+  }
+
+  if (authStatusError) {
+    console.error("APP NAV AUTH STATUS ERROR:", {
+      code: authStatusError.code,
+      message: authStatusError.message,
+      details: authStatusError.details,
+      hint: authStatusError.hint,
     });
   }
 
@@ -52,7 +63,7 @@ export default async function AppNav() {
     <AppNavMenu
       isLoggedIn
       displayName={displayName}
-      role={profile?.role}
+      role={authStatus?.role}
       unreadNotifications={unreadNotifications ?? 0}
     />
   );

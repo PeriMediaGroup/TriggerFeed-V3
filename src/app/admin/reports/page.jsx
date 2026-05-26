@@ -22,9 +22,7 @@ export default async function AdminReportsPage() {
   }
 
   const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, username, role, is_banned, is_deleted")
-    .eq("id", user.id)
+    .rpc("get_my_profile_auth_status")
     .single();
 
   const cleanRole =
