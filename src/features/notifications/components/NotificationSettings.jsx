@@ -2,69 +2,82 @@
 
 import { useState, useTransition } from "react";
 
-import { updateProfilePrivacySettings } from "@/features/profiles/actions/updateProfilePrivacySettings";
-import { getProfileVisibility } from "@/features/profiles/lib/privacySettings";
+import { updateNotificationSettings } from "@/features/notifications/actions/updateNotificationSettings";
 
-const PRIVACY_OPTIONS = [
+const DEFAULT_NOTIFICATION_SETTINGS = {
+  mentions_enabled: true,
+  comments_enabled: true,
+  friend_requests_enabled: true,
+  friend_accepts_enabled: true,
+};
+
+const NOTIFICATION_OPTIONS = [
   {
-    key: "show_city",
-    label: "City",
-    description: "Show your city on your public profile.",
+    key: "mentions_enabled",
+    label: "Mentions",
+    description: "Alerts when someone mentions you in a post or comment.",
   },
   {
-    key: "show_state",
-    label: "State",
-    description: "Show your state on your public profile.",
+    key: "comments_enabled",
+    label: "Comments",
+    description: "Alerts when someone comments on one of your posts.",
   },
   {
-    key: "show_email",
-    label: "Email",
-    description: "Show your email address on your public profile.",
+    key: "friend_requests_enabled",
+    label: "Friend requests",
+    description: "Alerts when someone sends you a friend request.",
+  },
+  {
+    key: "friend_accepts_enabled",
+    label: "Friend accepts",
+    description: "Alerts when someone accepts your friend request.",
   },
 ];
 
-export default function ProfilePrivacySettings({ profile }) {
-  const initialVisibility = getProfileVisibility(profile?.privacy_settings);
+export default function NotificationSettings({ initialSettings }) {
+  const [settings, setSettings] = useState({
+    ...DEFAULT_NOTIFICATION_SETTINGS,
+    ...(initialSettings || {}),
+  });
 
-  const [visibility, setVisibility] = useState(initialVisibility);
   const [status, setStatus] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function handleToggle(key) {
-    const previousVisibility = visibility;
+    const previousSettings = settings;
 
-    const nextVisibility = {
-      ...visibility,
-      [key]: !visibility[key],
+    const nextSettings = {
+      ...settings,
+      [key]: !settings[key],
     };
 
-    setVisibility(nextVisibility);
+    setSettings(nextSettings);
     setStatus("Saving...");
 
     startTransition(async () => {
       try {
-        const result = await updateProfilePrivacySettings(nextVisibility);
+        const result = await updateNotificationSettings(nextSettings);
 
         if (!result?.success) {
-          setVisibility(previousVisibility);
+          setSettings(previousSettings);
           setStatus(result?.message || "Could not save");
           return;
         }
 
         setStatus("Saved");
       } catch (error) {
-        setVisibility(previousVisibility);
+        setSettings(previousSettings);
         setStatus("Could not save");
       }
     });
   }
 
   return (
-    <section className="profile-settings__panel profile-privacy-settings">
+    <section className="profile-settings__panel notification-settings">
       <div className="profile-settings__panel-header">
         <div>
-          <h3>Profile Privacy</h3>
-          <p>Choose what appears on your public profile.</p>
+          <h3>Notifications</h3>
+          <p>Choose which alerts you want to receive.</p>
         </div>
 
         {status && (
@@ -75,12 +88,12 @@ export default function ProfilePrivacySettings({ profile }) {
       </div>
 
       <div className="settings-toggle-list">
-        {PRIVACY_OPTIONS.map((option) => (
+        {NOTIFICATION_OPTIONS.map((option) => (
           <SettingsToggle
             key={option.key}
             label={option.label}
             description={option.description}
-            checked={visibility[option.key]}
+            checked={settings[option.key]}
             disabled={isPending}
             onChange={() => handleToggle(option.key)}
           />

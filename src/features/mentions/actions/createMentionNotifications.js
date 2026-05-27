@@ -55,7 +55,7 @@ export async function createMentionNotifications({
   const notifiedUserIds = [];
 
   for (const profile of uniqueProfiles) {
-    const { error } = await supabase.rpc("create_mention_notification", {
+    const { data: notificationId, error } = await supabase.rpc("create_mention_notification", {
       p_user_id: profile.id,
       p_post_id: postId,
       p_comment_id: commentId,
@@ -71,7 +71,9 @@ export async function createMentionNotifications({
       };
     }
 
-    notifiedUserIds.push(profile.id);
+    if (notificationId) {
+      notifiedUserIds.push(profile.id);
+    }
   }
 
   return {

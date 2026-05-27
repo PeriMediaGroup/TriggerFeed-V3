@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Bell,
@@ -26,9 +27,32 @@ export default function AppNavMenu({
   const menuRef = useRef(null);
   const cleanRole = typeof role === "string" ? role.trim().toLowerCase() : "";
   const isAdmin = ["admin", "ceo"].includes(cleanRole);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab");
 
   function closeMenu() {
     setIsOpen(false);
+  }
+
+  function getLinkClass(href, extraClass = "") {
+    const [path, queryString] = href.split("?");
+    const params = new URLSearchParams(queryString || "");
+    const targetTab = params.get("tab");
+
+    const isSamePath = pathname === path;
+
+    const isActive = targetTab
+      ? isSamePath && activeTab === targetTab
+      : isSamePath && !activeTab;
+
+    return [
+      "app-nav__link",
+      extraClass,
+      isActive ? "app-nav__link--active" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
   }
 
   function renderMenuItems({ onItemClick } = {}) {
@@ -38,7 +62,7 @@ export default function AppNavMenu({
           <li>
             <Link
               href="/posts/new"
-              className="app-nav__link app-nav__link-create"
+              className={getLinkClass("/posts/new", "app-nav__link-create")}
               onClick={onItemClick}
             >
               <PlusCircle size={17} strokeWidth={2} aria-hidden="true" />
@@ -47,7 +71,7 @@ export default function AppNavMenu({
           </li>
 
           <li>
-            <Link href="/" className="app-nav__link" onClick={onItemClick}>
+            <Link href="/" className={getLinkClass("/")} onClick={onItemClick}>
               <Home size={17} strokeWidth={2} aria-hidden="true" />
               <span>Home</span>
             </Link>
@@ -56,7 +80,7 @@ export default function AppNavMenu({
           <li>
             <Link
               href="/profile"
-              className="app-nav__link"
+              className={getLinkClass("/profile")}
               onClick={onItemClick}
             >
               <User size={17} strokeWidth={2} aria-hidden="true" />
@@ -67,7 +91,7 @@ export default function AppNavMenu({
           <li>
             <Link
               href="/profile?tab=notifications"
-              className="app-nav__link"
+              className={getLinkClass("/profile?tab=notifications")}
               onClick={onItemClick}
             >
               <Bell size={17} strokeWidth={2} aria-hidden="true" />
@@ -82,7 +106,7 @@ export default function AppNavMenu({
           <li>
             <Link
               href="/profile?tab=friends"
-              className="app-nav__link"
+              className={getLinkClass("/profile?tab=friends")}
               onClick={onItemClick}
             >
               <UserPlus size={17} strokeWidth={2} aria-hidden="true" />
@@ -93,7 +117,7 @@ export default function AppNavMenu({
           <li>
             <Link
               href="/profile?tab=guns"
-              className="app-nav__link"
+              className={getLinkClass("/profile?tab=guns")}
               onClick={onItemClick}
             >
               <Crosshair size={17} strokeWidth={2} aria-hidden="true" />
@@ -105,7 +129,7 @@ export default function AppNavMenu({
             <li>
               <Link
                 href="/admin/reports"
-                className="app-nav__link"
+                className={getLinkClass("/admin/reports")}
                 onClick={onItemClick}
               >
                 <ShieldAlert size={17} strokeWidth={2} aria-hidden="true" />
@@ -115,11 +139,7 @@ export default function AppNavMenu({
           )}
 
           <li>
-            <a
-              href="/logout"
-              className="app-nav__link"
-              onClick={onItemClick}
-            >
+            <a href="/logout" className="app-nav__link" onClick={onItemClick}>
               <LogOut size={17} strokeWidth={2} aria-hidden="true" />
               <span>Logout</span>
             </a>
@@ -131,14 +151,22 @@ export default function AppNavMenu({
     return (
       <>
         <li>
-          <Link href="/login" className="app-nav__link" onClick={onItemClick}>
+          <Link
+            href="/login"
+            className={getLinkClass("/login")}
+            onClick={onItemClick}
+          >
             <LogIn size={17} strokeWidth={2} aria-hidden="true" />
             <span>Login</span>
           </Link>
         </li>
 
         <li>
-          <Link href="/signup" className="app-nav__link" onClick={onItemClick}>
+          <Link
+            href="/signup"
+            className={getLinkClass("/signup")}
+            onClick={onItemClick}
+          >
             <UserPlus size={17} strokeWidth={2} aria-hidden="true" />
             <span>Signup</span>
           </Link>
