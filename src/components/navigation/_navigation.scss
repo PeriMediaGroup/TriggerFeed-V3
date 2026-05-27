@@ -56,7 +56,8 @@
 }
 
 .app-nav__link:hover,
-.app-nav__link:focus-visible {
+.app-nav__link:focus-visible,
+.app-nav__link--active {
   background: rgba(255, 255, 255, 0.08);
 }
 

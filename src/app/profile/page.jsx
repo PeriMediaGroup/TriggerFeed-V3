@@ -17,7 +17,7 @@ import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost"
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
-import ProfilePrivacySettings from "@/features/profiles/components/ProfilePrivacySettings";
+import ProfileSettings from "@/features/profiles/components/ProfileSettings";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -36,6 +36,19 @@ export default async function ProfilePage() {
       </main>
     );
   }
+
+  const { data: notificationSettings } = await supabase
+  .from("notification_settings")
+  .select(
+    `
+    mentions_enabled,
+    comments_enabled,
+    friend_requests_enabled,
+    friend_accepts_enabled
+  `,
+  )
+  .eq("user_id", user.id)
+  .maybeSingle();
 
   const { count: unreadNotifications } = await supabase
     .from("notifications")
@@ -157,7 +170,12 @@ export default async function ProfilePage() {
           {
             key: "settings",
             label: "Settings",
-            panel: <ProfilePrivacySettings profile={profile} />,
+            panel: (
+              <ProfileSettings
+                profile={profile}
+                notificationSettings={notificationSettings}
+              />
+            ),
           },
         ]}
       />

@@ -1,11 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import { createClient } from "@/lib/supabase/server";
-import { normalizeProfilePrivacySettings } from "@/features/profiles/lib/privacySettings";
 
-export async function updateProfilePrivacySettings(_prevState, formData) {
+const ALLOWED_KEYS = ["show_email", "show_city", "show_state"];
+
+export async function updateProfilePrivacySettings(profileVisibility) {
   const supabase = await createClient();
 
   const {
@@ -16,33 +15,39 @@ export async function updateProfilePrivacySettings(_prevState, formData) {
   if (userError || !user) {
     return {
       success: false,
-      message: "You must be logged in to update profile settings.",
+      message: "You must be logged in to update profile privacy settings.",
     };
   }
 
-  const nextSettings = normalizeProfilePrivacySettings({
-    profile_visibility: {
-      show_city: formData.get("show_city") === "on",
-      show_state: formData.get("show_state") === "on",
-      show_email: formData.get("show_email") === "on",
-    },
-  });
+  const nextProfileVisibility = {};
 
-  const { error: updateError } = await supabase
+  for (const key of ALLOWED_KEYS) {
+    if (typeof profileVisibility?.[key] === "boolean") {
+      nextProfileVisibility[key] = profileVisibility[key];
+    }
+  }
+
+  if (Object.keys(nextProfileVisibility).length === 0) {
+    return {
+      success: false,
+      message: "No valid privacy settings were provided.",
+    };
+  }
+
+  const nextPrivacySettings = {
+    profile_visibility: nextProfileVisibility,
+  };
+
+  const { error } = await supabase
     .from("profiles")
     .update({
-      privacy_settings: nextSettings,
+      privacy_settings: nextPrivacySettings,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);
 
-  if (updateError) {
-    console.error("UPDATE PROFILE PRIVACY SETTINGS ERROR:", {
-      code: updateError.code,
-      message: updateError.message,
-      details: updateError.details,
-      hint: updateError.hint,
-    });
+  if (error) {
+    console.error("UPDATE PROFILE PRIVACY SETTINGS ERROR:", error);
 
     return {
       success: false,
@@ -50,11 +55,7 @@ export async function updateProfilePrivacySettings(_prevState, formData) {
     };
   }
 
-  revalidatePath("/profile");
-  revalidatePath(`/profiles/${user.id}`);
-
   return {
     success: true,
-    message: "Profile privacy settings updated.",
   };
 }
