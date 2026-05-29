@@ -1,0 +1,229 @@
+.manage-guns-panel {
+  display: grid;
+  gap: var(--space-4, 1rem);
+
+  padding: var(--space-4, 1rem);
+  box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
+
+  &__header {
+    display: grid;
+    gap: 0.35rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--color-text-muted, #9ca3af);
+    }
+  }
+
+  &__editor {
+    display: grid;
+    gap: var(--space-3, 0.75rem);
+  }
+}
+
+.edit-top-guns {
+  display: grid;
+  gap: var(--space-4, 1rem);
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3, 0.75rem);
+
+    h3,
+    h2 {
+      margin: 0;
+    }
+
+    p {
+      margin: 0.35rem 0 0;
+      color: var(--color-text-muted, #9ca3af);
+    }
+  }
+
+  &__status,
+  &__message {
+    justify-self: start;
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-muted, #9ca3af);
+    background: var(--color-surface-muted, rgba(255, 255, 255, 0.06));
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+
+    &.is-saving {
+      color: var(--color-warning, #fbbf24);
+    }
+
+    &.is-saved {
+      color: var(--color-success, #22c55e);
+    }
+  }
+
+  &__selected,
+  &__available,
+  &__form,
+  &__list-wrap {
+    display: grid;
+    gap: var(--space-3, 0.75rem);
+  }
+
+  &__selected-list,
+  &__available-list,
+  &__list {
+    display: grid;
+    gap: var(--space-2, 0.5rem);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__selected-item,
+  &__available-item,
+  &__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3, 0.75rem);
+    padding: 0.7rem 0.75rem;
+    border-radius: var(--radius-md, 0.75rem);
+    background: var(--color-surface-raised, rgba(255, 255, 255, 0.055));
+    border: 1px solid transparent;
+
+    &:hover {
+      border-color: var(--color-border, rgba(255, 255, 255, 0.12));
+      // background: var(--color-surface-hover, rgba(255, 255, 255, 0.075));
+    }
+  }
+
+  &__rank {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    font-weight: 800;
+    background: var(--color-accent-muted, rgba(178, 34, 34, 0.2));
+    color: var(--color-accent, #b22222);
+  }
+
+  &__name,
+  &__selected-name,
+  &__gun-name {
+    min-width: 0;
+    font-weight: 800;
+    color: var(--color-text, #fff);
+
+    small,
+    span {
+      display: block;
+      margin-top: 0.15rem;
+      color: var(--color-text-muted, #9ca3af);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+  }
+
+  &__actions,
+  &__selected-actions {
+    display: flex;
+    gap: 0.35rem;
+    justify-content: flex-end;
+
+    button {
+      min-width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
+      background: var(--color-button-bg, rgba(255, 255, 255, 0.06));
+      color: var(--color-text, #fff);
+      cursor: pointer;
+      font-weight: 800;
+
+      &:hover:not(:disabled) {
+        // background: var(--color-button-hover, rgba(255, 255, 255, 0.12));
+        border-color: var(--color-accent, #b22222);
+      }
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  &__add-button {
+    border: 1px solid var(--color-accent, #b22222);
+    background: var(--color-accent-muted, rgba(178, 34, 34, 0.18));
+    color: var(--color-accent-contrast, #fff);
+    border-radius: 999px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent, #b22222);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: var(--color-border, rgba(255, 255, 255, 0.14));
+      background: var(--color-surface-muted, rgba(255, 255, 255, 0.06));
+    }
+  }
+
+  input,
+  select,
+  textarea {
+    width: auto;
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-md, 0.75rem);
+    background: var(--color-input-bg, rgba(0, 0, 0, 0.25));
+    color: var(--color-text, #fff);
+    padding: 0.75rem 0.85rem;
+    font: inherit;
+    outline: none;
+
+    &::placeholder {
+      color: var(--color-text-muted, #9ca3af);
+    }
+
+    &:focus {
+      border-color: var(--color-accent, #b22222);
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--color-accent, #b22222) 25%, transparent);
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    color: var(--color-text-muted, #9ca3af);
+  }
+}
+
+@media (max-width: 560px) {
+  .edit-top-guns {
+    &__selected-item,
+    &__available-item,
+    &__item {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    &__actions,
+    &__selected-actions {
+      grid-column: 1 / -1;
+      justify-content: flex-start;
+      padding-left: calc(2rem + var(--space-3, 0.75rem));
+    }
+  }
+}

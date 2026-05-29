@@ -94,7 +94,7 @@ export async function updateTopGuns(_prevState, formData) {
 
     revalidatePath("/profile");
     revalidatePath(`/profiles/${user.id}`);
-    revalidatePath("/profile/guns");
+    revalidatePath("profile?tab=guns");
 
-    redirect("/profile");
+    redirect("/profile?tab=guns");
 }
