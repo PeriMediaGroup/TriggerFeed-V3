@@ -9,11 +9,9 @@ import { getTopFriends } from "@/features/profiles/data/getTopFriends";
 import { getTopGuns } from "@/features/profiles/data/getTopGuns";
 
 import ProfileHeader from "@/features/profiles/components/ProfileHeader";
-import ProfileShowcase from "@/features/profiles/components/ProfileShowcase";
 import { getFriendDashboard } from "@/features/friends/data/getFriendDashboard";
 import { getAcceptedFriends } from "@/features/friends/data/getAcceptedFriends";
 import ProfileDashboardTabs from "@/features/profiles/components/ProfileDashboardTabs";
-import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost";
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
@@ -136,8 +134,6 @@ export default async function ProfilePage() {
         isCurrentUser
         unreadNotifications={unreadNotifications ?? 0}
       />
-
-      <ProfileShowcase topFriends={topFriends} topGuns={topGuns} />
 
       <ProfileDashboardTabs
         tabs={[
