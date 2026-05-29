@@ -108,7 +108,8 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
     const next = [...gunNames];
     next[index] = "";
 
-    saveTopGuns(next);
+    setGunNames(next);
+    saveGunNames(next);
   }
 
   function moveGun(index, direction) {
@@ -122,7 +123,8 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
 
     [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
 
-    saveTopGuns(next);
+    setGunNames(next);
+    saveGunNames(next);
   }
 
   return (

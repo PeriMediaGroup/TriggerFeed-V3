@@ -21,3 +21,17 @@
   font-size: 1.25rem;
   text-decoration: none;
 }
+
+@media (max-width: 768px) {
+  .app-logo {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .app-logo__mark {
+    min-height: 50x;
+    width: 50px;
+    background-size: contain;
+    background-position: center;
+  }
+}
