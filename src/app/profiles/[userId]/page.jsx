@@ -8,7 +8,6 @@ import { getTopGuns } from "@/features/profiles/data/getTopGuns";
 
 import ProfileHeader from "@/features/profiles/components/ProfileHeader";
 import ProfileShowcase from "@/features/profiles/components/ProfileShowcase";
-import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost";
 import { getFriendStatus } from "@/features/friends/data/getFriendStatus";
 import ProfileFriendAction from "@/features/friends/components/ProfileFriendAction";
 
@@ -50,8 +49,6 @@ export default async function PublicProfilePage({ params }) {
       />
 
       <ProfileShowcase topFriends={topFriends} topGuns={topGuns} />
-
-      <ProfileLatestPost latestPost={latestPost} />
     </main>
   );
 }
