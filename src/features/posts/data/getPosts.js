@@ -51,10 +51,13 @@ const POST_SELECT = `
 
 function logSupabaseError(label, error) {
   console.error(label, {
+    raw: error,
+    name: error?.name,
     code: error?.code,
     message: error?.message,
     details: error?.details,
     hint: error?.hint,
+    status: error?.status,
   });
 }
 
@@ -228,19 +231,12 @@ export async function getPosts({ feedType = "main" } = {}) {
   // -----------------------------
   const userIds = [...new Set(safePosts.map((post) => post.user_id))];
 
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select(
-      `
-      id,
-      username,
-      display_name,
-      first_name,
-      last_name,
-      avatar_cloudinary_url
-      `
-    )
-    .in("id", userIds);
+  const { data: profiles, error: profilesError } = await supabase.rpc(
+    "get_public_profile_cards",
+    {
+      p_profile_ids: userIds,
+    }
+  );
 
   if (profilesError) {
     logSupabaseError("GET POST PROFILES ERROR:", profilesError);

@@ -1,5 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
+
 export async function getPostReports() {
   const supabase = await createClient();
 
@@ -22,29 +34,56 @@ export async function getPostReports() {
         body,
         user_id,
         created_at
-      ),
-      reporter:profiles!post_reports_reporter_id_fkey (
-        id,
-        username,
-        display_name,
-        first_name,
-        last_name,
-        avatar_cloudinary_url
-      ),
-      reviewer:profiles!post_reports_reviewed_by_fkey (
-        id,
-        username,
-        display_name,
-        first_name,
-        last_name
       )
     `)
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("GET POST REPORTS ERROR:", error);
+    logSupabaseError("GET POST REPORTS ERROR:", error);
     return [];
   }
 
-  return data || [];
+  const reports = data || [];
+  const profileIds = [
+    ...new Set(
+      reports
+        .flatMap((report) => [report.reporter_id, report.reviewed_by])
+        .filter(Boolean)
+    ),
+  ];
+
+  if (!profileIds.length) {
+    return reports.map((report) => ({
+      ...report,
+      reporter: null,
+      reviewer: null,
+    }));
+  }
+
+  const { data: profiles, error: profilesError } = await supabase.rpc(
+    "get_public_profile_cards",
+    {
+      p_profile_ids: profileIds,
+    }
+  );
+
+  if (profilesError) {
+    logSupabaseError("GET POST REPORT PROFILE CARDS ERROR:", profilesError);
+
+    return reports.map((report) => ({
+      ...report,
+      reporter: null,
+      reviewer: null,
+    }));
+  }
+
+  const profileMap = new Map(
+    (profiles || []).map((profile) => [profile.id, profile])
+  );
+
+  return reports.map((report) => ({
+    ...report,
+    reporter: profileMap.get(report.reporter_id) || null,
+    reviewer: profileMap.get(report.reviewed_by) || null,
+  }));
 }

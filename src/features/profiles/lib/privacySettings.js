@@ -1,8 +1,9 @@
 export const DEFAULT_PROFILE_PRIVACY_SETTINGS = Object.freeze({
   profile_visibility: Object.freeze({
-    show_city: true,
-    show_state: true,
+    show_city: false,
+    show_state: false,
     show_email: false,
+    show_real_name: false,
   }),
 });
 
@@ -34,10 +35,14 @@ export function normalizeProfilePrivacySettings(settings) {
         profileVisibility.show_email,
         DEFAULT_PROFILE_PRIVACY_SETTINGS.profile_visibility.show_email,
       ),
+      show_real_name: readBoolean(
+        profileVisibility.show_real_name,
+        DEFAULT_PROFILE_PRIVACY_SETTINGS.profile_visibility.show_real_name,
+      ),
     },
   };
 }
 
-export function getProfileVisibility(settings) {
-  return normalizeProfilePrivacySettings(settings).profile_visibility;
+export function getProfileVisibility(privacySettings) {
+  return normalizeProfilePrivacySettings(privacySettings).profile_visibility;
 }

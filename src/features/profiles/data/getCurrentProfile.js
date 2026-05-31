@@ -39,12 +39,17 @@ export async function getCurrentProfile() {
   }
 
   if (authStatusError) {
-    console.error("GET CURRENT PROFILE AUTH STATUS ERROR:", {
+    console.warn("GET CURRENT PROFILE AUTH STATUS ERROR:", {
+      name: authStatusError?.name,
       code: authStatusError?.code,
       message: authStatusError?.message,
-      details: authStatusError?.details,
-      hint: authStatusError?.hint,
+      status: authStatusError?.status,
     });
+
+    return {
+      profile: null,
+      error: authStatusError,
+    };
   }
 
   return {

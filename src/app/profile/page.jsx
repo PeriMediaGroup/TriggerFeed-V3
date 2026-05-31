@@ -17,6 +17,18 @@ import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 import ProfileSettings from "@/features/profiles/components/ProfileSettings";
 
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
+
 export default async function ProfilePage() {
   const supabase = await createClient();
   const { profile, error } = await getCurrentProfile();
@@ -91,12 +103,15 @@ export default async function ProfilePage() {
     ),
   ];
 
-  const { data: actors } = actorIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, username, first_name")
-        .in("id", actorIds)
-    : { data: [] };
+  const { data: actors, error: actorsError } = actorIds.length
+    ? await supabase.rpc("get_public_profile_cards", {
+        p_profile_ids: actorIds,
+      })
+    : { data: [], error: null };
+
+  if (actorsError) {
+    logSupabaseError("GET NOTIFICATION ACTORS ERROR:", actorsError);
+  }
 
   const actorsById = new Map(actors?.map((actor) => [actor.id, actor]) ?? []);
 

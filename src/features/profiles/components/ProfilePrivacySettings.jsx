@@ -7,6 +7,11 @@ import { getProfileVisibility } from "@/features/profiles/lib/privacySettings";
 
 const PRIVACY_OPTIONS = [
   {
+    key: "show_real_name",
+    label: "Real Name",
+    description: "Show your first and last name on your public profile.",
+  },
+  {
     key: "show_city",
     label: "City",
     description: "Show your city on your public profile.",

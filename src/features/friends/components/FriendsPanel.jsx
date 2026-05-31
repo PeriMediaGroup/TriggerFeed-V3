@@ -127,10 +127,6 @@ export default function FriendsPanel({
 
   return (
     <>
-      <header className="friends-panel__header">
-        <p>Find people, manage requests, and view your friends.</p>
-      </header>
-
       <section className="friends-panel">
         
         <div className="friends-panel__grid">

@@ -11,6 +11,18 @@ function normalizeAuthor(profile) {
   };
 }
 
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
+
 export async function getCommentsByPostId(postId) {
   if (!postId) {
     return {
@@ -41,7 +53,7 @@ export async function getCommentsByPostId(postId) {
     .order("created_at", { ascending: true });
 
   if (commentsError) {
-    console.error("Error fetching comments:", commentsError);
+    logSupabaseError("Error fetching comments:", commentsError);
 
     return {
       comments: [],
@@ -58,22 +70,15 @@ export async function getCommentsByPostId(postId) {
 
   const userIds = [...new Set(comments.map((comment) => comment.user_id))];
 
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select(
-      `
-        id,
-        username,
-        display_name,
-        first_name,
-        last_name,
-        avatar_cloudinary_url
-    `,
-    )
-    .in("id", userIds);
+  const { data: profiles, error: profilesError } = await supabase.rpc(
+    "get_public_profile_cards",
+    {
+      p_profile_ids: userIds,
+    },
+  );
 
   if (profilesError) {
-    console.error("Error fetching comment authors:", profilesError);
+    logSupabaseError("Error fetching comment authors:", profilesError);
 
     return {
       comments: comments.map((comment) => ({

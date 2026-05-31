@@ -71,19 +71,18 @@ export async function getPostById(postId) {
   }
 
   const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select(
-      `
-      id,
-      username,
-      first_name
-    `
-    )
-    .eq("id", post.user_id)
+    .rpc("get_public_profile", {
+      p_profile_id: post.user_id,
+    })
     .maybeSingle();
 
   if (profileError) {
-    console.error("GET POST AUTHOR ERROR:", profileError);
+    console.error("GET POST AUTHOR ERROR:", {
+      code: profileError?.code,
+      message: profileError?.message,
+      details: profileError?.details,
+      hint: profileError?.hint,
+    });
   }
 
   // -----------------------------

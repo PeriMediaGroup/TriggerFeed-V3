@@ -19,6 +19,7 @@ export default async function EditProfilePage({ searchParams }) {
     <main className="profile-edit">
       <div className="profile-edit__header">
         <h1>Edit Profile</h1>
+        <p>Changes save automatically.</p>
         {setupRequired && (
           <p className="profile-edit__notice">
             Please set up your profile before you post.
