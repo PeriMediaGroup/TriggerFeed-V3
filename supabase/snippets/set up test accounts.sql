@@ -1,6 +1,6 @@
 -- =========================================================
 -- Local Dev Seed: Test Users
--- Creates 6 confirmed Supabase Auth users + matching profiles.
+-- Creates 11 confirmed Supabase Auth users + matching profiles.
 -- Password for all users: testMe123!
 -- LOCAL ONLY. Do not run this on production unless chaos is your hobby.
 -- =========================================================
@@ -13,10 +13,12 @@ declare
   user_email text;
   user_name text;
   user_id uuid;
+  user_dob date;
 begin
   for i in 0..10 loop
     user_email := 'test_' || i || '@example.com';
     user_name := 'test_' || i;
+    user_dob := make_date(1980 + (i % 20), ((i % 12) + 1), ((i % 28) + 1));
 
     -- Reuse existing user id if already created, otherwise make a new one.
     select id
@@ -84,7 +86,8 @@ begin
         '{"provider":"email","providers":["email"]}'::jsonb,
         jsonb_build_object(
           'username', user_name,
-          'display_name', 'Test User ' || i
+          'display_name', 'Test User ' || i,
+          'dob', user_dob
         ),
         false,
         now(),
@@ -157,6 +160,10 @@ begin
       display_name,
       first_name,
       last_name,
+      dob,
+      age_verified_at,
+      age_gate_version,
+      birthday_messages_enabled,
       role,
       is_banned,
       is_muted,
@@ -173,11 +180,24 @@ begin
       'Test User ' || i,
       'Test',
       'User ' || i,
+      user_dob,
+      now(),
+      'v1',
+      true,
       'user',
       false,
       false,
       false,
-      '{}'::jsonb,
+      jsonb_build_object(
+        'profile_visibility',
+        jsonb_build_object(
+          'show_city', false,
+          'show_state', false,
+          'show_email', false,
+          'show_real_name', false,
+          'show_age', false
+        )
+      ),
       now(),
       now()
     )
@@ -189,6 +209,10 @@ begin
       display_name = excluded.display_name,
       first_name = excluded.first_name,
       last_name = excluded.last_name,
+      dob = excluded.dob,
+      age_verified_at = excluded.age_verified_at,
+      age_gate_version = excluded.age_gate_version,
+      birthday_messages_enabled = excluded.birthday_messages_enabled,
       role = excluded.role,
       is_banned = false,
       is_muted = false,
@@ -203,6 +227,9 @@ select
   p.username,
   p.username_lower,
   p.display_name,
+  p.dob,
+  p.age_verified_at is not null as age_verified,
+  p.birthday_messages_enabled,
   u.email_confirmed_at is not null as confirmed
 from auth.users u
 left join public.profiles p

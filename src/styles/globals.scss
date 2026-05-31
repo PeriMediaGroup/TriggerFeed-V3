@@ -5,6 +5,7 @@
 @use "../components/navigation/navigation";
 @use "../components/ui/ui";
 
+@use "../features/auth/styles/_auth";
 @use "../features/polls/styles/_polls";
 @use "../features/feed/styles/_feed";
 @use "../features/posts/styles/_posts";
