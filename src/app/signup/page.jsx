@@ -160,8 +160,7 @@ export default function SignupPage() {
             Start your TriggerFeed account
           </h1>
           <p className="signup-form__intro">
-            TriggerFeed is built for adults. Your date of birth is required for
-            age verification and is hidden from your public profile by default.
+            Your date of birth is required for age verification and is hidden from your public profile by default.
           </p>
         </div>
 
