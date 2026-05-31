@@ -5,6 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import NotificationsReadMarker from "@/features/notifications/components/NotificationsReadMarker";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
+
 export default async function NotificationsPage() {
   const supabase = await createClient();
 
@@ -48,7 +60,7 @@ export default async function NotificationsPage() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("GET NOTIFICATIONS ERROR:", error);
+    logSupabaseError("GET NOTIFICATIONS ERROR:", error);
 
     return (
       <main className="profile-notifications-page">
@@ -68,14 +80,13 @@ export default async function NotificationsPage() {
   ];
 
   const { data: actors, error: actorsError } = actorIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, username, first_name, last_name, avatar_cloudinary_url")
-        .in("id", actorIds)
+    ? await supabase.rpc("get_public_profile_cards", {
+        p_profile_ids: actorIds,
+      })
     : { data: [], error: null };
 
   if (actorsError) {
-    console.error("GET NOTIFICATION ACTORS ERROR:", actorsError);
+    logSupabaseError("GET NOTIFICATION ACTORS ERROR:", actorsError);
   }
 
   const actorsById = new Map(actors?.map((actor) => [actor.id, actor]) ?? []);

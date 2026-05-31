@@ -11,6 +11,18 @@ function cleanSearchQuery(value) {
     .toLowerCase();
 }
 
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
+
 export async function GET(request) {
   const supabase = await createClient();
 
@@ -35,12 +47,7 @@ export async function GET(request) {
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
 
   if (friendRowsError) {
-    console.error("USER SEARCH FRIEND CHECK ERROR:", {
-      code: friendRowsError.code,
-      message: friendRowsError.message,
-      details: friendRowsError.details,
-      hint: friendRowsError.hint,
-    });
+    logSupabaseError("USER SEARCH FRIEND CHECK ERROR:", friendRowsError);
 
     return NextResponse.json({ users: [] }, { status: 500 });
   }
@@ -61,11 +68,7 @@ export async function GET(request) {
     .select(
       `
       id,
-      username,
-      display_name,
-      first_name,
-      last_name,
-      avatar_cloudinary_url
+      username
     `
     )
     .not("username", "is", null)
@@ -77,18 +80,40 @@ export async function GET(request) {
     queryBuilder = queryBuilder.neq("id", excludedUserId);
   }
 
-  const { data, error } = await queryBuilder;
+  const { data: profileMatches, error } = await queryBuilder;
 
   if (error) {
-    console.error("USER SEARCH ERROR:", {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-    });
+    logSupabaseError("USER SEARCH ERROR:", error);
 
     return NextResponse.json({ users: [] }, { status: 500 });
   }
 
-  return NextResponse.json({ users: data || [] });
+  const profileIds = (profileMatches || []).map((profile) => profile.id);
+
+  if (!profileIds.length) {
+    return NextResponse.json({ users: [] });
+  }
+
+  const { data: profiles, error: profilesError } = await supabase.rpc(
+    "get_public_profile_cards",
+    {
+      p_profile_ids: profileIds,
+    }
+  );
+
+  if (profilesError) {
+    logSupabaseError("USER SEARCH PROFILE CARDS ERROR:", profilesError);
+
+    return NextResponse.json({ users: [] }, { status: 500 });
+  }
+
+  const profileMap = new Map(
+    (profiles || []).map((profile) => [profile.id, profile])
+  );
+
+  const users = profileIds
+    .map((profileId) => profileMap.get(profileId))
+    .filter(Boolean);
+
+  return NextResponse.json({ users });
 }

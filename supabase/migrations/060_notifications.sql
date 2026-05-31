@@ -113,6 +113,124 @@ to authenticated
 using (auth.uid() = user_id);
 
 -- ---------------------------------------------------------
+-- Notification settings
+-- ---------------------------------------------------------
+
+create table if not exists public.notification_settings (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+
+  mentions_enabled boolean not null default true,
+  comments_enabled boolean not null default true,
+  friend_requests_enabled boolean not null default true,
+  friend_accepts_enabled boolean not null default true,
+
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.notification_settings enable row level security;
+
+revoke all on public.notification_settings from anon;
+revoke all on public.notification_settings from authenticated;
+
+grant select, insert, update on public.notification_settings to authenticated;
+
+create policy "notification_settings_select_own"
+on public.notification_settings
+for select
+to authenticated
+using (auth.uid() = user_id);
+
+create policy "notification_settings_insert_own"
+on public.notification_settings
+for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+create policy "notification_settings_update_own"
+on public.notification_settings
+for update
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop trigger if exists set_notification_settings_updated_at on public.notification_settings;
+create trigger set_notification_settings_updated_at
+before update on public.notification_settings
+for each row
+execute function public.set_updated_at();
+
+insert into public.notification_settings (user_id)
+select id
+from public.profiles
+on conflict (user_id) do nothing;
+
+create or replace function public.create_notification_settings_for_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.notification_settings (user_id)
+  values (new.id)
+  on conflict (user_id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists create_notification_settings_after_profile_insert on public.profiles;
+create trigger create_notification_settings_after_profile_insert
+after insert on public.profiles
+for each row
+execute function public.create_notification_settings_for_profile();
+
+revoke all on function public.create_notification_settings_for_profile() from public;
+
+create or replace function public.should_create_notification(
+  p_user_id uuid,
+  p_type text
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case p_type
+    when 'mention' then coalesce((
+      select ns.mentions_enabled
+      from public.notification_settings ns
+      where ns.user_id = p_user_id
+    ), true)
+    when 'comment' then coalesce((
+      select ns.comments_enabled
+      from public.notification_settings ns
+      where ns.user_id = p_user_id
+    ), true)
+    when 'reply' then coalesce((
+      select ns.comments_enabled
+      from public.notification_settings ns
+      where ns.user_id = p_user_id
+    ), true)
+    when 'friend_request' then coalesce((
+      select ns.friend_requests_enabled
+      from public.notification_settings ns
+      where ns.user_id = p_user_id
+    ), true)
+    when 'friend_accepted' then coalesce((
+      select ns.friend_accepts_enabled
+      from public.notification_settings ns
+      where ns.user_id = p_user_id
+    ), true)
+    else true
+  end;
+$$;
+
+revoke all on function public.should_create_notification(uuid, text) from public;
+
+-- ---------------------------------------------------------
 -- Mention notification helper
 -- Signature expected by app:
 -- create_mention_notification(p_user_id, p_post_id, p_comment_id)
@@ -167,6 +285,10 @@ begin
     ) then
       raise exception 'Mention notification denied: actor does not own comment';
     end if;
+  end if;
+
+  if not public.should_create_notification(p_user_id, 'mention') then
+    return null;
   end if;
 
   insert into public.notifications (
@@ -243,6 +365,10 @@ begin
     raise exception 'Comment notification denied: actor does not own comment';
   end if;
 
+  if not public.should_create_notification(v_post_owner_id, 'comment') then
+    return null;
+  end if;
+
   insert into public.notifications (
     user_id,
     actor_id,
@@ -314,6 +440,10 @@ begin
     raise exception 'Reply notification denied: actor does not own reply';
   end if;
 
+  if not public.should_create_notification(v_parent_owner_id, 'reply') then
+    return null;
+  end if;
+
   insert into public.notifications (
     user_id,
     actor_id,
@@ -374,6 +504,10 @@ begin
   end if;
 
   if v_recipient_id = v_actor_id then
+    return null;
+  end if;
+
+  if not public.should_create_notification(v_recipient_id, 'friend_request') then
     return null;
   end if;
 
@@ -439,6 +573,10 @@ begin
   end if;
 
   if v_requester_id = v_actor_id then
+    return null;
+  end if;
+
+  if not public.should_create_notification(v_requester_id, 'friend_accepted') then
     return null;
   end if;
 

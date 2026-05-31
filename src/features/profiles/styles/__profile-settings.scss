@@ -1,10 +1,10 @@
 .profile-settings {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-md);
 
   &__header {
     display: grid;
-    gap: var(--space-1);
+    gap: var(--space-xs);
 
     h2,
     p {
@@ -13,7 +13,7 @@
 
     p {
       color: var(--color-text-muted);
-      font-size: var(--font-size-sm);
+      font-size: 0.875rem;
     }
   }
 
@@ -26,7 +26,7 @@
     display: grid;
     gap: var(--space-md);
     padding: var(--space-md);
-    margin: var(--space-sm)
+    margin: var(--space-sm);
   }
 
   &__panel-header {
@@ -42,26 +42,26 @@
 
     h3 {
       color: var(--color-text);
-      font-size: var(--font-size-md);
+      font-size: 1rem;
     }
 
     p {
       color: var(--color-text-muted);
-      font-size: var(--font-size-sm);
+      font-size: 0.875rem;
     }
   }
 
   &__status {
     flex: 0 0 auto;
     color: var(--color-text-muted);
-    font-size: var(--font-size-xs);
+    font-size: 0.75rem;
     white-space: nowrap;
   }
 }
 
 .settings-toggle-list {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-sm);
 }
 
 .settings-toggle {
@@ -69,7 +69,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
-  padding-block: var(--space-2);
+  padding-block: var(--space-sm);
   cursor: pointer;
 
   &__copy {
@@ -80,13 +80,13 @@
 
   &__label {
     color: var(--color-text);
-    font-size: var(--font-size-sm);
+    font-size: 0.875rem;
     font-weight: 600;
   }
 
   &__description {
     color: var(--color-text-muted);
-    font-size: var(--font-size-xs);
+    font-size: 0.75rem;
     line-height: 1.35;
   }
 
@@ -133,7 +133,7 @@
   }
 
   &__input:focus-visible + &__slider {
-    outline: 2px solid var(--color-focus);
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, white);
     outline-offset: 3px;
   }
 

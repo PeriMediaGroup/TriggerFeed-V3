@@ -3,116 +3,162 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
+import { Pencil, CalendarDays, MapPin, Mail, IdCard } from "lucide-react";
+
 import {
-  Pencil,
-  CalendarDays,
-  MapPin,
-  Bell,
-  Handshake,
-  Crosshair,
-} from "lucide-react";
+  DEFAULT_PROFILE_AVATAR_URL,
+  DEFAULT_PROFILE_BANNER_LABEL,
+} from "@/features/profiles/constants/profileImages";
+
 export default function ProfileHeader({
   profile,
   stats,
   isCurrentUser = false,
-  unreadNotifications = 0,
 }) {
+  const profileVisibility = profile?.privacy_settings?.profile_visibility || {};
+
+  const canShowRealName =
+    isCurrentUser || Boolean(profileVisibility.show_real_name);
+
+  const canShowEmail = isCurrentUser || Boolean(profileVisibility.show_email);
+  const canShowCity = isCurrentUser || Boolean(profileVisibility.show_city);
+  const canShowState = isCurrentUser || Boolean(profileVisibility.show_state);
+
   const displayName =
     profile?.display_name ||
     [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
     profile?.username ||
     "Your Name";
 
-  const username = profile?.username || "your_username";
-  const bannerUrl = profile?.banner_cloudinary_url?.trim();
-  const avatarUrl = profile?.avatar_cloudinary_url?.trim();
+  const realName = canShowRealName
+    ? [profile?.first_name, profile?.last_name].filter(Boolean).join(" ")
+    : "";
 
-  const location = [profile?.city, profile?.state].filter(Boolean).join(", ");
-  const NotificationIcon = Bell;
-  const showProfileBadge = false;
+  const email = canShowEmail ? profile?.email : "";
+  const username = profile?.username || "your_username";
+
+  const location = [
+    canShowCity ? profile?.city : "",
+    canShowState ? profile?.state : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const bannerUrl = profile?.banner_cloudinary_url?.trim();
+  const avatarUrl =
+    profile?.avatar_cloudinary_url?.trim() || DEFAULT_PROFILE_AVATAR_URL;
+  const displayBadge = profile?.profile_badge || "";
+  const joinedDate = formatShortDate(profile?.created_at);
 
   return (
     <section className="profile-header">
-      <div className="profile__banner">
+      <div className="profile-header__banner">
         {bannerUrl ? (
           <Image
             src={bannerUrl}
             alt=""
             fill
             sizes="100vw"
-            className="profile__banner-image"
+            className="profile-header__banner-image"
+            priority
           />
         ) : (
-          <div className="profile__banner-placeholder">TF</div>
+          <div className="profile-header__banner-placeholder">
+            {DEFAULT_PROFILE_BANNER_LABEL}
+          </div>
         )}
       </div>
 
-      <div className="profile-header__body">
-        <div className="profile-header__avatar-wrap">
-          <div className="profile__avatar">
-            {avatarUrl ? (
+      <div className="profile-header__content">
+        <div className="profile-header__main">
+          <div className="profile-header__avatar-wrap">
+            <div className="profile-header__avatar">
               <Image
                 src={avatarUrl}
                 alt={`${displayName} avatar`}
-                width={144}
-                height={144}
-                className="profile__avatar-image"
+                width={150}
+                height={150}
+                className="profile-header__avatar-image"
               />
-            ) : (
-              <Image
-                className="profile__avatar-image"
-                src="https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png"
-                alt="Default Avatar"
-                width="150"
-                height="150"
-              />
+            </div>
+          </div>
+
+          <div className="profile-header__details">
+            <div className="profile-header__row profile-header__row--identity">
+              <div className="profile-header__title-group">
+                <h1 className="profile-header__display-name">{displayName}</h1>
+                <span className="profile-header__username">@{username}</span>
+              </div>
+
+              {isCurrentUser && (
+                <Link href="/profile/edit" className="profile-header__edit">
+                  <Pencil size={16} strokeWidth={2} aria-hidden="true" />
+                  <span>Edit Profile</span>
+                </Link>
+              )}
+            </div>
+
+            <div className="profile-header__row">
+              {realName ? (
+                <span className="profile-header__meta-item">
+                  <IdCard size={15} strokeWidth={2} aria-hidden="true" />
+                  {realName}
+                </span>
+              ) : (
+                <span className="profile-header__meta-item profile-header__meta-item--empty" />
+              )}
+
+              <span className="profile-header__meta-item profile-header__meta-item--right">
+                <CalendarDays size={15} strokeWidth={2} aria-hidden="true" />
+                Joined {joinedDate}
+              </span>
+            </div>
+
+            <div className="profile-header__row">
+              {location ? (
+                <span className="profile-header__meta-item">
+                  <MapPin size={15} strokeWidth={2} aria-hidden="true" />
+                  {location}
+                </span>
+              ) : (
+                <span className="profile-header__meta-item profile-header__meta-item--empty" />
+              )}
+
+              {email && (
+                <a href={`mailto:${email}`} className="profile-header__email">
+                  <Mail size={15} strokeWidth={2} aria-hidden="true" />
+                  {email}
+                </a>
+              )}
+            </div>
+
+            {displayBadge && (
+              <span className="profile-header__badge">{displayBadge}</span>
             )}
           </div>
         </div>
 
-        <div className="profile-header__identity">
-          <h1 className="profile-header__name">{displayName}</h1>
-          <p className="profile-header__username">@{username}</p>
-
-          {showProfileBadge && (profile?.profile_badge || profile?.role) && (
-            <p className="profile-header__badge">
-              {profile.profile_badge || profile.role}
-            </p>
-          )}
-          <div>
-            {location && (
-              <p className="profile-header__location">
-                <MapPin size={15} strokeWidth={2} aria-hidden="true" />
-                {location}
-              </p>
-            )}
-
-            <p className="profile-header__joined">
-              <CalendarDays size={15} strokeWidth={2} aria-hidden="true" />{" "}
-              Joined {formatShortDate(profile?.created_at)}
-            </p>
-          </div>
-        </div>
-
-        {isCurrentUser && (
-          <div>
-            <Link href="/profile/edit" className="profile-header__edit">
-              <Pencil size={16} strokeWidth={2} aria-hidden="true" />
-              Edit Profile
-            </Link>
+        {profile?.bio && (
+          <div className="profile-header__notes">
+            <h2 className="profile-header__notes-title">Field Notes</h2>
+            <p className="profile-header__notes-text">{profile.bio}</p>
           </div>
         )}
-      </div>
 
-      <div className="profile-header__stats">
-        <div>
-          <strong>{stats?.posts || 0}</strong>
-          <span>Posts</span>
-        </div>
+        <div className="profile-header__stats" aria-label="Profile stats">
+          <div className="profile-header__stat">
+            <strong className="profile-header__stat-value">
+              {stats?.posts || 0}
+            </strong>
+            <span className="profile-header__stat-label">Posts</span>
+          </div>
 
-        <div>
-          <strong>{stats?.friends || 0}</strong>
-          <span>Friends</span>
+          <div className="profile-header__stat">
+            <strong className="profile-header__stat-value">
+              {stats?.friends || 0}
+            </strong>
+            <span className="profile-header__stat-label">Friends</span>
+          </div>
         </div>
       </div>
     </section>

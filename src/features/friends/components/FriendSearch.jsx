@@ -66,7 +66,7 @@ export default function FriendSearch() {
         placeholder="@username or name"
       />
 
-      {isSearching && <p>Searching...</p>}
+      {isSearching && <p className="friends-search__status">Searching...</p>}
 
       {results.length > 0 && (
         <ul className="friends-search__results">

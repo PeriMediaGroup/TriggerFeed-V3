@@ -8,6 +8,10 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
+function hasRealFile(file) {
+  return file instanceof File && file.size > 0 && file.name;
+}
+
 export async function updateProfile(_prevState, formData) {
   const supabase = await createClient();
 
@@ -22,10 +26,12 @@ export async function updateProfile(_prevState, formData) {
 
   const avatarFile = formData.get("avatar");
   const bannerFile = formData.get("banner");
+
   const displayName = String(formData.get("display_name") || "").trim();
   const username = String(formData.get("username") || "").trim();
   const firstName = String(formData.get("first_name") || "").trim();
   const lastName = String(formData.get("last_name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
   const city = String(formData.get("city") || "").trim();
   const state = String(formData.get("state") || "").trim();
   const bio = String(formData.get("bio") || "").trim();
@@ -44,6 +50,10 @@ export async function updateProfile(_prevState, formData) {
     errors.username = "Username can only use letters, numbers, and underscores.";
   }
 
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = "Enter a valid email address.";
+  }
+
   if (bio.length > 500) {
     errors.bio = "Bio must be 500 characters or less.";
   }
@@ -60,17 +70,21 @@ export async function updateProfile(_prevState, formData) {
   let bannerUpload = null;
 
   try {
-    avatarUpload = await uploadProfileImage({
-      file: avatarFile,
-      userId: user.id,
-      imageType: "avatar",
-    });
+    if (hasRealFile(avatarFile)) {
+      avatarUpload = await uploadProfileImage({
+        file: avatarFile,
+        userId: user.id,
+        imageType: "avatar",
+      });
+    }
 
-    bannerUpload = await uploadProfileImage({
-      file: bannerFile,
-      userId: user.id,
-      imageType: "banner",
-    });
+    if (hasRealFile(bannerFile)) {
+      bannerUpload = await uploadProfileImage({
+        file: bannerFile,
+        userId: user.id,
+        imageType: "banner",
+      });
+    }
   } catch (uploadError) {
     console.error("PROFILE IMAGE UPLOAD ERROR:", uploadError);
 
@@ -86,6 +100,7 @@ export async function updateProfile(_prevState, formData) {
     username,
     first_name: firstName || null,
     last_name: lastName || null,
+    email: email || null,
     city: city || null,
     state: state || null,
     bio: bio || null,
@@ -113,21 +128,22 @@ export async function updateProfile(_prevState, formData) {
       message: updateError.message,
       details: updateError.details,
       hint: updateError.hint,
+      profileUpdates,
     });
 
     if (updateError.code === "23505") {
       return {
         success: false,
-        message: "That username is already taken.",
+        message: "That username or email is already taken.",
         errors: {
-          username: "That username is already taken.",
+          username: "That username or email is already taken.",
         },
       };
     }
 
     return {
       success: false,
-      message: "Could not update profile.",
+      message: updateError.message || "Could not update profile.",
       errors: {},
     };
   }
@@ -135,5 +151,9 @@ export async function updateProfile(_prevState, formData) {
   revalidatePath("/profile");
   revalidatePath(`/profiles/${user.id}`);
 
-  redirect("/profile");
+  return {
+    success: true,
+    message: "Saved",
+    errors: {},
+  };
 }

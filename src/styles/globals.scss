@@ -10,6 +10,7 @@
 @use "../features/posts/styles/_posts";
 @use "../features/media/styles/_media";
 @use "../features/votes/styles/_votes";
+@use "../features/guns/styles/__guns";
 @use "../features/comments/styles/_comments";
 @use "../features/mentions/styles/_mentions";
 @use "../features/profiles/styles/_profile-settings";
@@ -46,10 +47,6 @@ button {
 }
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
-form label {
-  display: block;
-  width: 100%;
-}
 
 /* TF-TEMP-CSS: Edit post media manager - move during polish pass */
 

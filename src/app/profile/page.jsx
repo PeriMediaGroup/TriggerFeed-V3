@@ -9,15 +9,25 @@ import { getTopFriends } from "@/features/profiles/data/getTopFriends";
 import { getTopGuns } from "@/features/profiles/data/getTopGuns";
 
 import ProfileHeader from "@/features/profiles/components/ProfileHeader";
-import ProfileShowcase from "@/features/profiles/components/ProfileShowcase";
 import { getFriendDashboard } from "@/features/friends/data/getFriendDashboard";
 import { getAcceptedFriends } from "@/features/friends/data/getAcceptedFriends";
 import ProfileDashboardTabs from "@/features/profiles/components/ProfileDashboardTabs";
-import ProfileLatestPost from "@/features/profiles/components/ProfileLatestPost";
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 import ProfileSettings from "@/features/profiles/components/ProfileSettings";
+
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -93,12 +103,15 @@ export default async function ProfilePage() {
     ),
   ];
 
-  const { data: actors } = actorIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, username, first_name")
-        .in("id", actorIds)
-    : { data: [] };
+  const { data: actors, error: actorsError } = actorIds.length
+    ? await supabase.rpc("get_public_profile_cards", {
+        p_profile_ids: actorIds,
+      })
+    : { data: [], error: null };
+
+  if (actorsError) {
+    logSupabaseError("GET NOTIFICATION ACTORS ERROR:", actorsError);
+  }
 
   const actorsById = new Map(actors?.map((actor) => [actor.id, actor]) ?? []);
 
@@ -136,8 +149,6 @@ export default async function ProfilePage() {
         isCurrentUser
         unreadNotifications={unreadNotifications ?? 0}
       />
-
-      <ProfileShowcase topFriends={topFriends} topGuns={topGuns} />
 
       <ProfileDashboardTabs
         tabs={[

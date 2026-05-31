@@ -155,9 +155,8 @@ export async function updateTopFriends(_prevState, formData) {
     };
   }
 
-  revalidatePath("/profile");
   revalidatePath(`/profiles/${user.id}`);
-  revalidatePath("/profile/friends");
+  revalidatePath("/profile?tab=friends");
 
   return {
     success: true,

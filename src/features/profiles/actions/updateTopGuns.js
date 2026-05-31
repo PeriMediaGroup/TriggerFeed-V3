@@ -91,10 +91,12 @@ export async function updateTopGuns(_prevState, formData) {
             };
         }
     }
+    
+    return {
+        success: true,
+        message: "Saved",
+        errors: {},
+    };
 
-    revalidatePath("/profile");
-    revalidatePath(`/profiles/${user.id}`);
-    revalidatePath("/profile/guns");
-
-    redirect("/profile");
+    redirect("/profile?tab=guns");
 }

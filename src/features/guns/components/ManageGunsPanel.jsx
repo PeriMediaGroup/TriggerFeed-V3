@@ -1,6 +1,4 @@
-// src/features/guns/components/ManageGunsPanel.jsx
-
-import EditTopGuns from "@/features/profiles/components/EditTopGuns";
+import EditTopGuns from "@/features/guns/components/EditTopGuns";
 
 export default function ManageGunsPanel({ topGuns = [] }) {
   return (
@@ -10,7 +8,9 @@ export default function ManageGunsPanel({ topGuns = [] }) {
         <p>Choose up to 4 favorite guns to display on your profile.</p>
       </header>
 
-      <EditTopGuns currentTopGuns={topGuns} />
+      <div className="manage-guns-panel__editor">
+        <EditTopGuns currentTopGuns={topGuns} autosave />
+      </div>
     </section>
   );
 }
