@@ -1,8 +1,21 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { normalizeProfilePrivacySettings } from "@/features/profiles/lib/privacySettings";
 
-const ALLOWED_KEYS = ["show_email", "show_city", "show_state"];
+const ALLOWED_KEYS = ["show_email", "show_city", "show_state", "show_real_name"];
+
+function logSupabaseError(label, error) {
+  console.error(label, {
+    raw: error,
+    name: error?.name,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    status: error?.status,
+  });
+}
 
 export async function updateProfilePrivacySettings(profileVisibility) {
   const supabase = await createClient();
@@ -19,24 +32,47 @@ export async function updateProfilePrivacySettings(profileVisibility) {
     };
   }
 
-  const nextProfileVisibility = {};
+  const incomingProfileVisibility = {};
 
   for (const key of ALLOWED_KEYS) {
     if (typeof profileVisibility?.[key] === "boolean") {
-      nextProfileVisibility[key] = profileVisibility[key];
+      incomingProfileVisibility[key] = profileVisibility[key];
     }
   }
 
-  if (Object.keys(nextProfileVisibility).length === 0) {
+  if (Object.keys(incomingProfileVisibility).length === 0) {
     return {
       success: false,
       message: "No valid privacy settings were provided.",
     };
   }
 
-  const nextPrivacySettings = {
-    profile_visibility: nextProfileVisibility,
-  };
+  const { data: currentProfile, error: currentProfileError } = await supabase
+    .rpc("get_my_profile")
+    .maybeSingle();
+
+  if (currentProfileError) {
+    logSupabaseError(
+      "GET CURRENT PROFILE PRIVACY SETTINGS ERROR:",
+      currentProfileError,
+    );
+
+    return {
+      success: false,
+      message: "Could not load current profile privacy settings.",
+    };
+  }
+
+  const currentPrivacySettings = normalizeProfilePrivacySettings(
+    currentProfile?.privacy_settings,
+  );
+
+  const nextPrivacySettings = normalizeProfilePrivacySettings({
+    profile_visibility: {
+      ...currentPrivacySettings.profile_visibility,
+      ...incomingProfileVisibility,
+    },
+  });
 
   const { error } = await supabase
     .from("profiles")
@@ -47,7 +83,7 @@ export async function updateProfilePrivacySettings(profileVisibility) {
     .eq("id", user.id);
 
   if (error) {
-    console.error("UPDATE PROFILE PRIVACY SETTINGS ERROR:", error);
+    logSupabaseError("UPDATE PROFILE PRIVACY SETTINGS ERROR:", error);
 
     return {
       success: false,
