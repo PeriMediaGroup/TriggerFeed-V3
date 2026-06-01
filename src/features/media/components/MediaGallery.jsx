@@ -248,6 +248,7 @@ export default function MediaGallery({
                   className={`${className || ""} media-gallery__image${
                     isGif ? " media-gallery__image--gif" : ""
                   }`}
+                  // Required by react-photo-album for calculated image layout.
                   style={style}
                   loading="lazy"
                   unoptimized={isGif}

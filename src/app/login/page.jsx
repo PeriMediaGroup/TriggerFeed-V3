@@ -119,7 +119,7 @@ export default function LoginPage() {
       return;
     }
 
-    if (!profile.username) {
+    if (!profile.username || !profile.dob || !profile.age_verified_at) {
       router.replace("/onboarding");
       router.refresh();
       return;
@@ -130,44 +130,71 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "520px", margin: "0 auto" }}>
-      <h1>Log in to TriggerFeed</h1>
-      <p>Stage One login test. Not pretty, but it knows its job.</p>
+    <main className="auth-login">
+      <section className="auth-login__card" aria-labelledby="login-title">
+        <header className="auth-login__header">
+          <p className="auth-login__eyebrow">Welcome back</p>
+          <h1 id="login-title" className="auth-login__title">
+            Log in to TriggerFeed
+          </h1>
+          <p className="auth-login__intro">
+            Get back to the feed, your profile, and whatever else we&apos;ve
+            managed to wire together without offending the database gods.
+          </p>
+        </header>
 
-      <form onSubmit={handleLogin} style={{ display: "grid", gap: "1rem" }}>
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            autoComplete="email"
-            onChange={(event) => setEmail(event.target.value)}
-            style={{ display: "block", width: "100%", padding: "0.75rem" }}
-          />
-        </label>
+        <form className="auth-login__form" onSubmit={handleLogin}>
+          <div className="auth-login__field">
+            <label className="auth-login__label" htmlFor="login-email">
+              Email
+            </label>
+            <input
+              id="login-email"
+              className="auth-login__input"
+              type="email"
+              value={email}
+              autoComplete="email"
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </div>
 
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            autoComplete="current-password"
-            onChange={(event) => setPassword(event.target.value)}
-            style={{ display: "block", width: "100%", padding: "0.75rem" }}
-          />
-        </label>
+          <div className="auth-login__field">
+            <label className="auth-login__label" htmlFor="login-password">
+              Password
+            </label>
+            <input
+              id="login-password"
+              className="auth-login__input"
+              type="password"
+              value={password}
+              autoComplete="current-password"
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </div>
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Log in"}
-        </button>
-      </form>
+          <button
+            className="auth-login__submit"
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Log in"}
+          </button>
+        </form>
 
-      <Link href="/signup">
-        <UserPlus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>Sign Up</span>
-      </Link>
+        <div className="auth-login__footer">
+          <span>Need an account?</span>
+          <Link className="auth-login__signup-link" href="/signup">
+            <UserPlus size={18} strokeWidth={2} aria-hidden="true" />
+            <span>Sign up</span>
+          </Link>
+        </div>
 
-      {status ? <p style={{ marginTop: "1rem" }}>{status}</p> : null}
+        {status ? (
+          <p className="auth-login__status" role="status">
+            {status}
+          </p>
+        ) : null}
+      </section>
     </main>
   );
 }

@@ -113,30 +113,58 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "520px", margin: "0 auto" }}>
-      <h1>Choose a username</h1>
-      <p>So people can recognize you on TriggerFeed.</p>
+    <main className="auth-onboarding">
+      <section className="auth-onboarding__card" aria-labelledby="onboarding-title">
+        <header className="auth-onboarding__header">
+          <p className="auth-onboarding__eyebrow">Profile setup</p>
+          <h1 id="onboarding-title" className="auth-onboarding__title">
+            Choose a username
+          </h1>
+          <p className="auth-onboarding__intro">
+            Pick the handle people will recognize you by on TriggerFeed.
+          </p>
+        </header>
 
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "1rem" }}>
-        <label>
-          Username
-          <input
-            type="text"
-            value={username}
-            autoComplete="username"
-            onChange={(event) => setUsername(event.target.value)}
-            style={{ display: "block", width: "100%", padding: "0.75rem" }}
-          />
-        </label>
+        <form className="auth-onboarding__form" onSubmit={handleSubmit}>
+          <label className="auth-onboarding__field" htmlFor="username">
+            <span className="auth-onboarding__label">Username</span>
+            <input
+              id="username"
+              className="auth-onboarding__input"
+              type="text"
+              value={username}
+              autoComplete="username"
+              minLength={3}
+              pattern="[a-zA-Z0-9_]+"
+              placeholder="User_Name"
+              onChange={(event) => setUsername(event.target.value)}
+            />
+            <span className="auth-onboarding__hint">
+              Use 3 or more letters, numbers, or underscores.
+            </span>
+          </label>
 
-        <Link href="/profile/edit">Edit Full Profile</Link>
+          <div className="auth-onboarding__actions">
+            <button
+              className="auth-onboarding__submit"
+              type="submit"
+              disabled={isLoading || !user}
+            >
+              {isLoading ? "Saving..." : "Save username"}
+            </button>
 
-        <button type="submit" disabled={isLoading || !user}>
-          {isLoading ? "Saving..." : "Save username"}
-        </button>
-      </form>
+            <Link className="auth-onboarding__secondary-link" href="/profile/edit">
+              Edit full profile instead
+            </Link>
+          </div>
+        </form>
 
-      {status ? <p style={{ marginTop: "1rem" }}>{status}</p> : null}
+        {status ? (
+          <p className="auth-onboarding__status" role="status">
+            {status}
+          </p>
+        ) : null}
+      </section>
     </main>
   );
 }

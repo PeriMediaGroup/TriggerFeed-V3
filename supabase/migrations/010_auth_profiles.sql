@@ -26,6 +26,14 @@ create table if not exists public.profiles (
   state text,
   bio text,
 
+  -- DOB is required by the app/onboarding age gate, but nullable here
+  -- so existing/test profiles can be routed through onboarding instead
+  -- of breaking baseline migration/app startup. Never expose dob publicly.
+  dob date,
+  age_verified_at timestamptz,
+  age_gate_version text not null default 'v1',
+  birthday_messages_enabled boolean not null default true,
+
   avatar_cloudinary_url text,
   avatar_cloudinary_public_id text,
   banner_cloudinary_url text,
@@ -43,7 +51,8 @@ create table if not exists public.profiles (
       "show_city": false,
       "show_state": false,
       "show_email": false,
-      "show_real_name": false
+      "show_real_name": false,
+      "show_age": false
     }
   }'::jsonb,
 
@@ -112,6 +121,11 @@ on public.profiles(display_name);
 create index if not exists profiles_is_deleted_idx
 on public.profiles(is_deleted);
 
+-- Useful later for automated birthday notifications without exposing DOB publicly.
+create index if not exists profiles_birthday_month_day_idx
+on public.profiles ((extract(month from dob)), (extract(day from dob)))
+where dob is not null and birthday_messages_enabled = true;
+
 alter table public.profiles enable row level security;
 
 revoke all on table public.profiles from anon;
@@ -156,6 +170,8 @@ grant insert (
   city,
   state,
   bio,
+  dob,
+  birthday_messages_enabled,
   avatar_cloudinary_url,
   avatar_cloudinary_public_id,
   banner_cloudinary_url,
@@ -177,6 +193,8 @@ grant update (
   city,
   state,
   bio,
+  dob,
+  birthday_messages_enabled,
   avatar_cloudinary_url,
   avatar_cloudinary_public_id,
   banner_cloudinary_url,
@@ -229,6 +247,8 @@ returns table (
   id uuid,
   username text,
   role text,
+  dob date,
+  age_verified_at timestamptz,
   is_banned boolean,
   is_deleted boolean
 )
@@ -240,6 +260,8 @@ as $$
     p.id,
     p.username,
     p.role,
+    p.dob,
+    p.age_verified_at,
     coalesce(p.is_banned, false) as is_banned,
     coalesce(p.is_deleted, false) as is_deleted
   from public.profiles p
@@ -264,6 +286,10 @@ returns table (
   city text,
   state text,
   bio text,
+  dob date,
+  age_verified_at timestamptz,
+  age_gate_version text,
+  birthday_messages_enabled boolean,
   privacy_settings jsonb,
   created_at timestamptz,
   updated_at timestamptz
@@ -286,6 +312,10 @@ as $$
     p.city,
     p.state,
     p.bio,
+    p.dob,
+    p.age_verified_at,
+    p.age_gate_version,
+    p.birthday_messages_enabled,
     p.privacy_settings,
     p.created_at,
     p.updated_at
@@ -304,6 +334,7 @@ returns table (
   display_name text,
   first_name text,
   last_name text,
+  age int,
   email text,
   city text,
   state text,
@@ -340,6 +371,15 @@ as $$
       end then p.last_name
       else null
     end as last_name,
+    case
+      when p.dob is not null
+        and case
+          when lower(p.privacy_settings #>> '{profile_visibility,show_age}') in ('true', 'false')
+            then (p.privacy_settings #>> '{profile_visibility,show_age}')::boolean
+          else false
+        end then date_part('year', age(current_date, p.dob))::int
+      else null
+    end as age,
     case
       when case
         when lower(p.privacy_settings #>> '{profile_visibility,show_email}') in ('true', 'false')
