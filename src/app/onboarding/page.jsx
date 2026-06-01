@@ -136,7 +136,7 @@ export default function OnboardingPage() {
               autoComplete="username"
               minLength={3}
               pattern="[a-zA-Z0-9_]+"
-              placeholder="TF-One"
+              placeholder="User_Name"
               onChange={(event) => setUsername(event.target.value)}
             />
             <span className="auth-onboarding__hint">

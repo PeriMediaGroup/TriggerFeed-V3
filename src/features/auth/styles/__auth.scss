@@ -24,7 +24,7 @@
   --auth-accent-contrast: var(--color-accent-contrast, #ffffff);
 
   display: grid;
-  min-height: calc(100dvh - var(--app-header-height, 4rem));
+  // min-height: calc(100dvh - var(--app-header-height, 4rem));
   place-items: center;
   padding: var(--auth-page-padding-block) var(--auth-page-padding-inline);
   color: var(--auth-text);

@@ -172,6 +172,7 @@ export default function SignupPage() {
               type="email"
               value={email}
               autoComplete="email"
+              name="email"
               required
               onChange={(event) => setEmail(event.target.value)}
             />
