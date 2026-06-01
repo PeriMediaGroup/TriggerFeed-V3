@@ -84,7 +84,7 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "520px", margin: "0 auto" }}>
+    <main className="auth-callback">
       <h1>TriggerFeed</h1>
       <p>{status}</p>
     </main>
