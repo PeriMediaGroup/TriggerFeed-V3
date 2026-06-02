@@ -1,6 +1,7 @@
 .friends-panel {
   display: grid;
   gap: var(--space-5, 1.25rem);
+  margin-bottom: var(--space-xl);
 
   &__header {
     margin-bottom: var(--space-4, 1rem);
@@ -24,7 +25,6 @@
 
 .edit-top-friends,
 .friends-list {
-  padding: var(--space-4, 1rem);
   box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
 
   h2 {
@@ -215,7 +215,7 @@
 
 .friend-requests,
 .friends-search {
-  padding: var(--space-4, 1rem);
+  // padding: var(--space-4, 1rem);
   box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
 
   h2 {
@@ -431,4 +431,10 @@
 
 .friends-search__status {
   font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .friends-panel {
+    margin-bottom: 7rem;
+  }
 }

@@ -66,9 +66,11 @@
     align-items: center;
     justify-content: space-between;
     min-height: 56px;
+    margin: 3px 5px;
     padding: 0 15px;
     border-bottom: 1px solid var(--color-border);
-    background: var(--color-background);
+    border-radius: 15px;
+    background: var(--color-surface-transparent, #1f292f24);
   }
 
   .app-shell {

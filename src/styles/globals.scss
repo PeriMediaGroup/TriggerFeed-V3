@@ -47,6 +47,10 @@ button {
   color: #fff;
 }
 
+::placeholder {
+  opacity: 0.25;
+}
+
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
 
 /* TF-TEMP-CSS: Edit post media manager - move during polish pass */
@@ -99,57 +103,6 @@ button {
   margin: 0 0 1rem;
   color: var(--color-text-muted);
 }
-/* TF-TEMP-CSS: Post media gallery - move during polish pass */
-
-.post-media-gallery {
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 0.75rem;
-  overflow: hidden;
-  border-radius: var(--radius-md);
-}
-
-.post-media-gallery--single {
-  grid-template-columns: 1fr;
-}
-
-.post-media-gallery--two,
-.post-media-gallery--grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.post-media-gallery__item {
-  position: relative;
-  display: block;
-  width: 100%;
-  min-height: 12rem;
-  border: 0;
-  padding: 0;
-  background: var(--color-surface-muted);
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.post-media-gallery--single .post-media-gallery__item {
-  min-height: 18rem;
-}
-
-.post-media-gallery__item img {
-  object-fit: cover;
-}
-
-.post-media-gallery__overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: var(--color-backdrop);
-  color: var(--color-text);
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-/* TF-TEMP-CSS: Post media uploader - move during polish pass */
 
 /* TF-TEMP-CSS: Create post submit status - move during polish pass */
 

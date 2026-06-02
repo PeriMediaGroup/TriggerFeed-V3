@@ -91,7 +91,8 @@
 
 .profile-dashboard-tabs__list {
   display: flex;
-  gap: 1.25rem;
+  gap: var(--space-md, .5rem);
+  padding: 0 var(--space-lg, 1rem);
   border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
 }
 
@@ -125,8 +126,7 @@
 }
 
 .profile-dashboard-tabs__panel {
-  padding-top: 1rem;
-  padding-bottom: 5rem;
+  padding: var(--space-sm) var(--space-lg, 1rem);
 }
 
 .profile-dashboard-tabs__section {

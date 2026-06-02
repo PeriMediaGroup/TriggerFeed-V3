@@ -1,11 +1,7 @@
 .media-gallery {
-  &__item {
-    margin: 0;
-  }
+
   &__item--gif {
-    overflow: hidden;
     border-radius: var(--radius-lg);
-    background: var(--color-surface);
   }
 
   &__image--gif {
@@ -13,6 +9,10 @@
     max-height: 420px;
     object-fit: contain;
     background: var(--color-surface-muted);
+  }
+
+  &__single-image.media-gallery__image--gif {
+    max-height: clamp(220px, 45vh, 420px);
   }
 
   &__credit {
