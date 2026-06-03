@@ -16,7 +16,9 @@ export default function AppShell({ children, user, unreadNotifications = 0 }) {
           <AppSidebar user={user} unreadNotifications={unreadNotifications} />
         </div>
 
-        <main className="app-shell__main">{children}</main>
+        <main className="app-shell__main">
+          <div className="app-shell__content">{children}</div>
+        </main>
 
         <aside className="app-shell__right-rail">
           <AppRightRail user={user} />

@@ -19,11 +19,13 @@ const REPORT_REASONS = [
 export default function ReportPostButton({
   postId,
   viewerHasReported = false,
+  variant = "default",
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState("spam");
   const [details, setDetails] = useState("");
   const [isPending, startTransition] = useTransition();
+  const isIcon = variant === "icon";
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -49,12 +51,17 @@ export default function ReportPostButton({
     return (
       <button
         type="button"
-        className="post-report-button post-report-button--reported"
+        className={
+          isIcon
+            ? "post-card__icon-action post-report-button post-report-button--reported"
+            : "post-report-button post-report-button--reported"
+        }
         disabled
         title="You already reported this post"
+        aria-label={isIcon ? "Post already reported" : undefined}
       >
-        <Flag size={16} aria-hidden="true" />
-        <span>Reported</span>
+        <Flag size={16} strokeWidth={2} aria-hidden="true" />
+        {!isIcon && <span>Reported</span>}
       </button>
     );
   }
@@ -63,12 +70,18 @@ export default function ReportPostButton({
     <div className="post-report">
       <button
         type="button"
-        className="post-report-button"
+        className={
+          isIcon
+            ? "post-card__icon-action post-report-button"
+            : "post-report-button"
+        }
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
+        aria-label={isIcon ? "Report post" : undefined}
+        title={isIcon ? "Report post" : undefined}
       >
-        <Flag size={16} aria-hidden="true" />
-        <span>Report</span>
+        <Flag size={16} strokeWidth={2} aria-hidden="true" />
+        {!isIcon && <span>Report</span>}
       </button>
 
       {isOpen && (

@@ -1,170 +1,178 @@
-// TEMP
+.post-card {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  margin-block: var(--space-md);
+  border-bottom: 5px solid var(--color-border);
+  overflow: hidden;
 
-.create-post__media-preview {
-  max-width: 25%;
-}
-
-// END TEMP
-
-.post-card,
-.post-form {
-    display: flex;
-    flex-direction: column;
-    padding: 15px 25px;
-    margin: .5em 0;
-    border-bottom: 1px solid var(--color-border);
-}
-
-.create-post {
-  &__emoji-picker {
+  &__header {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(2.5rem, 1fr));
-    gap: 0.5rem;
-    padding: 0.75rem;
-    margin-block: 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-    background: var(--color-surface);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--space-sm);
+
+    p {
+      margin: 0;
+    }
   }
 
-  &__emoji-button {
-    min-height: 2.5rem;
+  &__header-avatar {
+    line-height: 0;
+  }
+
+  &__header-avatar-image {
+    width: 3rem;
+    height: 3rem;
     border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    background: var(--color-surface-muted);
-    font-size: 1.35rem;
-    line-height: 1;
-    cursor: pointer;
+    border-radius: 999px;
+    object-fit: cover;
+    background: var(--color-surface-elevated);
+  }
+
+  &__header-name {
+    display: grid;
+    min-width: 0;
+    gap: 0.1rem;
+  }
+
+  &__author-display-name {
+    color: var(--color-text);
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  &__author-username {
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    line-height: 1.2;
+    text-decoration: none;
 
     &:hover,
     &:focus-visible {
-      background: var(--color-surface-hover);
+      text-decoration: underline;
     }
   }
-}
 
-.create-post {
-  &__poll-builder {
-    display: grid;
-    gap: 1rem;
-    padding: 1rem;
-    margin-block: 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
+  &__date {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1.2;
   }
 
-  &__poll-header {
+  &__header-tools {
     display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-xs);
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    line-height: 1.15;
+  }
+
+  &__body,
+  .post-detail__body {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-
-    h2 {
-      margin: 0;
-      font-size: 1rem;
-    }
+    gap: var(--space-sm);
   }
 
-  &__poll-options {
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  &__poll-option {
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  &__poll-option-row {
+  &__engagement-actions {
     display: flex;
-    gap: 0.5rem;
-
-    input {
-      flex: 1;
-    }
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
   }
 
-  &__poll-toggle {
+  &__manage-actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-  }
-}
-
-.poll-display {
-  display: grid;
-  gap: 0.75rem;
-  padding: 1rem;
-  margin-block: 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-
-  &__question {
-    margin: 0;
-    font-size: 1rem;
+    gap: var(--space-xs);
+    margin-left: auto;
   }
 
-  &__options {
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  &__option {
-    width: 100%;
-    padding: 0.75rem;
+  &__comments,
+  &__icon-action {
+    display: inline-flex;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface-muted);
-    text-align: left;
-    color: white;
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    background: color-mix(in srgb, var(--color-surface-elevated), transparent 16%);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease,
+      transform 140ms ease;
   }
 
-  &__option--selected {
-    border-color: var(--color-accent);
+  &__comments:hover,
+  &__comments:focus-visible,
+  &__icon-action:hover,
+  &__icon-action:focus-visible {
+    border-color: color-mix(in srgb, var(--color-accent), var(--color-border) 45%);
+    background: color-mix(in srgb, var(--color-accent), var(--color-surface-elevated) 88%);
+    transform: translateY(-1px);
   }
 
-  &__option-text {
-    font-weight: 600;
+  &__icon-action {
+    width: 2.25rem;
+    padding: 0;
   }
 
-  &__option-meta,
-  &__meta,
-  &__status {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
+  &__icon-action--danger {
+    color: var(--color-danger);
   }
-}
 
-.post-card__date {
-  font-size: small;
-}
+  &__comments-panel {
+    padding-block-start: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+  }
 
-.post-card__body,
-.post-detail__body {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+  }
 
-.post-card__comments {
-  padding: .5em;
-}
+  &__detail-link {
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
 
-.post-card__header {
-  display: flex;
-  p {
-    margin: 0;
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
   }
 }
 
-.post-card__header-avatar-image {
-  width: 50px;
-  height: auto;
-  border-radius: 999px;
-}
-
-.post-card__header-tools {
-  justify-content: flex-end;
+@media (min-width: 48rem) {
+  .post-card {
+    padding: var(--space-lg);
+  }
 }

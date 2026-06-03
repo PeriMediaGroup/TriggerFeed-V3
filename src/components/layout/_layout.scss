@@ -1,90 +1,223 @@
 // temp
 .temp-block {
+  width: 160px;
+  min-height: 150px;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-md);
   background-color: rgba($color: #fff, $alpha: 0.25);
   color: black;
-  height: 150px;
-  padding: 15px;
-  margin-bottom: 1em;
-  border-radius: var(--radius-md);
 
-  &--small {
+  &--sm {
     height: auto;
   }
 
-  &--large {
-    height: 250px;
+  &--md {
+    min-height: 200px;
+  }
+
+  &--lg {
+    min-height: 400px;
+  }
+
+  &--skyscraper {
+    width: 160px;
+    min-height: 600px;
   }
 }
 
 // END temp
 
 .app-header {
-  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  margin: var(--space-xs) var(--space-sm);
+  padding-inline: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-transparent, #1f292f24);
+  backdrop-filter: blur(14px);
 }
 
 .app-shell {
-  min-height: 100vh;
   display: grid;
-  grid-template-columns: 248px minmax(0, 720px) 240px;
-  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
 }
 
-.app-shell__sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  align-self: start;
+.app-shell__sidebar,
+.app-shell__right-rail {
+  display: none;
+}
+
+.app-shell__main {
+  width: 100%;
+  min-width: 0;
+  min-height: calc(100dvh - 64px);
+}
+
+.app-shell__content {
+  width: 100%;
+  max-width: 48rem;
+  min-width: 0;
+  margin-inline: auto;
   border-right: 1px solid var(--color-border);
-  padding: 15px 0;
 }
 
 .app-sidebar {
-  min-height: 100%;
   display: flex;
+  min-height: 100%;
   flex-direction: column;
   gap: var(--space-md);
 }
 
-.app-shell__right-rail {
-  display: flex;
-  justify-content: center;
-  border-left: 1px solid var(--color-border);
-  padding: 15px 0;
+.app-right-rail {
+  display: grid;
+  width: 160px;
+  max-width: 160px;
+  align-content: start;
+  gap: var(--space-md);
 }
 
-.app-shell__main {
+.app-right-rail__module {
+  width: 160px;
+  max-width: 160px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.app-right-rail__module-inner {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+}
+
+.app-right-rail__search {
+  position: relative;
+  width: 160px;
+}
+
+.app-right-rail__search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-sm);
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.app-right-rail__search-input {
+  width: 100%;
   min-width: 0;
-  min-height: 100vh;
+  min-height: 2.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding-inline: calc(var(--space-sm) + 1.25rem) var(--space-sm);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
 }
 
-@media (max-width: 768px) {
+.app-right-rail__search-input::placeholder {
+  color: color-mix(in srgb, var(--color-text-muted), transparent 45%);
+}
+
+.app-right-rail__search-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent), transparent 75%);
+}
+
+.app-right-rail__promo {
+  min-height: 220px;
+}
+
+.app-right-rail__friends {
+  min-height: 260px;
+}
+
+.app-right-rail__ad--skyscraper {
+  width: 160px;
+  min-height: 600px;
+}
+
+// Tablet / small desktop:
+// Keep mobile header.
+// Keep one centered content column.
+// No sidebar/right rail yet, because the layout has not earned the privilege.
+@media (min-width: 48rem) {
+  .app-shell__content {
+    // padding-inline: var(--space-lg);
+    // padding-block: var(--space-lg);
+    margin: 0;
+  }
+}
+
+// Desktop lite:
+// Sidebar + main content.
+// Right rail stays hidden.
+@media (min-width: 68.75rem) {
   .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 56px;
-    margin: 3px 5px;
-    padding: 0 15px;
-    border-bottom: 1px solid var(--color-border);
-    border-radius: 15px;
-    background: var(--color-surface-transparent, #1f292f24);
-  }
-
-  .app-shell {
-    display: block;
-    min-height: calc(100vh - 56px);
-  }
-
-  .app-shell__sidebar,
-  .app-shell__right-rail {
     display: none;
   }
 
+  .app-shell {
+    grid-template-columns: 248px minmax(0, 1fr);
+    justify-content: center;
+  }
+
+  .app-shell__sidebar {
+    position: sticky;
+    top: 0;
+    display: block;
+    height: 100dvh;
+    min-width: 0;
+    align-self: start;
+    border-right: 1px solid var(--color-border);
+    padding-block: var(--space-md);
+  }
+
   .app-shell__main {
-    min-height: calc(100vh - 56px);
-    border-inline: 0;
+    min-height: 100dvh;
+  }
+
+  .app-shell__content {
+    max-width: 48rem;
+  }
+}
+
+// Full desktop:
+// Sidebar + protected main content + right rail.
+// Right rail is visually 216px, but inner modules stay 160px.
+// @media (min-width: 87.5rem) {
+@media (min-width: 78.125rem) {
+  .app-shell {
+    grid-template-columns: 248px minmax(0, 48rem) 216px;
+  }
+
+  .app-shell__right-rail {
+    top: 0;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    min-width: 0;
+    align-self: start;
+    padding-block: var(--space-md);
+    padding-inline: var(--space-md);
   }
 }

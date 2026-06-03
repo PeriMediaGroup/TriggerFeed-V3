@@ -21,6 +21,7 @@
 @use "../features/profiles/styles/_profile-showcase";
 @use "../features/notifications/styles/_notifications";
 @use "../features/friends/styles/_friends";
+@use "../features/posts/styles/_create";
 
 body {
   background: var(--color-bg);
@@ -49,6 +50,11 @@ button {
 
 ::placeholder {
   opacity: 0.25;
+}
+
+textarea,
+input {
+  background: var(--color-surface-transparent);
 }
 
 // Temp  css  stuff  ** REMOVE LATER or MOVE TO PROPER FILE ***  //
