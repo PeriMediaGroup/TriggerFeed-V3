@@ -6,6 +6,10 @@
   border-bottom: 5px solid var(--color-border);
   overflow: hidden;
 
+  &__media {
+    margin: 0 auto;
+  }
+
   &__header {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;

@@ -1,3 +1,16 @@
+// =========================================================
+// Layout Variables
+// =========================================================
+
+:root {
+  --app-footer-height: 45px;
+  --app-header-height: 64px;
+  --app-sidebar-width: 248px;
+  --app-right-rail-width: 216px;
+  --app-right-rail-module-width: 160px;
+  --app-content-max-width: 48rem;
+}
+
 // temp
 .temp-block {
   width: 160px;
@@ -28,14 +41,18 @@
 
 // END temp
 
+// =========================================================
+// Mobile Header
+// =========================================================
+
 .app-header {
   position: sticky;
   top: 0;
   z-index: 50;
   display: flex;
+  min-height: 56px;
   align-items: center;
   justify-content: space-between;
-  min-height: 56px;
   margin: var(--space-xs) var(--space-sm);
   padding-inline: var(--space-md);
   border-bottom: 1px solid var(--color-border);
@@ -44,11 +61,22 @@
   backdrop-filter: blur(14px);
 }
 
+// =========================================================
+// App Shell
+// Default/mobile:
+// - Header visible
+// - Sidebar hidden
+// - Right rail hidden
+// - Footer hidden
+// =========================================================
+
 .app-shell {
   display: grid;
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  min-height: 100dvh;
+  min-height: calc(100vh - var(--app-header-height));
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .app-shell__sidebar,
@@ -59,35 +87,48 @@
 .app-shell__main {
   width: 100%;
   min-width: 0;
-  min-height: calc(100dvh - 64px);
+  min-height: 0;
 }
 
 .app-shell__content {
   width: 100%;
-  max-width: 48rem;
+  max-width: var(--app-content-max-width);
   min-width: 0;
   margin-inline: auto;
-  border-right: 1px solid var(--color-border);
+  padding-inline: var(--space-md);
+  padding-block: var(--space-md);
 }
 
+// =========================================================
+// Sidebar
+// =========================================================
+
 .app-sidebar {
+  position: sticky;
+  top: 0;
   display: flex;
   min-height: 100%;
   flex-direction: column;
   gap: var(--space-md);
 }
 
+// =========================================================
+// Right Rail
+// Outer placement: .app-shell__right-rail
+// Inner module wrapper: .app-right-rail
+// =========================================================
+
 .app-right-rail {
   display: grid;
-  width: 160px;
-  max-width: 160px;
+  width: var(--app-right-rail-module-width);
+  max-width: var(--app-right-rail-module-width);
   align-content: start;
   gap: var(--space-md);
 }
 
 .app-right-rail__module {
-  width: 160px;
-  max-width: 160px;
+  width: var(--app-right-rail-module-width);
+  max-width: var(--app-right-rail-module-width);
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -102,7 +143,7 @@
 
 .app-right-rail__search {
   position: relative;
-  width: 160px;
+  width: var(--app-right-rail-module-width);
 }
 
 .app-right-rail__search-icon {
@@ -152,40 +193,103 @@
 }
 
 .app-right-rail__ad--skyscraper {
-  width: 160px;
+  width: var(--app-right-rail-module-width);
   min-height: 600px;
 }
 
-// Tablet / small desktop:
-// Keep mobile header.
-// Keep one centered content column.
-// No sidebar/right rail yet, because the layout has not earned the privilege.
-@media (min-width: 48rem) {
-  .app-shell__content {
-    // padding-inline: var(--space-lg);
-    // padding-block: var(--space-lg);
-    margin: 0;
+// =========================================================
+// Footer
+// Mobile: hidden, because bottom nav owns mobile.
+// Desktop: fixed bottom, full width, spans all columns visually.
+// =========================================================
+
+.app-footer {
+  display: none;
+}
+
+.app-footer__inner {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.app-footer__copyright {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.app-footer__nav {
+  min-width: 0;
+}
+
+.app-footer__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
   }
 }
 
-// Desktop lite:
-// Sidebar + main content.
-// Right rail stays hidden.
+// =========================================================
+// Tablet spacing only.
+// Still one column.
+// =========================================================
+
+@media (min-width: 48rem) {
+  .app-shell__content {
+    padding-inline: var(--space-lg);
+    padding-block: var(--space-lg);
+  }
+}
+
+// =========================================================
+// Desktop Lite
+// 68.75rem = 1100px
+// Layout:
+// sidebar | main
+// fixed footer spans viewport bottom
+// =========================================================
+
 @media (min-width: 68.75rem) {
   .app-header {
     display: none;
   }
 
   .app-shell {
-    grid-template-columns: 248px minmax(0, 1fr);
-    justify-content: center;
+    // min-height: 100dvh;
+    // padding-bottom: var(--app-footer-height);
+    grid-template-columns: var(--app-sidebar-width) minmax(0, 1fr);
   }
 
   .app-shell__sidebar {
     position: sticky;
     top: 0;
     display: block;
-    height: 100dvh;
+    height: calc(100dvh - var(--app-footer-height));
     min-width: 0;
     align-self: start;
     border-right: 1px solid var(--color-border);
@@ -193,31 +297,55 @@
   }
 
   .app-shell__main {
-    min-height: 100dvh;
+    min-width: 0;
+    min-height: 0;
+    border-right: 1px solid var(--color-border);
   }
 
   .app-shell__content {
-    max-width: 48rem;
+    max-width: var(--app-content-max-width);
+    padding-inline: var(--space-lg);
+    padding-block: var(--space-lg);
+  }
+
+  .app-footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    display: flex;
+    min-height: var(--app-footer-height);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
   }
 }
 
-// Full desktop:
-// Sidebar + protected main content + right rail.
-// Right rail is visually 216px, but inner modules stay 160px.
-// @media (min-width: 87.5rem) {
+// =========================================================
+// Full Desktop
+// 78.125rem = 1250px
+// Layout:
+// sidebar | main | right rail
+// right rail is normal document flow, NOT sticky
+// footer remains fixed across bottom
+// =========================================================
+
 @media (min-width: 78.125rem) {
   .app-shell {
-    grid-template-columns: 248px minmax(0, 48rem) 216px;
+    grid-template-columns:
+      var(--app-sidebar-width)
+      minmax(0, 1fr)
+      var(--app-right-rail-width);
   }
 
   .app-shell__right-rail {
-    top: 0;
     display: flex;
     justify-content: center;
-    height: 100%;
     min-width: 0;
     align-self: start;
+    border-left: 1px solid var(--color-border);
     padding-block: var(--space-md);
     padding-inline: var(--space-md);
+    padding-bottom: var(--app-footer-height);
   }
 }

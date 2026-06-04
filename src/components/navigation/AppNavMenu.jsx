@@ -3,19 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
+
 import {
-  Bell,
-  Crosshair,
-  Home,
-  LogIn,
-  LogOut,
-  Menu,
-  PlusCircle,
-  ShieldAlert,
-  User,
-  UserPlus,
-  X,
-} from "lucide-react";
+  APP_NAV_LINKS,
+  AUTH_NAV_LINKS,
+  LOGGED_OUT_SITE_LINKS,
+  SITE_NAV_LINKS } from "./navigationLinks";
 
 export default function AppNavMenu({
   isLoggedIn,
@@ -25,14 +19,25 @@ export default function AppNavMenu({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+
   const cleanRole = typeof role === "string" ? role.trim().toLowerCase() : "";
-  const isAdmin = ["admin", "ceo"].includes(cleanRole);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab");
 
   function closeMenu() {
     setIsOpen(false);
+  }
+
+  function userCanSeeLink(link) {
+    if (link.auth === "loggedIn" && !isLoggedIn) return false;
+    if (link.auth === "loggedOut" && isLoggedIn) return false;
+
+    if (link.roles?.length) {
+      return link.roles.includes(cleanRole);
+    }
+
+    return true;
   }
 
   function getLinkClass(href, extraClass = "") {
@@ -55,137 +60,77 @@ export default function AppNavMenu({
       .join(" ");
   }
 
-  function renderMenuItems({ onItemClick } = {}) {
-    if (isLoggedIn) {
-      return (
-        <>
-          <li>
-            <Link
-              href="/posts/new"
-              className={getLinkClass("/posts/new", "app-nav__link-create")}
-              onClick={onItemClick}
-            >
-              <PlusCircle size={17} strokeWidth={2} aria-hidden="true" />
-              <span>Create</span>
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/" className={getLinkClass("/")} onClick={onItemClick}>
-              <Home size={17} strokeWidth={2} aria-hidden="true" />
-              <span>Home</span>
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              href="/profile"
-              className={getLinkClass("/profile")}
-              onClick={onItemClick}
-            >
-              <User size={17} strokeWidth={2} aria-hidden="true" />
-              <span>My Profile</span>
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              href="/profile?tab=notifications"
-              className={getLinkClass("/profile?tab=notifications")}
-              onClick={onItemClick}
-            >
-              <Bell size={17} strokeWidth={2} aria-hidden="true" />
-              <span>Notifications</span>
-
-              {unreadNotifications > 0 && (
-                <span className="app-nav__badge">{unreadNotifications}</span>
-              )}
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              href="/profile?tab=friends"
-              className={getLinkClass("/profile?tab=friends")}
-              onClick={onItemClick}
-            >
-              <UserPlus size={17} strokeWidth={2} aria-hidden="true" />
-              <span>Manage Friends</span>
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              href="/profile?tab=guns"
-              className={getLinkClass("/profile?tab=guns")}
-              onClick={onItemClick}
-            >
-              <Crosshair size={17} strokeWidth={2} aria-hidden="true" />
-              <span>Edit Top Guns</span>
-            </Link>
-          </li>
-
-          {isAdmin && (
-            <li>
-              <Link
-                href="/admin/reports"
-                className={getLinkClass("/admin/reports")}
-                onClick={onItemClick}
-              >
-                <ShieldAlert size={17} strokeWidth={2} aria-hidden="true" />
-                <span>Moderation</span>
-              </Link>
-            </li>
-          )}
-
-          <li>
-            <a href="/logout" className="app-nav__link" onClick={onItemClick}>
-              <LogOut size={17} strokeWidth={2} aria-hidden="true" />
-              <span>Logout</span>
-            </a>
-          </li>
-        </>
-      );
+  function getBadgeValue(badge) {
+    if (badge === "unreadNotifications") {
+      return unreadNotifications;
     }
 
-    return (
-      <>
-        <li>
-          <Link
-            href="/login"
-            className={getLinkClass("/login")}
-            onClick={onItemClick}
-          >
-            <LogIn size={17} strokeWidth={2} aria-hidden="true" />
-            <span>Login</span>
-          </Link>
-        </li>
+    return 0;
+  }
 
-        <li>
-          <Link
-            href="/signup"
-            className={getLinkClass("/signup")}
-            onClick={onItemClick}
-          >
-            <UserPlus size={17} strokeWidth={2} aria-hidden="true" />
-            <span>Signup</span>
-          </Link>
-        </li>
+  function renderNavLinks(links, { onItemClick } = {}) {
+    return links.filter(userCanSeeLink).map((link) => {
+      const { href, label, Icon, className = "", external, badge } = link;
+      const badgeValue = getBadgeValue(badge);
 
-        <li>
-          <a
-            href="https://triggerfeed.com"
-            className="app-nav__link"
-            target="_blank"
-            rel="noreferrer"
-            onClick={onItemClick}
-          >
-            <Home size={17} strokeWidth={2} aria-hidden="true" />
-            <span>TriggerFeed.com</span>
-          </a>
+      const content = (
+        <>
+          {Icon && <Icon size={17} strokeWidth={2} aria-hidden="true" />}
+          <span>{label}</span>
+
+          {badgeValue > 0 && (
+            <span className="app-nav__badge">{badgeValue}</span>
+          )}
+        </>
+      );
+
+      return (
+        <li key={href}>
+          {external ? (
+            <a
+              href={href}
+              className={getLinkClass(href, className)}
+              target={href.startsWith("http") ? "_blank" : undefined}
+              rel={href.startsWith("http") ? "noreferrer" : undefined}
+              onClick={onItemClick}
+            >
+              {content}
+            </a>
+          ) : (
+            <Link
+              href={href}
+              className={getLinkClass(href, className)}
+              onClick={onItemClick}
+            >
+              {content}
+            </Link>
+          )}
         </li>
-      </>
-    );
+      );
+    });
+  }
+
+  function getDesktopLinks() {
+    if (!isLoggedIn) {
+      return [...AUTH_NAV_LINKS, ...LOGGED_OUT_SITE_LINKS];
+    }
+
+    return APP_NAV_LINKS;
+  }
+
+  function getMobileDropdownLinks() {
+    if (!isLoggedIn) {
+      return [...AUTH_NAV_LINKS, ...LOGGED_OUT_SITE_LINKS];
+    }
+
+    const adminLinks = APP_NAV_LINKS.filter((link) => link.roles?.length);
+    const logoutLink = APP_NAV_LINKS.find((link) => link.href === "/logout");
+
+    return [
+      ...SITE_NAV_LINKS,
+      ...adminLinks,
+      ...(logoutLink ? [logoutLink] : []),
+    ];
   }
 
   useEffect(() => {
@@ -215,7 +160,9 @@ export default function AppNavMenu({
   return (
     <div className="app-nav" ref={menuRef}>
       <nav className="app-nav__desktop-nav" aria-label="Main navigation">
-        <ul className="app-nav__desktop-list">{renderMenuItems()}</ul>
+        <ul className="app-nav__desktop-list">
+          {renderNavLinks(getDesktopLinks())}
+        </ul>
       </nav>
 
       <div className="app-nav__mobile">
@@ -238,10 +185,13 @@ export default function AppNavMenu({
           <nav
             id="app-nav-menu-dropdown"
             className="app-nav__dropdown"
-            aria-label="Mobile navigation"
+            aria-label="More navigation"
           >
+
             <ul className="app-nav__list">
-              {renderMenuItems({ onItemClick: closeMenu })}
+              {renderNavLinks(getMobileDropdownLinks(), {
+                onItemClick: closeMenu,
+              })}
             </ul>
           </nav>
         )}

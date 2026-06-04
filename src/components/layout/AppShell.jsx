@@ -4,6 +4,7 @@ import ToastProvider from "../../components/ui/ToastProvider";
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
 import AppRightRail from "./AppRightRail";
+import AppFooter from "./AppFooter";
 import BottomNav from "../navigation/BottomNav";
 
 export default function AppShell({ children, user, unreadNotifications = 0 }) {
@@ -23,9 +24,11 @@ export default function AppShell({ children, user, unreadNotifications = 0 }) {
         <aside className="app-shell__right-rail">
           <AppRightRail user={user} />
         </aside>
-        <BottomNav unreadNotifications={unreadNotifications} />
-        <ToastProvider />
       </div>
+
+      <AppFooter />
+      <BottomNav unreadNotifications={unreadNotifications} />
+      <ToastProvider />
     </>
   );
 }
