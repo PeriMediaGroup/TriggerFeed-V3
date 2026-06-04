@@ -1,23 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 import { useRouter } from "next/navigation";
 
 const AGE_GATE_VERSION = "v1";
 const MINIMUM_AGE = 18;
-
-function getAdultCutoffDate() {
-  const today = new Date();
-  const cutoff = new Date(
-    today.getFullYear() - MINIMUM_AGE,
-    today.getMonth(),
-    today.getDate()
-  );
-
-  return cutoff.toISOString().slice(0, 10);
-}
 
 function isValidDob(value) {
   if (!value) return false;
@@ -49,8 +38,6 @@ function isAtLeast18(value) {
 export default function SignupPage() {
   const supabase = createClient();
   const router = useRouter();
-
-  const maxDob = useMemo(() => getAdultCutoffDate(), []);
 
   const [email, setEmail] = useState("");
   const [dob, setDob] = useState("");
@@ -160,7 +147,8 @@ export default function SignupPage() {
             Start your TriggerFeed account
           </h1>
           <p className="signup-form__intro">
-            Your date of birth is required for age verification and is hidden from your public profile by default.
+            Your date of birth is required for age verification and is hidden
+            from your public profile by default.
           </p>
         </div>
 
@@ -183,8 +171,8 @@ export default function SignupPage() {
             <input
               className="signup-form__input"
               type="date"
+              name="dob"
               value={dob}
-              max={maxDob}
               autoComplete="bday"
               required
               onChange={(event) => setDob(event.target.value)}
@@ -200,6 +188,7 @@ export default function SignupPage() {
             <input
               className="signup-form__input"
               type="password"
+              name="password"
               value={password}
               autoComplete="new-password"
               required
@@ -212,6 +201,7 @@ export default function SignupPage() {
             <input
               className="signup-form__input"
               type="password"
+              name="confirmPassword"
               value={confirmPassword}
               autoComplete="new-password"
               required

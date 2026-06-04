@@ -1,20 +1,12 @@
-
 export default function AppRightRail() {
   return (
-    <>
-      <div className="advertise-menu">
-        <div className="temp-block temp-block--small">
-            
-        </div>
-        <div className="temp-block temp-block--large">
-            temp block --large
-        </div>
-        <div className="temp-block">
-            trending posts
-        </div>
-        <div className="temp-block temp-block--large">
-            Friend --large
-        </div>
+    <div className="app-right-rail">
+      <div className="temp-block temp-block--sm">Search</div>
+      <div className="temp-block">trending posts</div>
+      <div className="temp-block temp-block--md">Friend --medium</div>
+      <div className="temp-block temp-block--skyscraper">
+        temp block --skyscraper
       </div>
-      </>
-  )}
+    </div>
+  );
+}

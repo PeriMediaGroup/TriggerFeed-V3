@@ -163,7 +163,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
                 onChange={(event) => updateGunName(index, event.target.value)}
                 onBlur={saveCurrentGunNames}
                 maxLength={60}
-                placeholder="Favorite handgun"
+                placeholder="Add a favorite"
               />
 
               <div className="edit-top-guns__actions">

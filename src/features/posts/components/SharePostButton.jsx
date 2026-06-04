@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Share } from "lucide-react";
+import { Share, X } from "lucide-react";
 
-export default function SharePostButton({ postId }) {
+export default function SharePostButton({ postId, variant = "default" }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const isIcon = variant === "icon";
 
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return `/posts/${postId}`;
@@ -19,19 +20,20 @@ export default function SharePostButton({ postId }) {
     setIsOpen(true);
   }
 
-  function getXShareUrl(shareUrl) {
+  function getXShareUrl(url) {
     const text = "Check out this post on TriggerFeed";
 
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text,
-    )}&url=${encodeURIComponent(shareUrl)}`;
+    )}&url=${encodeURIComponent(url)}`;
   }
 
-  function getFacebookShareUrl(shareUrl) {
+  function getFacebookShareUrl(url) {
     return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      shareUrl,
+      url,
     )}`;
   }
+
   const canNativeShare =
     typeof navigator !== "undefined" && typeof navigator.share === "function";
 
@@ -61,9 +63,15 @@ export default function SharePostButton({ postId }) {
 
   return (
     <>
-      <button type="button" onClick={openShareModal}>
-        <Share size={16} aria-hidden="true" />
-        Share
+      <button
+        type="button"
+        className={isIcon ? "post-card__icon-action" : "share-post__button"}
+        onClick={openShareModal}
+        aria-label={isIcon ? "Share post" : undefined}
+        title={isIcon ? "Share post" : undefined}
+      >
+        <Share size={16} strokeWidth={2} aria-hidden="true" />
+        {!isIcon && <span>Share</span>}
       </button>
 
       {isOpen && (
@@ -71,8 +79,14 @@ export default function SharePostButton({ postId }) {
           <div className="share-modal__panel">
             <div className="share-modal__header">
               <h2>Share this post</h2>
-              <button type="button" onClick={() => setIsOpen(false)}>
-                Close
+
+              <button
+                type="button"
+                className="share-modal__close"
+                onClick={() => setIsOpen(false)}
+                aria-label="Close share dialog"
+              >
+                <X size={18} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
 
@@ -95,6 +109,7 @@ export default function SharePostButton({ postId }) {
               readOnly
               onFocus={(event) => event.target.select()}
             />
+
             <div className="share-modal__actions">
               <button
                 type="button"
@@ -104,7 +119,8 @@ export default function SharePostButton({ postId }) {
                 {copied ? "Copied!" : "Copy link"}
               </button>
             </div>
-            <div>
+
+            <div className="share-modal__socials">
               <a
                 href={getXShareUrl(shareUrl)}
                 target="_blank"
@@ -122,6 +138,7 @@ export default function SharePostButton({ postId }) {
               >
                 Share to Facebook
               </a>
+
               {canNativeShare && (
                 <button
                   type="button"
@@ -131,16 +148,17 @@ export default function SharePostButton({ postId }) {
                   Share from device
                 </button>
               )}
-              {shareUrl && (
-                <div className="share-modal__qr">
-                  <QRCodeCanvas value={shareUrl} size={160} includeMargin />
-
-                  <p className="share-modal__qr-text">
-                    Scan this QR code to open the post on another device.
-                  </p>
-                </div>
-              )}
             </div>
+
+            {shareUrl && (
+              <div className="share-modal__qr">
+                <QRCodeCanvas value={shareUrl} size={160} includeMargin />
+
+                <p className="share-modal__qr-text">
+                  Scan this QR code to open the post.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

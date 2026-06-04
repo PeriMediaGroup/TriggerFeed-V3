@@ -63,10 +63,15 @@ export default function CreatePostForm() {
               const saveMediaErrors = saveMediaResult.errors || [];
 
               setMediaErrors(saveMediaErrors);
-              setStatus(
-                saveMediaErrors[0] || "Post created, but media failed to save.",
-                toast.error(result.message || "Post created, but media failed to save."),
-              );
+              const mediaErrorMessage =
+                saveMediaErrors[0] || "Post created, but media failed to save.";
+
+              setMediaErrors(saveMediaErrors);
+              setStatus(mediaErrorMessage);
+              toast.error(mediaErrorMessage);
+              setSubmitStep("");
+              resolve(false);
+              return;
               setSubmitStep("");
               resolve(false);
               return;
