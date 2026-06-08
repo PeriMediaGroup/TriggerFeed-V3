@@ -57,6 +57,7 @@ export async function getCurrentProfile() {
       ...profile,
       role: authStatus?.role || "user",
       is_banned: authStatus?.is_banned || false,
+      is_muted: authStatus?.is_muted || false,
       is_deleted: authStatus?.is_deleted || false,
     },
     error: null,

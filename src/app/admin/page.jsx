@@ -1,16 +1,13 @@
 import { redirect } from "next/navigation";
 
-import ReportPanel from "@/features/reports/components/ReportPanel";
 import { getModerationPermissions } from "@/features/admin/permissions";
-import { getPostReports } from "@/features/reports/data/getPostReports";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Post Reports | TriggerFeed Admin",
+  title: "Management | TriggerFeed Admin",
 };
 
-export default async function AdminReportsPage() {
-
+export default async function AdminPage() {
   const supabase = await createClient();
 
   const {
@@ -27,22 +24,14 @@ export default async function AdminReportsPage() {
     .single();
 
   const permissions = getModerationPermissions(profile?.role);
-  const canViewReports =
+  const canViewManagement =
     permissions.canModerate &&
     profile?.is_banned !== true &&
     profile?.is_deleted !== true;
 
-  if (!canViewReports) {
-    console.error("ADMIN REPORTS REDIRECT: not moderator", {
-      userId: user.id,
-      profile,
-      role: permissions.role,
-    });
-
+  if (!canViewManagement) {
     redirect("/");
   }
 
-  const reports = await getPostReports();
-
-  return <ReportPanel reports={reports} permissions={permissions} />;
+  redirect("/admin/reports");
 }

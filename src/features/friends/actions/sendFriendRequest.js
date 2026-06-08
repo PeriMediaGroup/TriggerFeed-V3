@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 
 export async function sendFriendRequest(addresseeId) {
   const supabase = await createClient();
@@ -17,6 +18,15 @@ export async function sendFriendRequest(addresseeId) {
     return {
       success: false,
       message: "You must be logged in to send a friend request.",
+    };
+  }
+
+  const moderationBlock = await getCurrentUserModerationBlock(supabase);
+
+  if (moderationBlock.blocked) {
+    return {
+      success: false,
+      message: moderationBlock.message,
     };
   }
 

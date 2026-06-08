@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 
 function normalizeCommentBody(body) {
@@ -49,6 +50,15 @@ export async function createComment({ postId, body, parentCommentId = null }) {
     return {
       success: false,
       error: "You must be logged in to comment",
+    };
+  }
+
+  const moderationBlock = await getCurrentUserModerationBlock(supabase);
+
+  if (moderationBlock.blocked) {
+    return {
+      success: false,
+      error: moderationBlock.message,
     };
   }
 

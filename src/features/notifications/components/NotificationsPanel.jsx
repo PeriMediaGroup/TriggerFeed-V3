@@ -8,6 +8,7 @@ const notificationIconMap = {
   friend_accepted: icons.usercheck,
   friend_request: icons.userplus,
   mention: icons.mention,
+  moderation_warning: icons.warning,
   reply: icons.reply,
 };
 
@@ -63,6 +64,12 @@ export default function NotificationsPanel({ notifications = [] }) {
           actionText = "replied to your comment";
         }
 
+        if (notification.type === "moderation_warning") {
+          actionText = notification.metadata?.message
+            ? `You received a warning from TriggerFeed moderation: ${notification.metadata.message}`
+            : "You received a warning from TriggerFeed moderation.";
+        }
+
         let targetHref = null;
         let targetLabel = null;
 
@@ -87,6 +94,14 @@ export default function NotificationsPanel({ notifications = [] }) {
           targetLabel = "View profile";
         }
 
+        if (
+          notification.type === "moderation_warning" &&
+          notification.post_id
+        ) {
+          targetHref = `/posts/${notification.post_id}`;
+          targetLabel = "View post";
+        }
+
         return (
           <li
             key={notification.id}
@@ -101,11 +116,15 @@ export default function NotificationsPanel({ notifications = [] }) {
             </div>
 
             <div className="notifications-panel__content">
-              {actorHref ? (
-                <Link href={actorHref}>{actorLabel}</Link>
-              ) : (
-                <span>{actorLabel}</span>
-              )}{" "}
+              {notification.type === "moderation_warning" ? null : (
+                <>
+                  {actorHref ? (
+                    <Link href={actorHref}>{actorLabel}</Link>
+                  ) : (
+                    <span>{actorLabel}</span>
+                  )}{" "}
+                </>
+              )}
               {actionText}
               {targetHref && targetLabel ? (
                 <>

@@ -33,6 +33,7 @@ export async function getPostReports() {
         title,
         body,
         user_id,
+        is_deleted,
         created_at
       )
     `)
@@ -44,24 +45,39 @@ export async function getPostReports() {
   }
 
   const reports = data || [];
+  const targetUserIds = [
+    ...new Set(reports.map((report) => report.post?.user_id).filter(Boolean)),
+  ];
+
   const profileIds = [
     ...new Set(
       reports
-        .flatMap((report) => [report.reporter_id, report.reviewed_by])
+        .flatMap((report) => [
+          report.reporter_id,
+          report.reviewed_by,
+          report.post?.user_id,
+        ])
         .filter(Boolean)
     ),
   ];
+
+  const moderationHistoryByUserId = await getModerationHistoryByUserId({
+    supabase,
+    targetUserIds,
+  });
 
   if (!profileIds.length) {
     return reports.map((report) => ({
       ...report,
       reporter: null,
       reviewer: null,
+      post_author: null,
+      moderation_history: moderationHistoryByUserId.get(report.post?.user_id) || [],
     }));
   }
 
   const { data: profiles, error: profilesError } = await supabase.rpc(
-    "get_public_profile_cards",
+    "get_moderation_profile_cards",
     {
       p_profile_ids: profileIds,
     }
@@ -74,6 +90,8 @@ export async function getPostReports() {
       ...report,
       reporter: null,
       reviewer: null,
+      post_author: null,
+      moderation_history: moderationHistoryByUserId.get(report.post?.user_id) || [],
     }));
   }
 
@@ -85,5 +103,76 @@ export async function getPostReports() {
     ...report,
     reporter: profileMap.get(report.reporter_id) || null,
     reviewer: profileMap.get(report.reviewed_by) || null,
+    post_author: profileMap.get(report.post?.user_id) || null,
+    moderation_history: moderationHistoryByUserId.get(report.post?.user_id) || [],
   }));
+}
+
+async function getModerationHistoryByUserId({ supabase, targetUserIds }) {
+  if (!targetUserIds.length) {
+    return new Map();
+  }
+
+  const { data: actions, error } = await supabase
+    .from("moderation_actions")
+    .select(
+      `
+      id,
+      target_user_id,
+      actor_user_id,
+      related_post_id,
+      related_report_id,
+      action_type,
+      reason,
+      message,
+      expires_at,
+      created_at
+    `
+    )
+    .in("target_user_id", targetUserIds)
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    logSupabaseError("GET MODERATION HISTORY ERROR:", error);
+    return new Map();
+  }
+
+  const actorIds = [
+    ...new Set((actions || []).map((action) => action.actor_user_id).filter(Boolean)),
+  ];
+
+  let actorMap = new Map();
+
+  if (actorIds.length) {
+    const { data: actors, error: actorsError } = await supabase.rpc(
+      "get_public_profile_cards",
+      {
+        p_profile_ids: actorIds,
+      }
+    );
+
+    if (actorsError) {
+      logSupabaseError("GET MODERATION HISTORY ACTORS ERROR:", actorsError);
+    }
+
+    actorMap = new Map((actors || []).map((actor) => [actor.id, actor]));
+  }
+
+  const grouped = new Map();
+
+  for (const action of actions || []) {
+    const current = grouped.get(action.target_user_id) || [];
+
+    if (current.length < 5) {
+      current.push({
+        ...action,
+        actor: actorMap.get(action.actor_user_id) || null,
+      });
+    }
+
+    grouped.set(action.target_user_id, current);
+  }
+
+  return grouped;
 }

@@ -55,11 +55,13 @@ export const APP_NAV_LINKS = [
     auth: "loggedIn",
   },
   {
-    href: "/admin/reports",
-    label: "Admin Mods",
+    href: "/admin",
+    label: "Management",
     Icon: ShieldAlert,
     auth: "loggedIn",
-    roles: ["admin", "ceo"],
+    roles: ["moderator", "admin", "ceo"],
+    match: (pathname) =>
+      pathname === "/admin" || pathname.startsWith("/admin/"),
   },
   {
     href: "/logout",

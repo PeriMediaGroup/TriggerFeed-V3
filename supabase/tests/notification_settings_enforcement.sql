@@ -117,6 +117,10 @@ begin
     raise exception 'Expected disabled friend_accepts_enabled to block friend_accepted notifications';
   end if;
 
+  if public.should_create_notification(v_recipient_id, 'moderation_warning') is not true then
+    raise exception 'Expected moderation_warning notifications to remain always enabled';
+  end if;
+
   insert into public.posts (user_id, title, body, visibility)
   values (v_actor_id, 'Notification settings smoke post', 'body', 'public')
   returning id into v_post_id;
