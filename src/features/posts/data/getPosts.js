@@ -96,11 +96,19 @@ export async function getPosts({ feedType = "main" } = {}) {
       };
     }
 
-    allowedUserIds = [currentUserId, ...friendResult.friendIds];
+    allowedUserIds = friendResult.friendIds;
 
     if (friendResult.friendIds.length === 0) {
       message =
         "You do not have friend posts yet. Go make some friends. Horrifying, but useful.";
+
+      return {
+        posts: [],
+        commentsByPostId: {},
+        currentUserId,
+        message,
+        error: null,
+      };
     }
   }
 
@@ -188,6 +196,7 @@ export async function getPosts({ feedType = "main" } = {}) {
       post_id,
       upvote_count,
       downvote_count,
+      vote_count,
       interaction_count,
       score
     `
@@ -262,6 +271,7 @@ export async function getPosts({ feedType = "main" } = {}) {
         comment_count: commentCountMap.get(post.id) || 0,
         upvote_count: voteCountsForPost?.upvote_count || 0,
         downvote_count: voteCountsForPost?.downvote_count || 0,
+        vote_count: voteCountsForPost?.vote_count || 0,
         interaction_count: voteCountsForPost?.interaction_count || 0,
         score: voteCountsForPost?.score || 0,
         current_user_vote: currentUserVoteMap.get(post.id) || null,
@@ -288,22 +298,11 @@ export async function getPosts({ feedType = "main" } = {}) {
     return grouped;
   }, {});
 
-  const finalPosts =
-    feedType === "trending"
-      ? [...postsWithAuthors].sort((a, b) => {
-        const aScore =
-          (a.score || 0) * 2 +
-          (a.comment_count || 0) +
-          (a.interaction_count || 0);
-
-        const bScore =
-          (b.score || 0) * 2 +
-          (b.comment_count || 0) +
-          (b.interaction_count || 0);
-
-        return bScore - aScore;
-      })
-      : postsWithAuthors;
+  const finalPosts = await sortPostsForFeed({
+    supabase,
+    posts: postsWithAuthors,
+    feedType,
+  });
 
   return {
     posts: finalPosts,
@@ -344,4 +343,71 @@ async function getAcceptedFriendIds(supabase, currentUserId) {
     friendIds,
     error: null,
   };
+}
+
+async function sortPostsForFeed({ supabase, posts, feedType }) {
+  if (feedType === "trending") {
+    return [...posts]
+      .filter((post) => getPostTotalVotes(post) >= 5)
+      .sort((a, b) => {
+        const scoreDifference = (b.score || 0) - (a.score || 0);
+
+        if (scoreDifference !== 0) {
+          return scoreDifference;
+        }
+
+        const voteDifference = getPostTotalVotes(b) - getPostTotalVotes(a);
+
+        if (voteDifference !== 0) {
+          return voteDifference;
+        }
+
+        return compareCreatedAtDesc(a, b);
+      });
+  }
+
+  if (feedType !== "main") {
+    return posts;
+  }
+
+  const feedRankMap = await getFeedRankMap(
+    supabase,
+    posts.map((post) => post.id)
+  );
+
+  return [...posts].sort((a, b) => {
+    const rankDifference =
+      (feedRankMap.get(b.id) || 1) - (feedRankMap.get(a.id) || 1);
+
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    return compareCreatedAtDesc(a, b);
+  });
+}
+
+async function getFeedRankMap(supabase, postIds) {
+  if (!postIds.length) {
+    return new Map();
+  }
+
+  const { data, error } = await supabase.rpc("get_feed_post_ranks", {
+    p_post_ids: postIds,
+  });
+
+  if (error) {
+    logSupabaseError("GET FEED POST RANKS ERROR:", error);
+    return new Map();
+  }
+
+  return new Map((data || []).map((item) => [item.post_id, item.feed_rank]));
+}
+
+function getPostTotalVotes(post) {
+  return post.vote_count || (post.upvote_count || 0) + (post.downvote_count || 0);
+}
+
+function compareCreatedAtDesc(a, b) {
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
 }
