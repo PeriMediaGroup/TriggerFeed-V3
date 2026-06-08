@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 import {
   getFirstPostError,
@@ -55,6 +56,15 @@ export async function createPost(formData) {
     return {
       success: false,
       message: "You must be logged in to create a post.",
+    };
+  }
+
+  const moderationBlock = await getCurrentUserModerationBlock(supabase);
+
+  if (moderationBlock.blocked) {
+    return {
+      success: false,
+      message: moderationBlock.message,
     };
   }
 

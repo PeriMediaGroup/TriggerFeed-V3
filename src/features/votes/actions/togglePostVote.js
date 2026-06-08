@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 
 export async function togglePostVote({ postId, voteType }) {
   const supabase = await createClient();
@@ -17,6 +18,15 @@ export async function togglePostVote({ postId, voteType }) {
     return {
       success: false,
       message: "Invalid vote type.",
+    };
+  }
+
+  const moderationBlock = await getCurrentUserModerationBlock(supabase);
+
+  if (moderationBlock.blocked) {
+    return {
+      success: false,
+      message: moderationBlock.message,
     };
   }
 

@@ -9,7 +9,8 @@ import {
   APP_NAV_LINKS,
   AUTH_NAV_LINKS,
   LOGGED_OUT_SITE_LINKS,
-  SITE_NAV_LINKS } from "./navigationLinks";
+  SITE_NAV_LINKS,
+} from "./navigationLinks";
 
 export default function AppNavMenu({
   isLoggedIn,
@@ -40,16 +41,25 @@ export default function AppNavMenu({
     return true;
   }
 
-  function getLinkClass(href, extraClass = "") {
+  function isLinkActive(link, path, targetTab) {
+    if (typeof link.match === "function") {
+      return link.match(pathname);
+    }
+
+    const isSamePath = pathname === path;
+
+    return targetTab
+      ? isSamePath && activeTab === targetTab
+      : isSamePath && !activeTab;
+  }
+
+  function getLinkClass(link, extraClass = "") {
+    const { href } = link;
     const [path, queryString] = href.split("?");
     const params = new URLSearchParams(queryString || "");
     const targetTab = params.get("tab");
 
-    const isSamePath = pathname === path;
-
-    const isActive = targetTab
-      ? isSamePath && activeTab === targetTab
-      : isSamePath && !activeTab;
+    const isActive = isLinkActive(link, path, targetTab);
 
     return [
       "app-nav__link",
@@ -89,7 +99,7 @@ export default function AppNavMenu({
           {external ? (
             <a
               href={href}
-              className={getLinkClass(href, className)}
+              className={getLinkClass(link, className)}
               target={href.startsWith("http") ? "_blank" : undefined}
               rel={href.startsWith("http") ? "noreferrer" : undefined}
               onClick={onItemClick}
@@ -99,7 +109,7 @@ export default function AppNavMenu({
           ) : (
             <Link
               href={href}
-              className={getLinkClass(href, className)}
+              className={getLinkClass(link, className)}
               onClick={onItemClick}
             >
               {content}

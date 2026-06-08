@@ -1,15 +1,17 @@
 import { redirect } from "next/navigation";
 
-import ReportPanel from "@/features/reports/components/ReportPanel";
+import AdminUsersPanel from "@/features/admin/components/AdminUsersPanel";
+import { getAdminUsers } from "@/features/admin/data/getAdminUsers";
 import { getModerationPermissions } from "@/features/admin/permissions";
-import { getPostReports } from "@/features/reports/data/getPostReports";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Post Reports | TriggerFeed Admin",
+  title: "Users | TriggerFeed Admin",
 };
 
-export default async function AdminReportsPage() {
+export default async function AdminUsersPage({ searchParams }) {
+  const params = await searchParams;
+  const query = typeof params?.q === "string" ? params.q : "";
 
   const supabase = await createClient();
 
@@ -27,22 +29,24 @@ export default async function AdminReportsPage() {
     .single();
 
   const permissions = getModerationPermissions(profile?.role);
-  const canViewReports =
+  const canViewUsers =
     permissions.canModerate &&
     profile?.is_banned !== true &&
     profile?.is_deleted !== true;
 
-  if (!canViewReports) {
-    console.error("ADMIN REPORTS REDIRECT: not moderator", {
-      userId: user.id,
-      profile,
-      role: permissions.role,
-    });
-
+  if (!canViewUsers) {
     redirect("/");
   }
 
-  const reports = await getPostReports();
+  const { users, error } = await getAdminUsers({ query });
 
-  return <ReportPanel reports={reports} permissions={permissions} />;
+  return (
+    <AdminUsersPanel
+      users={users}
+      query={query}
+      currentUserId={user.id}
+      permissions={permissions}
+      error={error}
+    />
+  );
 }
