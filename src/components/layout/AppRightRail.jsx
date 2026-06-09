@@ -25,9 +25,11 @@ export default async function AppRightRail({ user = null }) {
         hasError={Boolean(error)}
         didFetch={didFetch}
       />
-      <div className="app-right-rail__module">
+      <div className="app-right-rail__module app-right-rail__ad app-right-rail__ad--placeholder">
         <div className="app-right-rail__module-inner">
-          <h2 className="app-right-rail__title">Advertisement</h2>Coming soon!</div>
+          <h2 className="app-right-rail__title">Advertisement</h2>
+          Coming soon!
+        </div>
       </div>
     </div>
   );

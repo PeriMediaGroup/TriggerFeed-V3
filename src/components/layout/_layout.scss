@@ -11,36 +11,6 @@
   --app-content-max-width: 48rem;
 }
 
-// temp
-.temp-block {
-  width: var(--app-right-rail-module-width);
-  min-height: 150px;
-  //padding: var(--space-sm);
-  //margin-bottom: var(--space-md);
-  border-radius: var(--radius-md);
-  background-color: rgba($color: #fff, $alpha: 0.25);
-  color: black;
-
-  &--sm {
-    height: auto;
-  }
-
-  &--md {
-    min-height: 200px;
-  }
-
-  &--lg {
-    min-height: 400px;
-  }
-
-  &--skyscraper {
-    width: 160px;
-    min-height: 600px;
-  }
-}
-
-// END temp
-
 // =========================================================
 // Mobile Header
 // =========================================================
@@ -261,6 +231,10 @@
 .app-right-rail__ad--skyscraper {
   width: var(--app-right-rail-module-width);
   min-height: 600px;
+}
+
+.app-right-rail__ad--placeholder {
+  min-height: 150px;
 }
 
 // =========================================================

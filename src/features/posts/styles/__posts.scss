@@ -190,6 +190,221 @@
   }
 }
 
+.post-media-uploader {
+  margin-top: 1rem;
+
+  &__label {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  &__input {
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  &__error,
+  &__errors {
+    margin-top: 0.75rem;
+    color: var(--color-danger);
+  }
+
+  &__preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  &__preview {
+    max-width: 18rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-surface-muted);
+  }
+
+  &__preview-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+
+    img {
+      object-fit: cover;
+    }
+  }
+
+  &__remove {
+    width: 100%;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    padding: 0.5rem;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+}
+
+.share-post-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-link-hover);
+  }
+}
+
+.share-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: var(--color-backdrop);
+    cursor: pointer;
+  }
+
+  &__panel {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 32rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 1rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+  }
+
+  &__close {
+    border: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  &__description {
+    margin: 0.75rem 0 1rem;
+    color: var(--color-text-muted);
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  &__input {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    padding: 0.65rem 0.75rem;
+    font: inherit;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  &__copy,
+  &__cancel {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.55rem 0.85rem;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  &__copy {
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+  }
+
+  &__cancel {
+    background: transparent;
+    color: var(--color-text);
+  }
+
+  &__social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.55rem 0.85rem;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-surface-muted);
+    }
+  }
+
+  &__qr {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+
+    canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  &__qr-text {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+}
+
 @media (min-width: 48rem) {
   .post-card {
     padding: var(--space-lg);
