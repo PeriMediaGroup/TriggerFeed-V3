@@ -12,7 +12,7 @@ export default async function EditPostPage({ params }) {
     redirect("/login");
   }
 
-  const { post, error } = await getPostById(postId);
+  const { post, currentUserRole, error } = await getPostById(postId);
 
   if (error || !post) {
     notFound();
@@ -26,7 +26,10 @@ export default async function EditPostPage({ params }) {
     <main className="tf-page post-edit-page">
       <section className="tf-section">
         <h1>Edit Post</h1>
-        <EditPostForm post={post} />
+        <EditPostForm
+          post={post}
+          canCreateStickyPost={currentUserRole === "ceo"}
+        />
       </section>
     </main>
   );

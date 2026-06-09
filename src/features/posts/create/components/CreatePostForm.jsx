@@ -9,7 +9,7 @@ import { savePostMedia } from "@/features/posts/actions/savePostMedia";
 import PostComposer from "@/features/posts/components/PostComposer";
 import toast from "react-hot-toast";
 
-export default function CreatePostForm() {
+export default function CreatePostForm({ canCreateStickyPost = false }) {
   const router = useRouter();
 
   const [errors, setErrors] = useState({});
@@ -77,7 +77,6 @@ export default function CreatePostForm() {
               return;
             }
           }
-
           setSubmitStep("Finishing up...");
           setStatus("Post created.");
           toast.success("Post created.");
@@ -109,6 +108,7 @@ export default function CreatePostForm() {
       isPending={isPending}
       submitLabel="Post"
       pendingLabel="Posting..."
+      canCreateStickyPost={canCreateStickyPost}
       onSubmit={handleComposerSubmit}
     />
   );

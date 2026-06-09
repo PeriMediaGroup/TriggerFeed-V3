@@ -101,6 +101,10 @@ export default function PostCard({
           <p className="post-card__date" suppressHydrationWarning>
             {formatRelativeTime(post.created_at)}
           </p>
+
+          {post.is_sticky ? (
+            <span className="post-card__official-badge">Official</span>
+          ) : null}
         </div>
 
         <div className="post-card__header-tools" aria-label="Post actions">

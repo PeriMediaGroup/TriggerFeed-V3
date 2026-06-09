@@ -10,6 +10,9 @@ const POST_SELECT = `
   title,
   body,
   visibility,
+  is_sticky,
+  sticky_at,
+  sticky_by,
   created_at,
   updated_at,
   post_media (
@@ -129,13 +132,16 @@ export async function getPosts({ feedType = "main" } = {}) {
     query = query.gte("created_at", sevenDaysAgo.toISOString());
   }
 
-  query = query
-    .order("created_at", { ascending: false })
-    .order("sort_order", {
-      referencedTable: "post_media",
-      ascending: true,
-    })
-    .limit(50);
+  if (feedType === "main") {
+    query = query
+      .order("is_sticky", { ascending: false })
+      .order("sticky_at", { ascending: false, nullsFirst: false });
+  }
+
+  query = query.order("created_at", { ascending: false }).order("sort_order", {
+    referencedTable: "post_media",
+    ascending: true,
+  }).limit(50);
 
   const { data: posts, error: postsError } = await query;
 
@@ -376,6 +382,23 @@ async function sortPostsForFeed({ supabase, posts, feedType }) {
   );
 
   return [...posts].sort((a, b) => {
+    const stickyDifference = Number(b.is_sticky) - Number(a.is_sticky);
+
+    if (stickyDifference !== 0) {
+      return stickyDifference;
+    }
+
+    if (a.is_sticky && b.is_sticky) {
+      const stickyAtDifference = compareDateDesc(
+        a.sticky_at || a.created_at,
+        b.sticky_at || b.created_at
+      );
+
+      if (stickyAtDifference !== 0) {
+        return stickyAtDifference;
+      }
+    }
+
     const rankDifference =
       (feedRankMap.get(b.id) || 1) - (feedRankMap.get(a.id) || 1);
 
@@ -409,5 +432,9 @@ function getPostTotalVotes(post) {
 }
 
 function compareCreatedAtDesc(a, b) {
-  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  return compareDateDesc(a.created_at, b.created_at);
+}
+
+function compareDateDesc(a, b) {
+  return new Date(b).getTime() - new Date(a).getTime();
 }

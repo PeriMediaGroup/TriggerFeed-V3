@@ -780,8 +780,29 @@ export async function updatePost(postId, formData) {
     body: formData.get("body"),
     visibility: formData.get("visibility"),
   };
-
+  const wantsSticky = formData.get("is_sticky") === "true";
   const validation = validatePostInput(rawPost);
+
+  const { data: authStatus, error: authStatusError } = await supabase
+    .rpc("get_my_profile_auth_status")
+    .single();
+
+  if (authStatusError) {
+    console.error("UPDATE POST AUTH STATUS ERROR:", {
+      code: authStatusError.code,
+      message: authStatusError.message,
+      details: authStatusError.details,
+      hint: authStatusError.hint,
+    });
+  }
+
+  const isCeo = authStatus?.role === "ceo";
+  const postUpdate = {
+    title: validation.values.title,
+    body: validation.values.body,
+    visibility: validation.values.visibility,
+    is_sticky: isCeo ? wantsSticky : false,
+  };
 
   if (!validation.isValid) {
     await writeAuditLog(supabase, {
@@ -805,11 +826,7 @@ export async function updatePost(postId, formData) {
 
   const { data: updatedPost, error } = await supabase
     .from("posts")
-    .update({
-      title: validation.values.title,
-      body: validation.values.body,
-      visibility: validation.values.visibility,
-    })
+    .update(postUpdate)
     .eq("id", postId)
     .eq("user_id", user.id)
     .eq("is_deleted", false)

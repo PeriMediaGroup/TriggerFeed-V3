@@ -190,7 +190,7 @@ function applyUploadedMediaDisplayOffset({
   });
 }
 
-export default function EditPostForm({ post }) {
+export default function EditPostForm({ post, canCreateStickyPost = false }) {
   const [errors, setErrors] = useState({});
   const [mediaErrors, setMediaErrors] = useState([]);
   const [status, setStatus] = useState("");
@@ -326,6 +326,8 @@ export default function EditPostForm({ post }) {
       mode="edit"
       initialTitle={post.title || ""}
       initialBody={post.body || ""}
+      initialIsSticky={post.is_sticky === true}
+      canCreateStickyPost={canCreateStickyPost}
       initialPoll={initialPoll}
       errors={errors}
       mediaErrors={mediaErrors}
