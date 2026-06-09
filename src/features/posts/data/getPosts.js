@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 import { getCommentsByPostId } from "@/features/comments/queries";
+import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 
 const POST_SELECT = `
   id,
@@ -10,6 +11,9 @@ const POST_SELECT = `
   title,
   body,
   visibility,
+  is_sticky,
+  sticky_at,
+  sticky_by,
   created_at,
   updated_at,
   post_media (
@@ -30,7 +34,8 @@ const POST_SELECT = `
     height,
     alt_text,
     sort_order,
-    display_order
+    display_order,
+    created_at
   ),
   polls (
     id,
@@ -129,13 +134,16 @@ export async function getPosts({ feedType = "main" } = {}) {
     query = query.gte("created_at", sevenDaysAgo.toISOString());
   }
 
-  query = query
-    .order("created_at", { ascending: false })
-    .order("sort_order", {
-      referencedTable: "post_media",
-      ascending: true,
-    })
-    .limit(50);
+  if (feedType === "main") {
+    query = query
+      .order("is_sticky", { ascending: false })
+      .order("sticky_at", { ascending: false, nullsFirst: false });
+  }
+
+  query = query.order("created_at", { ascending: false }).order("sort_order", {
+    referencedTable: "post_media",
+    ascending: true,
+  }).limit(50);
 
   const { data: posts, error: postsError } = await query;
 
@@ -163,6 +171,110 @@ export async function getPosts({ feedType = "main" } = {}) {
     };
   }
 
+  const {
+    posts: postsWithAuthors,
+    commentsByPostId,
+  } = await hydratePosts({
+    supabase,
+    posts: safePosts,
+    currentUserId,
+  });
+
+  const finalPosts = await sortPostsForFeed({
+    supabase,
+    posts: postsWithAuthors,
+    feedType,
+  });
+
+  return {
+    posts: finalPosts,
+    commentsByPostId,
+    currentUserId,
+    message,
+    error: null,
+  };
+}
+
+export async function searchPosts({ query: rawQuery = "" } = {}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const currentUserId = user?.id ?? null;
+  const query = cleanSearchQuery(rawQuery);
+
+  if (!query) {
+    return {
+      posts: [],
+      commentsByPostId: {},
+      currentUserId,
+      query,
+      message: "Search for posts by title or body.",
+      error: null,
+    };
+  }
+
+  const searchPattern = `%${escapeIlikePattern(query)}%`;
+
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("is_deleted", false)
+    .eq("visibility", "public")
+    .or(`title.ilike.${searchPattern},body.ilike.${searchPattern}`)
+    .order("created_at", { ascending: false })
+    .order("sort_order", {
+      referencedTable: "post_media",
+      ascending: true,
+    })
+    .limit(50);
+
+  if (error) {
+    logSupabaseError("SEARCH POSTS ERROR:", error);
+
+    return {
+      posts: [],
+      commentsByPostId: {},
+      currentUserId,
+      query,
+      message: "Could not search posts.",
+      error,
+    };
+  }
+
+  const safePosts = posts || [];
+
+  if (!safePosts.length) {
+    return {
+      posts: [],
+      commentsByPostId: {},
+      currentUserId,
+      query,
+      message: `No posts found for "${query}".`,
+      error: null,
+    };
+  }
+
+  const { posts: hydratedPosts, commentsByPostId } = await hydratePosts({
+    supabase,
+    posts: safePosts,
+    currentUserId,
+  });
+
+  return {
+    posts: sortPostsForSearch(hydratedPosts, query),
+    commentsByPostId,
+    currentUserId,
+    query,
+    message: "",
+    error: null,
+  };
+}
+
+async function hydratePosts({ supabase, posts, currentUserId }) {
+  const safePosts = posts || [];
   const postIds = safePosts.map((post) => post.id);
 
   // -----------------------------
@@ -265,7 +377,7 @@ export async function getPosts({ feedType = "main" } = {}) {
 
       return {
         ...post,
-        media: post.post_media || [],
+        media: normalizePostMedia(post.post_media),
         author: profileMap.get(post.user_id) || null,
         mentionProfiles,
         comment_count: commentCountMap.get(post.id) || 0,
@@ -298,18 +410,9 @@ export async function getPosts({ feedType = "main" } = {}) {
     return grouped;
   }, {});
 
-  const finalPosts = await sortPostsForFeed({
-    supabase,
-    posts: postsWithAuthors,
-    feedType,
-  });
-
   return {
-    posts: finalPosts,
+    posts: postsWithAuthors,
     commentsByPostId,
-    currentUserId,
-    message,
-    error: null,
   };
 }
 
@@ -376,6 +479,23 @@ async function sortPostsForFeed({ supabase, posts, feedType }) {
   );
 
   return [...posts].sort((a, b) => {
+    const stickyDifference = Number(b.is_sticky) - Number(a.is_sticky);
+
+    if (stickyDifference !== 0) {
+      return stickyDifference;
+    }
+
+    if (a.is_sticky && b.is_sticky) {
+      const stickyAtDifference = compareDateDesc(
+        a.sticky_at || a.created_at,
+        b.sticky_at || b.created_at
+      );
+
+      if (stickyAtDifference !== 0) {
+        return stickyAtDifference;
+      }
+    }
+
     const rankDifference =
       (feedRankMap.get(b.id) || 1) - (feedRankMap.get(a.id) || 1);
 
@@ -409,5 +529,59 @@ function getPostTotalVotes(post) {
 }
 
 function compareCreatedAtDesc(a, b) {
-  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  return compareDateDesc(a.created_at, b.created_at);
+}
+
+function compareDateDesc(a, b) {
+  return new Date(b).getTime() - new Date(a).getTime();
+}
+
+function cleanSearchQuery(value) {
+  return `${value || ""}`
+    .replace(/,/g, " ")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 80);
+}
+
+function escapeIlikePattern(value) {
+  return value.replace(/[\\%_]/g, (match) => `\\${match}`);
+}
+
+function sortPostsForSearch(posts, query) {
+  const normalizedQuery = query.toLowerCase();
+
+  return [...posts].sort((a, b) => {
+    const rankDifference =
+      getSearchRank(b, normalizedQuery) - getSearchRank(a, normalizedQuery);
+
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    return compareCreatedAtDesc(a, b);
+  });
+}
+
+function getSearchRank(post, query) {
+  const title = `${post.title || ""}`.toLowerCase();
+  const body = `${post.body || ""}`.toLowerCase();
+
+  if (title === query) {
+    return 40;
+  }
+
+  if (title.startsWith(query)) {
+    return 30;
+  }
+
+  if (title.includes(query)) {
+    return 20;
+  }
+
+  if (body.includes(query)) {
+    return 10;
+  }
+
+  return 0;
 }

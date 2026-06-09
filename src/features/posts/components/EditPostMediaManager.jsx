@@ -6,6 +6,7 @@ import PostMediaUploader from "./PostMediaUploader";
 
 function getMediaUrl(item) {
   return (
+    item.src ||
     item.secure_url ||
     item.url ||
     item.media_url ||
@@ -23,7 +24,8 @@ function getMediaUrl(item) {
 }
 
 function isVideoMedia(item) {
-  const mediaType = item.media_type || item.resource_type || item.type || "";
+  const mediaType =
+    item.mediaType || item.media_type || item.resource_type || item.type || "";
 
   return mediaType === "video" || mediaType.startsWith("video/");
 }
@@ -89,11 +91,12 @@ export default function EditPostMediaManager({
                   ) : (
                     <Image
                       src={mediaUrl}
-                      alt={item.alt_text || item.title || "Post media"}
+                      alt={item.alt || item.alt_text || item.title || "Post media"}
                       fill
                       sizes="(max-width: 700px) 50vw, 300px"
                       unoptimized={
                         item.provider === "giphy" ||
+                        item.mediaType === "gif" ||
                         item.media_type === "gif" ||
                         item.type === "gif"
                       }

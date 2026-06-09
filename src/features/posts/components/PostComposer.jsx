@@ -202,6 +202,8 @@ export default function PostComposer({
   mode = "create",
   initialTitle = "",
   initialBody = "",
+  initialIsSticky = false,
+  canCreateStickyPost = false,
   initialPoll = null,
   initialGif = null,
   errors = {},
@@ -242,6 +244,7 @@ export default function PostComposer({
 
   const [title, setTitle] = useState(() => initialTitle || "");
   const [body, setBody] = useState(() => initialBody || "");
+  const [isSticky, setIsSticky] = useState(() => Boolean(initialIsSticky));
   const [poll, setPoll] = useState(() => normalizedInitialPoll);
   const [selectedGif, setSelectedGif] = useState(() => normalizedInitialGif);
 
@@ -396,6 +399,12 @@ export default function PostComposer({
       return;
     }
 
+    if (canCreateStickyPost && isSticky) {
+      formData.set("is_sticky", "true");
+    } else {
+      formData.delete("is_sticky");
+    }
+
     if (cleanedPoll?.poll) {
       formData.set("poll", JSON.stringify(cleanedPoll.poll));
       formData.delete("remove_poll");
@@ -503,6 +512,19 @@ export default function PostComposer({
       {mergedErrors.visibility && (
         <p className="post-form__error">{mergedErrors.visibility}</p>
       )}
+
+      {canCreateStickyPost ? (
+        <label className="create-post__sticky-option">
+          <input
+            type="checkbox"
+            name="is_sticky"
+            value="true"
+            checked={isSticky}
+            onChange={(event) => setIsSticky(event.target.checked)}
+          />
+          <span>Mark as official announcement</span>
+        </label>
+      ) : null}
 
       <CreatePostToolbar
         activeTool={activeTool}

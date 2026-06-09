@@ -9,7 +9,6 @@
 @use "../features/admin/styles/__admin";
 @use "../features/polls/styles/_polls";
 @use "../features/feed/styles/_feed";
-@use "../features/posts/styles/_posts";
 @use "../features/media/styles/_media";
 @use "../features/votes/styles/_votes";
 @use "../features/guns/styles/__guns";
@@ -23,7 +22,10 @@
 @use "../features/notifications/styles/_notifications";
 @use "../features/friends/styles/_friends";
 @use "../features/reports/styles/__reports";
+@use "../features/posts/styles/_posts";
 @use "../features/posts/styles/_create";
+@use "../features/posts/styles/_post-edit";
+@use "../features/search/styles/__search";
 
 body {
   background: var(--color-bg);

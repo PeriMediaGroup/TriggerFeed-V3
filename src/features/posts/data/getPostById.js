@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
+import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 
 export async function getPostById(postId) {
   const supabase = await createClient();
@@ -20,6 +21,9 @@ export async function getPostById(postId) {
       body,
       visibility,
       is_deleted,
+      is_sticky,
+      sticky_at,
+      sticky_by,
       created_at,
       updated_at,
       post_media (
@@ -40,7 +44,8 @@ export async function getPostById(postId) {
         height,
         alt_text,
         sort_order,
-        display_order
+        display_order,
+        created_at
       ),
       polls (
         id,
@@ -66,8 +71,28 @@ export async function getPostById(postId) {
   if (postError || !post) {
     return {
       post: null,
+      currentUserRole: null,
       error: postError,
     };
+  }
+
+  let currentUserRole = null;
+
+  if (user) {
+    const { data: authStatus, error: authStatusError } = await supabase
+      .rpc("get_my_profile_auth_status")
+      .single();
+
+    if (authStatusError) {
+      console.error("GET CURRENT USER AUTH STATUS ERROR:", {
+        code: authStatusError.code,
+        message: authStatusError.message,
+        details: authStatusError.details,
+        hint: authStatusError.hint,
+      });
+    }
+
+    currentUserRole = authStatus?.role || null;
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -140,7 +165,7 @@ export async function getPostById(postId) {
   return {
     post: {
       ...post,
-      media: post.post_media || [],
+      media: normalizePostMedia(post.post_media),
       author: profile || null,
       mentionProfiles,
       upvote_count: voteCounts?.upvote_count || 0,
@@ -149,6 +174,7 @@ export async function getPostById(postId) {
       score: voteCounts?.score || 0,
       current_user_vote: currentUserVote,
     },
+    currentUserRole,
     error: null,
   };
 }

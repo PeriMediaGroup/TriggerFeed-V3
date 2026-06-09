@@ -61,6 +61,58 @@
   backdrop-filter: blur(14px);
 }
 
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.app-header__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.app-header__search-toggle {
+  display: inline-flex;
+  width: 2.35rem;
+  height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+}
+
+.app-header__search-form {
+  position: absolute;
+  top: calc(100% + var(--space-sm));
+  right: 0;
+  z-index: 2;
+  width: min(72vw, 18rem);
+}
+
+.app-header__search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-sm);
+  color: var(--color-text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.app-header__search-input {
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding-inline: calc(var(--space-sm) + 1.25rem) var(--space-sm);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  font: inherit;
+}
+
 // =========================================================
 // App Shell
 // Default/mobile:
@@ -144,6 +196,15 @@
 .app-right-rail__search {
   position: relative;
   width: var(--app-right-rail-module-width);
+}
+
+.post-search__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .app-right-rail__search-icon {

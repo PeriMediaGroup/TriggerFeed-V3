@@ -46,7 +46,7 @@ export default function PostCard({
   const commentCount = post.comment_count || 0;
   const canManagePost = currentUserId === post.user_id;
   const postMedia =
-    post.post_media || post.media || post.images || post.post_images || [];
+    post.media || post.post_media || post.images || post.post_images || [];
   const mentionProfiles = post.mentionProfiles || [];
   const poll = post.polls?.[0] || null;
 
@@ -101,6 +101,10 @@ export default function PostCard({
           <p className="post-card__date" suppressHydrationWarning>
             {formatRelativeTime(post.created_at)}
           </p>
+
+          {post.is_sticky ? (
+            <span className="post-card__official-badge">Official</span>
+          ) : null}
         </div>
 
         <div className="post-card__header-tools" aria-label="Post actions">

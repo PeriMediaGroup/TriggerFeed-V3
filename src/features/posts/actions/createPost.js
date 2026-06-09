@@ -73,6 +73,23 @@ export async function createPost(formData) {
     body: formData.get("body"),
     visibility: formData.get("visibility"),
   };
+  const wantsSticky = formData.get("is_sticky") === "true";
+
+  const { data: authStatus, error: authStatusError } = await supabase
+    .rpc("get_my_profile_auth_status")
+    .single();
+
+  if (authStatusError) {
+    console.error("CREATE POST AUTH STATUS ERROR:", {
+      code: authStatusError.code,
+      message: authStatusError.message,
+      details: authStatusError.details,
+      hint: authStatusError.hint,
+    });
+  }
+
+  const isCeo = authStatus?.role === "ceo";
+  const isSticky = isCeo && wantsSticky;
 
   const validation = validatePostInput(rawPost);
 
@@ -242,6 +259,7 @@ export async function createPost(formData) {
       title: validation.values.title,
       body: validation.values.body,
       visibility: validation.values.visibility,
+      is_sticky: isSticky,
     })
     .select("id")
     .single();
