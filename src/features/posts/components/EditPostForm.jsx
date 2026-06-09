@@ -11,6 +11,7 @@ import PostComposer from "@/features/posts/components/PostComposer";
 
 function getMediaUrl(item) {
   return (
+    item?.src ||
     item?.secure_url ||
     item?.url ||
     item?.media_url ||
@@ -40,26 +41,51 @@ function getExistingMedia(post) {
   return mediaSource
     .map((item, index) => {
       const mediaUrl = getMediaUrl(item);
+      const mediaType =
+        item.mediaType ||
+        item.media_type ||
+        item.type ||
+        item.resource_type ||
+        "image";
+
+      const publicId =
+        item.publicId || item.public_id || item.cloudinary_public_id || "";
+
+      const sortOrder =
+        item.sortOrder ??
+        item.sort_order ??
+        item.display_order ??
+        item.position ??
+        index;
 
       return {
         ...item,
         id: item.id,
         post_id: item.post_id || item.postId || post?.id,
+
+        // normalized/render-friendly
+        src: item.src || mediaUrl,
+        alt: item.alt || item.alt_text || item.title || "",
+        mediaType,
+        publicId,
+        sortOrder,
+
+        // legacy/db-ish compatibility for edit manager/actions
         url: mediaUrl,
-        secure_url: mediaUrl,
+        secure_url: item.secure_url || mediaUrl,
         media_url: item.media_url || mediaUrl,
-        public_id:
-          item.public_id || item.cloudinary_public_id || item.publicId || "",
-        media_type:
-          item.media_type || item.type || item.resource_type || "image",
-        type: item.type || item.media_type || item.resource_type || "image",
-        resource_type:
-          item.resource_type || item.media_type || item.type || "image",
+        cloudinary_secure_url: item.cloudinary_secure_url || mediaUrl,
+        cloudinary_url: item.cloudinary_url || mediaUrl,
+        public_id: publicId,
+        cloudinary_public_id: item.cloudinary_public_id || publicId,
+        media_type: mediaType,
+        type: item.type || mediaType,
+        resource_type: item.resource_type || mediaType,
         provider: item.provider || item.source || "",
         alt_text: item.alt_text || item.alt || item.title || "",
-        title: item.title || item.alt_text || "",
-        sort_order:
-          item.sort_order ?? item.display_order ?? item.position ?? index,
+        title: item.title || item.alt_text || item.alt || "",
+        sort_order: sortOrder,
+        display_order: item.display_order ?? sortOrder,
       };
     })
     .filter((item) => item.id && getMediaUrl(item));
@@ -111,7 +137,7 @@ function getInitialPoll(post) {
 }
 
 function isGifMedia(item) {
-  const mediaType = `${item?.media_type || item?.type || ""}`.toLowerCase();
+  const mediaType = `${item?.mediaType || item?.media_type || item?.type || ""}`.toLowerCase();
   const provider = `${item?.provider || item?.source || ""}`.toLowerCase();
 
   return mediaType === "gif" || mediaType === "giphy" || provider === "giphy";
@@ -152,11 +178,11 @@ function getInitialGif(post) {
 
   return {
     ...gifMedia,
-    id: gifMedia.public_id || gifMedia.id || "",
+    id: gifMedia.publicId || gifMedia.public_id || gifMedia.id || "",
     mediaId: gifMedia.id,
     url: gifUrl,
     secure_url: gifUrl,
-    title: gifMedia.title || gifMedia.alt_text || "GIPHY",
+    title: gifMedia.title || gifMedia.alt || gifMedia.alt_text || "GIPHY",
     provider: gifMedia.provider || "giphy",
   };
 }
@@ -204,7 +230,6 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
   const initialGif = useMemo(() => getInitialGif(post), [post]);
 
   async function handleComposerSubmit({ formData, selectedGif, cleanedPoll }) {
-
     if (initialPoll && !cleanedPoll) {
       formData.set("remove_poll", "true");
     }

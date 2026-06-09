@@ -46,7 +46,7 @@ export default function PostCard({
   const commentCount = post.comment_count || 0;
   const canManagePost = currentUserId === post.user_id;
   const postMedia =
-    post.post_media || post.media || post.images || post.post_images || [];
+    post.media || post.post_media || post.images || post.post_images || [];
   const mentionProfiles = post.mentionProfiles || [];
   const poll = post.polls?.[0] || null;
 

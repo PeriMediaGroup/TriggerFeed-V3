@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
+import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 
 export async function getPostById(postId) {
   const supabase = await createClient();
@@ -43,7 +44,8 @@ export async function getPostById(postId) {
         height,
         alt_text,
         sort_order,
-        display_order
+        display_order,
+        created_at
       ),
       polls (
         id,
@@ -163,7 +165,7 @@ export async function getPostById(postId) {
   return {
     post: {
       ...post,
-      media: post.post_media || [],
+      media: normalizePostMedia(post.post_media),
       author: profile || null,
       mentionProfiles,
       upvote_count: voteCounts?.upvote_count || 0,
