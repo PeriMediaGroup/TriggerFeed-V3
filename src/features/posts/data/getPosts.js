@@ -134,7 +134,7 @@ export async function getPosts({ feedType = "main" } = {}) {
     query = query.gte("created_at", sevenDaysAgo.toISOString());
   }
 
-  if (feedType === "main") {
+  if (feedType === "main" || feedType === "friends") {
     query = query
       .order("is_sticky", { ascending: false })
       .order("sticky_at", { ascending: false, nullsFirst: false });
@@ -469,6 +469,18 @@ async function sortPostsForFeed({ supabase, posts, feedType }) {
       });
   }
 
+  if (feedType === "friends") {
+    return [...posts].sort((a, b) => {
+      const stickyDifference = compareStickyPosts(a, b);
+
+      if (stickyDifference !== 0) {
+        return stickyDifference;
+      }
+
+      return compareCreatedAtDesc(a, b);
+    });
+  }
+
   if (feedType !== "main") {
     return posts;
   }
@@ -479,21 +491,10 @@ async function sortPostsForFeed({ supabase, posts, feedType }) {
   );
 
   return [...posts].sort((a, b) => {
-    const stickyDifference = Number(b.is_sticky) - Number(a.is_sticky);
+    const stickyDifference = compareStickyPosts(a, b);
 
     if (stickyDifference !== 0) {
       return stickyDifference;
-    }
-
-    if (a.is_sticky && b.is_sticky) {
-      const stickyAtDifference = compareDateDesc(
-        a.sticky_at || a.created_at,
-        b.sticky_at || b.created_at
-      );
-
-      if (stickyAtDifference !== 0) {
-        return stickyAtDifference;
-      }
     }
 
     const rankDifference =
@@ -561,6 +562,23 @@ function sortPostsForSearch(posts, query) {
 
     return compareCreatedAtDesc(a, b);
   });
+}
+
+function compareStickyPosts(a, b) {
+  const stickyDifference = Number(b.is_sticky) - Number(a.is_sticky);
+
+  if (stickyDifference !== 0) {
+    return stickyDifference;
+  }
+
+  if (a.is_sticky && b.is_sticky) {
+    return compareDateDesc(
+      a.sticky_at || a.created_at,
+      b.sticky_at || b.created_at
+    );
+  }
+
+  return 0;
 }
 
 function getSearchRank(post, query) {

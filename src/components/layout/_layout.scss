@@ -6,17 +6,17 @@
   --app-footer-height: 45px;
   --app-header-height: 64px;
   --app-sidebar-width: 248px;
-  --app-right-rail-width: 216px;
-  --app-right-rail-module-width: 160px;
+  --app-right-rail-width: 245px;
+  --app-right-rail-module-width: 200px;
   --app-content-max-width: 48rem;
 }
 
 // temp
 .temp-block {
-  width: 160px;
+  width: var(--app-right-rail-module-width);
   min-height: 150px;
-  padding: var(--space-sm);
-  margin-bottom: var(--space-md);
+  //padding: var(--space-sm);
+  //margin-bottom: var(--space-md);
   border-radius: var(--radius-md);
   background-color: rgba($color: #fff, $alpha: 0.25);
   color: black;
@@ -251,6 +251,11 @@
 
 .app-right-rail__friends {
   min-height: 260px;
+}
+
+.app-right-rail__title {
+  font-size: .9rem;
+  line-height: 1.2;
 }
 
 .app-right-rail__ad--skyscraper {

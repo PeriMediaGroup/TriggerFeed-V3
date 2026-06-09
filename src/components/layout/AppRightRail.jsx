@@ -1,6 +1,14 @@
 import PostSearchForm from "@/features/search/components/PostSearchForm";
+import FriendSuggestions from "@/features/friends/components/FriendSuggestions";
+import { getFriendSuggestions } from "@/features/friends/data/getFriendSuggestions";
 
-export default function AppRightRail() {
+export default async function AppRightRail({ user = null }) {
+  const viewerId = user?.id || null;
+  const { suggestions, error, didFetch } = await getFriendSuggestions({
+    limit: 4,
+    viewerId,
+  });
+
   return (
     <div className="app-right-rail">
       <PostSearchForm
@@ -10,10 +18,16 @@ export default function AppRightRail() {
         placeholder="Search posts"
         inputId="right-rail-post-search-query"
       />
-      <div className="temp-block">trending posts</div>
-      <div className="temp-block temp-block--md">Friend --medium</div>
-      <div className="temp-block temp-block--skyscraper">
-        temp block --skyscraper
+      <FriendSuggestions
+        key={viewerId || "signed-out"}
+        viewerId={viewerId}
+        suggestions={suggestions}
+        hasError={Boolean(error)}
+        didFetch={didFetch}
+      />
+      <div className="app-right-rail__module">
+        <div className="app-right-rail__module-inner">
+          <h2 className="app-right-rail__title">Advertisement</h2>Coming soon!</div>
       </div>
     </div>
   );
