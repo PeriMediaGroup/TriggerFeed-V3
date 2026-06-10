@@ -1,0 +1,51 @@
+.birthday-greeting {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  border: 1px solid color-mix(in srgb, var(--color-accent), var(--color-border) 45%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin: var(--space-lg);
+  background: color-mix(in srgb, var(--color-accent), var(--color-surface) 88%);
+  color: var(--color-text);
+
+  &__copy {
+    display: grid;
+    gap: var(--space-xs);
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  &__message {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  &__dismiss {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-surface-elevated), transparent 12%);
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: color-mix(in srgb, var(--color-accent), var(--color-border) 40%);
+      background: color-mix(in srgb, var(--color-accent), var(--color-surface-elevated) 84%);
+    }
+  }
+}

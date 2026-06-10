@@ -26,6 +26,8 @@
 @use "../features/posts/styles/_create";
 @use "../features/posts/styles/_post-edit";
 @use "../features/search/styles/__search";
+@use "../features/milestones/styles/__milestones";
+@use "../features/ranks/styles/__ranks";
 
 body {
   background: var(--color-bg);

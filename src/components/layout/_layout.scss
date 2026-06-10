@@ -224,7 +224,7 @@
 }
 
 .app-right-rail__title {
-  font-size: .9rem;
+  font-size: 0.9rem;
   line-height: 1.2;
 }
 
@@ -346,6 +346,8 @@
     max-width: var(--app-content-max-width);
     padding-inline: var(--space-lg);
     padding-block: var(--space-lg);
+    padding-top: 0;
+    margin-bottom: var(--app-footer-height);
   }
 
   .app-footer {
