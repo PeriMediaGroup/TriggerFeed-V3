@@ -16,6 +16,8 @@ import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 import ProfileSettings from "@/features/profiles/components/ProfileSettings";
+import { getUserRank } from "@/features/ranks/data/getUserRank";
+import UserRankCard from "@/features/ranks/components/UserRankCard";
 
 function logSupabaseError(label, error) {
   console.error(label, {
@@ -123,6 +125,7 @@ export default async function ProfilePage() {
 
   const [
     { stats },
+    { rank },
     { latestPost },
     { topFriends },
     { topGuns },
@@ -130,6 +133,7 @@ export default async function ProfilePage() {
     { acceptedFriends },
   ] = await Promise.all([
     getProfileStats(profile.id),
+    getUserRank(profile.id),
     getLatestPost(profile.id),
     getTopFriends(profile.id),
     getTopGuns(profile.id),
@@ -149,6 +153,8 @@ export default async function ProfilePage() {
         isCurrentUser
         unreadNotifications={unreadNotifications ?? 0}
       />
+
+      <UserRankCard rank={rank} />
 
       <ProfileDashboardTabs
         tabs={[
