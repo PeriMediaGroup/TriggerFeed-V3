@@ -21,18 +21,12 @@ export function validatePostMediaFiles(files) {
 
   if (imageFiles.length > POST_MEDIA_LIMITS.maxImageFiles) {
     errors.push(
-      `You can upload up to ${POST_MEDIA_LIMITS.maxImageFiles} images.`,
+      `You can add up to ${POST_MEDIA_LIMITS.maxImageFiles} images or GIFs.`,
     );
   }
 
   if (videoFiles.length > POST_MEDIA_LIMITS.maxVideoFiles) {
-    errors.push(
-      `You can upload up to ${POST_MEDIA_LIMITS.maxVideoFiles} video.`,
-    );
-  }
-
-  if (imageFiles.length > 0 && videoFiles.length > 0) {
-    errors.push("For now, upload either images or one video, not both.");
+    errors.push("You can add 1 video per post for now.");
   }
 
   fileList.forEach((file) => {

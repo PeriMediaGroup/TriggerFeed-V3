@@ -249,23 +249,39 @@ export async function createPost(formData) {
     };
   }
 
-  // -----------------------------
-  // Create post
-  // -----------------------------
-  const { data: post, error: postError } = await supabase
-    .from("posts")
-    .insert({
-      user_id: user.id,
-      title: validation.values.title,
-      body: validation.values.body,
-      visibility: validation.values.visibility,
-      is_sticky: isSticky,
-    })
-    .select("id")
-    .single();
+  const rpcGif = gif
+    ? {
+        external_id: gif.id,
+        external_url: gif.url,
+        thumbnail_url: gif.previewUrl,
+        title: gif.title,
+        sort_order: gif.sortOrder,
+        display_order: gif.displayOrder,
+      }
+    : null;
+
+  const rpcPoll = poll
+    ? {
+        question: poll.question,
+        options: poll.options,
+        allows_multiple: poll.allowsMultiple,
+      }
+    : null;
+
+  const { data: postId, error: postError } = await supabase.rpc(
+    "create_post_transactional",
+    {
+      p_title: validation.values.title,
+      p_body: validation.values.body,
+      p_visibility: validation.values.visibility,
+      p_is_sticky: isSticky,
+      p_gif: rpcGif,
+      p_poll: rpcPoll,
+    },
+  );
 
   if (postError) {
-    console.error("CREATE POST INSERT ERROR:", {
+    console.error("CREATE POST TRANSACTION ERROR:", {
       code: postError.code,
       message: postError.message,
       details: postError.details,
@@ -301,150 +317,10 @@ export async function createPost(formData) {
   }
 
   // -----------------------------
-  // Create GIF media
-  // -----------------------------
-  if (gif) {
-    const { error: gifError } = await supabase.from("post_media").insert({
-      post_id: post.id,
-      user_id: user.id,
-      media_type: "gif",
-      provider: "giphy",
-      source: "giphy",
-      external_id: gif.id,
-      external_url: gif.url,
-      thumbnail_url: gif.previewUrl,
-      title: gif.title,
-      sort_order: gif.sortOrder,
-      display_order: gif.displayOrder,
-    });
-
-    if (gifError) {
-      console.error("CREATE GIF MEDIA ERROR:", {
-        code: gifError.code,
-        message: gifError.message,
-        details: gifError.details,
-        hint: gifError.hint,
-      });
-
-      await supabase.from("post_audit_logs").insert({
-        post_id: post.id,
-        user_id: user.id,
-        event_type: "gif_create_failed",
-        success: false,
-        error_code: gifError.code,
-        error_message: gifError.message,
-        metadata: {
-          source: "createPost",
-          details: gifError.details,
-          hint: gifError.hint,
-        },
-      });
-
-      return {
-        success: false,
-        message: "Post created, but GIF failed to save.",
-        errors: {
-          gif: "Post created, but GIF failed to save.",
-        },
-        postId: post.id,
-      };
-    }
-  }
-
-  // -----------------------------
-  // Create poll
-  // -----------------------------
-  if (poll) {
-    const { data: createdPoll, error: pollError } = await supabase
-      .from("polls")
-      .insert({
-        post_id: post.id,
-        question: poll.question,
-        allows_multiple: poll.allowsMultiple,
-      })
-      .select("id")
-      .single();
-
-    if (pollError) {
-      console.error("CREATE POLL ERROR:", {
-        code: pollError.code,
-        message: pollError.message,
-        details: pollError.details,
-        hint: pollError.hint,
-      });
-
-      await supabase.from("post_audit_logs").insert({
-        post_id: post.id,
-        user_id: user.id,
-        event_type: "poll_create_failed",
-        success: false,
-        error_code: pollError.code,
-        error_message: pollError.message,
-        metadata: {
-          source: "createPost",
-          details: pollError.details,
-          hint: pollError.hint,
-        },
-      });
-
-      return {
-        success: false,
-        message: "Post created, but poll failed to save.",
-        errors: {
-          poll: "Post created, but poll failed to save.",
-        },
-        postId: post.id,
-      };
-    }
-
-    const pollOptions = poll.options.map((optionText, index) => ({
-      poll_id: createdPoll.id,
-      option_text: optionText,
-      display_order: index,
-    }));
-
-    const { error: pollOptionsError } = await supabase
-      .from("poll_options")
-      .insert(pollOptions);
-
-    if (pollOptionsError) {
-      console.error("CREATE POLL OPTIONS ERROR:", {
-        code: pollOptionsError.code,
-        message: pollOptionsError.message,
-        details: pollOptionsError.details,
-        hint: pollOptionsError.hint,
-      });
-
-      await supabase.from("post_audit_logs").insert({
-        post_id: post.id,
-        user_id: user.id,
-        event_type: "poll_options_create_failed",
-        success: false,
-        error_code: pollOptionsError.code,
-        error_message: pollOptionsError.message,
-        metadata: {
-          source: "createPost",
-          details: pollOptionsError.details,
-          hint: pollOptionsError.hint,
-        },
-      });
-
-      return {
-        success: false,
-        message: "Post created, but poll options failed to save.",
-        errors: {
-          poll: "Post created, but poll options failed to save.",
-        },
-        postId: post.id,
-      };
-    }
-  }
-
-  // -----------------------------
   // Audit success
   // -----------------------------
   await supabase.from("post_audit_logs").insert({
-    post_id: post.id,
+    post_id: postId,
     user_id: user.id,
     event_type: "post_create_success",
     success: true,
@@ -464,7 +340,7 @@ export async function createPost(formData) {
   const mentionResult = await createMentionNotifications({
     text: mentionText,
     actorId: user.id,
-    postId: post.id,
+    postId,
   });
 
   if (!mentionResult.success) {
@@ -476,7 +352,7 @@ export async function createPost(formData) {
 
   return {
     success: true,
-    postId: post.id,
+    postId,
     errors: {},
   };
 }

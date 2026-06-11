@@ -16,13 +16,26 @@ export default function ProfileHeader({
   isCurrentUser = false,
 }) {
   const profileVisibility = profile?.privacy_settings?.profile_visibility || {};
+  const publicProfileIsServerFiltered =
+    !isCurrentUser && !profile?.privacy_settings;
 
   const canShowRealName =
-    isCurrentUser || Boolean(profileVisibility.show_real_name);
+    publicProfileIsServerFiltered ||
+    isCurrentUser ||
+    Boolean(profileVisibility.show_real_name);
 
-  const canShowEmail = isCurrentUser || Boolean(profileVisibility.show_email);
-  const canShowCity = isCurrentUser || Boolean(profileVisibility.show_city);
-  const canShowState = isCurrentUser || Boolean(profileVisibility.show_state);
+  const canShowEmail =
+    publicProfileIsServerFiltered ||
+    isCurrentUser ||
+    Boolean(profileVisibility.show_email);
+  const canShowCity =
+    publicProfileIsServerFiltered ||
+    isCurrentUser ||
+    Boolean(profileVisibility.show_city);
+  const canShowState =
+    publicProfileIsServerFiltered ||
+    isCurrentUser ||
+    Boolean(profileVisibility.show_state);
 
   const displayName =
     profile?.display_name ||

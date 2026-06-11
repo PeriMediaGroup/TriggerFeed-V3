@@ -5,13 +5,9 @@ import { answerPoll } from "../actions/answerPoll";
 
 export default function PollDisplay({ poll, postId, currentUserId }) {
   const [status, setStatus] = useState("");
-  const [selectedOptionId, setSelectedOptionId] = useState(() => {
-    const response = poll?.poll_responses?.find((pollResponse) => {
-      return pollResponse.user_id === currentUserId;
-    });
-
-    return response?.option_id || null;
-  });
+  const [selectedOptionId, setSelectedOptionId] = useState(
+    poll?.my_option_id || null,
+  );
 
   const [isPending, startTransition] = useTransition();
 
@@ -28,12 +24,12 @@ export default function PollDisplay({ poll, postId, currentUserId }) {
       counts.set(option.id, 0);
     });
 
-    (poll?.poll_responses || []).forEach((response) => {
-      counts.set(response.option_id, (counts.get(response.option_id) || 0) + 1);
+    (poll?.poll_results || []).forEach((result) => {
+      counts.set(result.option_id, result.vote_count || 0);
     });
 
     return counts;
-  }, [options, poll?.poll_responses]);
+  }, [options, poll?.poll_results]);
 
   const totalResponses = useMemo(() => {
     return Array.from(responseCounts.values()).reduce((total, count) => {

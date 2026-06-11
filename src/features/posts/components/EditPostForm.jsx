@@ -137,7 +137,8 @@ function getInitialPoll(post) {
 }
 
 function isGifMedia(item) {
-  const mediaType = `${item?.mediaType || item?.media_type || item?.type || ""}`.toLowerCase();
+  const rawMediaType = item?.mediaType || item?.media_type || item?.type || "";
+  const mediaType = `${rawMediaType}`.toLowerCase();
   const provider = `${item?.provider || item?.source || ""}`.toLowerCase();
 
   return mediaType === "gif" || mediaType === "giphy" || provider === "giphy";
@@ -222,14 +223,22 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
   const [status, setStatus] = useState("");
   const [submitStep, setSubmitStep] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [newMediaFiles, setNewMediaFiles] = useState([]);
+  const [newMediaItems, setNewMediaItems] = useState([]);
   const [removedMediaIds, setRemovedMediaIds] = useState([]);
 
   const existingMedia = useMemo(() => getExistingMedia(post), [post]);
+  const editableExistingMedia = useMemo(() => {
+    return existingMedia.filter((item) => !isGifMedia(item));
+  }, [existingMedia]);
+  const remainingEditableExistingMedia = useMemo(() => {
+    return editableExistingMedia.filter((item) => {
+      return !removedMediaIds.includes(item.id);
+    });
+  }, [editableExistingMedia, removedMediaIds]);
   const initialPoll = useMemo(() => getInitialPoll(post), [post]);
   const initialGif = useMemo(() => getInitialGif(post), [post]);
 
-  async function handleComposerSubmit({ formData, selectedGif, cleanedPoll }) {
+  async function handleComposerSubmit({ formData, cleanedPoll }) {
     if (initialPoll && !cleanedPoll) {
       formData.set("remove_poll", "true");
     }
@@ -273,15 +282,15 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
             }
           }
 
-          if (newMediaFiles.length > 0) {
+          if (newMediaItems.length > 0) {
             setStatus(
-              newMediaFiles.length === 1
+              newMediaItems.length === 1
                 ? "Uploading media..."
-                : `Uploading ${newMediaFiles.length} media items...`,
+                : `Uploading ${newMediaItems.length} media items...`,
             );
 
             const uploadedMedia = await uploadFilesToCloudinary({
-              files: newMediaFiles,
+              files: newMediaItems.map((item) => item.file).filter(Boolean),
               postId: post.id,
               onProgress: ({ index, total } = {}) => {
                 if (typeof index === "number" && typeof total === "number") {
@@ -354,6 +363,7 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
       initialIsSticky={post.is_sticky === true}
       canCreateStickyPost={canCreateStickyPost}
       initialPoll={initialPoll}
+      initialGif={initialGif}
       errors={errors}
       mediaErrors={mediaErrors}
       status={status}
@@ -362,13 +372,14 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
       submitLabel="Save Changes"
       pendingLabel="Saving..."
       bodyPlaceholder="Update your post..."
+      existingMediaItems={remainingEditableExistingMedia}
       renderMediaManager={({ mediaItems, onAddMedia, onRemoveMedia }) => (
         <EditPostMediaManager
-          media={existingMedia}
+          media={editableExistingMedia}
           mediaItems={mediaItems}
           onAddMedia={onAddMedia}
           onRemoveMedia={onRemoveMedia}
-          onNewFilesChange={setNewMediaFiles}
+          onNewFilesChange={setNewMediaItems}
           onRemovedMediaIdsChange={setRemovedMediaIds}
         />
       )}

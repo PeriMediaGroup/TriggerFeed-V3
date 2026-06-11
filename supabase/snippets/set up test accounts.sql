@@ -3,6 +3,22 @@
 -- Creates 11 confirmed Supabase Auth users + matching profiles.
 -- Password for all users: testMe123!
 -- LOCAL ONLY. Do not run this on production unless chaos is your hobby.
+--
+-- Role setup:
+-- test_0 = ceo
+-- test_1 = admin
+-- test_2 = moderator
+-- test_3+ = user
+--
+-- Location setup:
+-- test_0, test_1, test_2 = SC
+-- test_3, test_4 = TX
+-- test_5, test_6, test_7 = MA
+-- test_8, test_9 = PA
+-- test_10 = NC control user
+--
+-- Birthdays:
+-- All test users get birthdays within the next 21 days.
 -- =========================================================
 
 create extension if not exists pgcrypto;
@@ -14,11 +30,56 @@ declare
   user_name text;
   user_id uuid;
   user_dob date;
+  birthday_date date;
+  profile_role text;
+  user_city text;
+  user_state text;
 begin
   for i in 0..10 loop
     user_email := 'test_' || i || '@example.com';
     user_name := 'test_' || i;
-    user_dob := make_date(1980 + (i % 20), ((i % 12) + 1), ((i % 28) + 1));
+
+    -- Give each test user an upcoming birthday while keeping them adults.
+    birthday_date := current_date + ((i % 21) + 1);
+
+    user_dob := make_date(
+      1980 + (i % 20),
+      extract(month from birthday_date)::integer,
+      extract(day from birthday_date)::integer
+    );
+
+    profile_role := case
+      when i = 0 then 'ceo'
+      when i = 1 then 'admin'
+      when i = 2 then 'moderator'
+      else 'user'
+    end;
+
+    user_city := case
+      when i = 0 then 'Simpsonville'
+      when i = 1 then 'Greenville'
+      when i = 2 then 'Spartanburg'
+
+      when i = 3 then 'Austin'
+      when i = 4 then 'Dallas'
+
+      when i = 5 then 'Boston'
+      when i = 6 then 'Worcester'
+      when i = 7 then 'Springfield'
+
+      when i = 8 then 'Pittsburgh'
+      when i = 9 then 'Philadelphia'
+
+      else 'Charlotte'
+    end;
+
+    user_state := case
+      when i in (0, 1, 2) then 'SC'
+      when i in (3, 4) then 'TX'
+      when i in (5, 6, 7) then 'MA'
+      when i in (8, 9) then 'PA'
+      else 'NC'
+    end;
 
     -- Reuse existing user id if already created, otherwise make a new one.
     select id
@@ -87,7 +148,9 @@ begin
         jsonb_build_object(
           'username', user_name,
           'display_name', 'Test User ' || i,
-          'dob', user_dob
+          'dob', user_dob,
+          'city', user_city,
+          'state', user_state
         ),
         false,
         now(),
@@ -114,7 +177,10 @@ begin
         raw_app_meta_data = '{"provider":"email","providers":["email"]}'::jsonb,
         raw_user_meta_data = jsonb_build_object(
           'username', user_name,
-          'display_name', 'Test User ' || i
+          'display_name', 'Test User ' || i,
+          'dob', user_dob,
+          'city', user_city,
+          'state', user_state
         ),
         updated_at = now()
       where id = user_id;
@@ -160,6 +226,8 @@ begin
       display_name,
       first_name,
       last_name,
+      city,
+      state,
       dob,
       age_verified_at,
       age_gate_version,
@@ -180,11 +248,13 @@ begin
       'Test User ' || i,
       'Test',
       'User ' || i,
+      user_city,
+      user_state,
       user_dob,
       now(),
       'v1',
       true,
-      'user',
+      profile_role,
       false,
       false,
       false,
@@ -209,6 +279,8 @@ begin
       display_name = excluded.display_name,
       first_name = excluded.first_name,
       last_name = excluded.last_name,
+      city = excluded.city,
+      state = excluded.state,
       dob = excluded.dob,
       age_verified_at = excluded.age_verified_at,
       age_gate_version = excluded.age_gate_version,
@@ -217,6 +289,7 @@ begin
       is_banned = false,
       is_muted = false,
       is_deleted = false,
+      privacy_settings = excluded.privacy_settings,
       updated_at = now();
   end loop;
 end $$;
@@ -227,7 +300,11 @@ select
   p.username,
   p.username_lower,
   p.display_name,
+  p.city,
+  p.state,
+  p.role,
   p.dob,
+  to_char(p.dob, 'MM-DD') as birthday_month_day,
   p.age_verified_at is not null as age_verified,
   p.birthday_messages_enabled,
   u.email_confirmed_at is not null as confirmed

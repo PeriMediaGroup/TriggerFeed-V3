@@ -161,38 +161,6 @@ function normalizePollDraft(rawPoll) {
   };
 }
 
-function normalizeOptionList(options) {
-  return (options || []).map((option) => `${option || ""}`.trim());
-}
-
-function arePollOptionsUnchanged(existingOptions, nextOptions) {
-  const existing = normalizeOptionList(
-    existingOptions.map((option) => option.option_text),
-  );
-  const next = normalizeOptionList(nextOptions);
-
-  if (existing.length !== next.length) {
-    return false;
-  }
-
-  return existing.every((option, index) => option === next[index]);
-}
-
-function isSameGif(existingGif, nextGif) {
-  if (!existingGif || !nextGif) {
-    return false;
-  }
-
-  const existingId = getGifExternalId(existingGif);
-  const nextId = getGifExternalId(nextGif);
-
-  if (existingId && nextId) {
-    return existingId === nextId;
-  }
-
-  return getGifUrl(existingGif) === getGifUrl(nextGif);
-}
-
 function validateGif(gif) {
   const gifUrl = getGifUrl(gif);
   const gifId = getGifExternalId(gif);
@@ -231,44 +199,6 @@ function validateGif(gif) {
   };
 }
 
-async function getNextGifSortOrder({ supabase, postId, gif }) {
-  const fallbackSortOrder = getGifSortOrder(gif);
-
-  const { data, error } = await supabase
-    .from("post_media")
-    .select("sort_order, display_order, media_type")
-    .eq("post_id", postId);
-
-  if (error || !Array.isArray(data)) {
-    if (error) {
-      console.error("UPDATE POST GIF SORT ORDER ERROR:", {
-        code: error.code,
-        message: error.message,
-      });
-    }
-
-    return fallbackSortOrder;
-  }
-
-  const nonGifMedia = data.filter((item) => {
-    const mediaType = `${item?.media_type || ""}`.toLowerCase();
-    return mediaType !== "gif" && mediaType !== "giphy";
-  });
-
-  if (nonGifMedia.length === 0) {
-    return fallbackSortOrder;
-  }
-
-  const maxExistingOrder = Math.max(
-    ...nonGifMedia.map((item) => {
-      const order = Number(item?.display_order ?? item?.sort_order ?? 0);
-      return Number.isFinite(order) ? order : 0;
-    }),
-  );
-
-  return Math.max(fallbackSortOrder, maxExistingOrder + 1);
-}
-
 async function writeAuditLog(supabase, payload) {
   const { error } = await supabase.from("post_audit_logs").insert(payload);
 
@@ -279,485 +209,6 @@ async function writeAuditLog(supabase, payload) {
       payload,
     });
   }
-}
-
-async function getExistingGif({ supabase, postId }) {
-  const { data, error } = await supabase
-    .from("post_media")
-    .select(
-      "id, external_id, external_url, thumbnail_url, title, sort_order, display_order, media_type, provider, source",
-    )
-    .eq("post_id", postId)
-    .in("media_type", ["gif", "giphy"])
-    .order("display_order", { ascending: true })
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    return {
-      success: false,
-      error,
-      gifs: [],
-    };
-  }
-
-  return {
-    success: true,
-    gifs: Array.isArray(data) ? data : [],
-  };
-}
-
-async function removePostGif({ supabase, postId }) {
-  return supabase
-    .from("post_media")
-    .delete()
-    .eq("post_id", postId)
-    .in("media_type", ["gif", "giphy"]);
-}
-
-async function savePostGif({ supabase, postId, userId, gif }) {
-  const validation = validateGif(gif);
-
-  if (!validation.success) {
-    return validation;
-  }
-
-  const { gifUrl, thumbnailUrl, gifId } = validation;
-
-  const existingGifResult = await getExistingGif({
-    supabase,
-    postId,
-  });
-
-  if (!existingGifResult.success) {
-    return {
-      success: false,
-      message: "Post updated, but the existing GIF could not be checked.",
-      errors: {
-        gif: existingGifResult.error.message,
-      },
-    };
-  }
-
-  const existingGifs = existingGifResult.gifs;
-  const primaryExistingGif = existingGifs[0] || null;
-
-  if (primaryExistingGif && isSameGif(primaryExistingGif, gif)) {
-    return {
-      success: true,
-      errors: {},
-      unchanged: true,
-    };
-  }
-
-  const sortOrder = primaryExistingGif
-    ? Number(primaryExistingGif.display_order ?? primaryExistingGif.sort_order ?? getGifSortOrder(gif))
-    : await getNextGifSortOrder({
-        supabase,
-        postId,
-        gif,
-      });
-
-  const gifRecord = {
-    post_id: postId,
-    user_id: userId,
-    media_type: "gif",
-    provider: "giphy",
-    source: "giphy",
-    external_id: gifId,
-    external_url: gifUrl,
-    thumbnail_url: thumbnailUrl,
-    title: getGifTitle(gif),
-    sort_order: sortOrder,
-    display_order: sortOrder,
-  };
-
-  if (primaryExistingGif) {
-    const { error: updateGifError } = await supabase
-      .from("post_media")
-      .update(gifRecord)
-      .eq("id", primaryExistingGif.id)
-      .eq("post_id", postId);
-
-    if (updateGifError) {
-      console.error("UPDATE POST GIF UPDATE ERROR:", {
-        code: updateGifError.code,
-        message: updateGifError.message,
-        details: updateGifError.details,
-        hint: updateGifError.hint,
-        attemptedUpdate: gifRecord,
-      });
-
-      return {
-        success: false,
-        message: `Post updated, but the GIF could not be saved: ${updateGifError.message}`,
-        errors: {
-          gif: updateGifError.message,
-        },
-      };
-    }
-
-    const duplicateGifIds = existingGifs
-      .slice(1)
-      .map((existingGif) => existingGif.id)
-      .filter(Boolean);
-
-    if (duplicateGifIds.length > 0) {
-      const { error: deleteDuplicateGifError } = await supabase
-        .from("post_media")
-        .delete()
-        .eq("post_id", postId)
-        .in("id", duplicateGifIds);
-
-      if (deleteDuplicateGifError) {
-        console.error("UPDATE POST DUPLICATE GIF DELETE ERROR:", {
-          code: deleteDuplicateGifError.code,
-          message: deleteDuplicateGifError.message,
-          details: deleteDuplicateGifError.details,
-          hint: deleteDuplicateGifError.hint,
-        });
-      }
-    }
-
-    return {
-      success: true,
-      errors: {},
-    };
-  }
-
-  const { error: insertGifError } = await supabase
-    .from("post_media")
-    .insert(gifRecord);
-
-  if (insertGifError) {
-    console.error("UPDATE POST GIF INSERT ERROR:", {
-      code: insertGifError.code,
-      message: insertGifError.message,
-      details: insertGifError.details,
-      hint: insertGifError.hint,
-      attemptedInsert: gifRecord,
-    });
-
-    return {
-      success: false,
-      message: `Post updated, but the GIF could not be saved: ${insertGifError.message}`,
-      errors: {
-        gif: insertGifError.message,
-      },
-    };
-  }
-
-  return {
-    success: true,
-    errors: {},
-  };
-}
-
-async function getExistingPoll({ supabase, postId }) {
-  const { data: poll, error } = await supabase
-    .from("polls")
-    .select("id, question, allows_multiple, poll_options(id, option_text, display_order)")
-    .eq("post_id", postId)
-    .maybeSingle();
-
-  if (error) {
-    return {
-      success: false,
-      error,
-      poll: null,
-    };
-  }
-
-  if (!poll) {
-    return {
-      success: true,
-      poll: null,
-    };
-  }
-
-  const options = Array.isArray(poll.poll_options)
-    ? [...poll.poll_options].sort((left, right) => {
-        return (left.display_order ?? 0) - (right.display_order ?? 0);
-      })
-    : [];
-
-  return {
-    success: true,
-    poll: {
-      ...poll,
-      poll_options: options,
-    },
-  };
-}
-
-async function getPollResponseCount({ supabase, pollId }) {
-  const { count, error } = await supabase
-    .from("poll_responses")
-    .select("id", {
-      count: "exact",
-      head: true,
-    })
-    .eq("poll_id", pollId);
-
-  if (error) {
-    return {
-      success: false,
-      error,
-      count: 0,
-    };
-  }
-
-  return {
-    success: true,
-    count: count || 0,
-  };
-}
-
-async function removePostPoll({ supabase, postId }) {
-  const existingPollResult = await getExistingPoll({
-    supabase,
-    postId,
-  });
-
-  if (!existingPollResult.success) {
-    return {
-      success: false,
-      message: "Post updated, but the existing poll could not be checked.",
-      errors: {
-        poll: existingPollResult.error.message,
-      },
-    };
-  }
-
-  const existingPoll = existingPollResult.poll;
-
-  if (!existingPoll) {
-    return {
-      success: true,
-      errors: {},
-    };
-  }
-
-  const responseCountResult = await getPollResponseCount({
-    supabase,
-    pollId: existingPoll.id,
-  });
-
-  if (!responseCountResult.success) {
-    return {
-      success: false,
-      message: "Post updated, but poll responses could not be checked.",
-      errors: {
-        poll: responseCountResult.error.message,
-      },
-    };
-  }
-
-  if (responseCountResult.count > 0) {
-    return {
-      success: false,
-      message: "This poll already has votes, so it cannot be removed.",
-      errors: {
-        poll: "This poll already has votes, so it cannot be removed.",
-      },
-    };
-  }
-
-  const { error: optionsDeleteError } = await supabase
-    .from("poll_options")
-    .delete()
-    .eq("poll_id", existingPoll.id);
-
-  if (optionsDeleteError) {
-    return {
-      success: false,
-      message: "Post updated, but poll options could not be removed.",
-      errors: {
-        poll: optionsDeleteError.message,
-      },
-    };
-  }
-
-  const { error: pollDeleteError } = await supabase
-    .from("polls")
-    .delete()
-    .eq("id", existingPoll.id)
-    .eq("post_id", postId);
-
-  if (pollDeleteError) {
-    return {
-      success: false,
-      message: "Post updated, but the poll could not be removed.",
-      errors: {
-        poll: pollDeleteError.message,
-      },
-    };
-  }
-
-  return {
-    success: true,
-    errors: {},
-  };
-}
-
-async function savePostPoll({ supabase, postId, poll }) {
-  const existingPollResult = await getExistingPoll({
-    supabase,
-    postId,
-  });
-
-  if (!existingPollResult.success) {
-    return {
-      success: false,
-      message: "Post updated, but the existing poll could not be checked.",
-      errors: {
-        poll: existingPollResult.error.message,
-      },
-    };
-  }
-
-  const existingPoll = existingPollResult.poll;
-
-  if (!existingPoll) {
-    const { data: createdPoll, error: createPollError } = await supabase
-      .from("polls")
-      .insert({
-        post_id: postId,
-        question: poll.question,
-        allows_multiple: poll.allowsMultiple,
-      })
-      .select("id")
-      .single();
-
-    if (createPollError) {
-      return {
-        success: false,
-        message: `Post updated, but the poll could not be saved: ${createPollError.message}`,
-        errors: {
-          poll: createPollError.message,
-        },
-      };
-    }
-
-    const pollOptions = poll.options.map((optionText, index) => ({
-      poll_id: createdPoll.id,
-      option_text: optionText,
-      display_order: index,
-    }));
-
-    const { error: createOptionsError } = await supabase
-      .from("poll_options")
-      .insert(pollOptions);
-
-    if (createOptionsError) {
-      return {
-        success: false,
-        message: `Post updated, but poll options could not be saved: ${createOptionsError.message}`,
-        errors: {
-          poll: createOptionsError.message,
-        },
-      };
-    }
-
-    return {
-      success: true,
-      errors: {},
-    };
-  }
-
-  const responseCountResult = await getPollResponseCount({
-    supabase,
-    pollId: existingPoll.id,
-  });
-
-  if (!responseCountResult.success) {
-    return {
-      success: false,
-      message: "Post updated, but poll responses could not be checked.",
-      errors: {
-        poll: responseCountResult.error.message,
-      },
-    };
-  }
-
-  const hasVotes = responseCountResult.count > 0;
-  const existingOptions = existingPoll.poll_options || [];
-  const optionsUnchanged = arePollOptionsUnchanged(existingOptions, poll.options);
-
-  if (hasVotes && !optionsUnchanged) {
-    return {
-      success: false,
-      message: "This poll already has votes, so its options cannot be changed.",
-      errors: {
-        poll: "This poll already has votes, so its options cannot be changed.",
-      },
-    };
-  }
-
-  const { error: updatePollError } = await supabase
-    .from("polls")
-    .update({
-      question: poll.question,
-      allows_multiple: poll.allowsMultiple,
-    })
-    .eq("id", existingPoll.id)
-    .eq("post_id", postId);
-
-  if (updatePollError) {
-    return {
-      success: false,
-      message: `Post updated, but the poll could not be saved: ${updatePollError.message}`,
-      errors: {
-        poll: updatePollError.message,
-      },
-    };
-  }
-
-  if (hasVotes) {
-    return {
-      success: true,
-      errors: {},
-    };
-  }
-
-  const { error: deleteOptionsError } = await supabase
-    .from("poll_options")
-    .delete()
-    .eq("poll_id", existingPoll.id);
-
-  if (deleteOptionsError) {
-    return {
-      success: false,
-      message: `Post updated, but old poll options could not be removed: ${deleteOptionsError.message}`,
-      errors: {
-        poll: deleteOptionsError.message,
-      },
-    };
-  }
-
-  const pollOptions = poll.options.map((optionText, index) => ({
-    poll_id: existingPoll.id,
-    option_text: optionText,
-    display_order: index,
-  }));
-
-  const { error: createOptionsError } = await supabase
-    .from("poll_options")
-    .insert(pollOptions);
-
-  if (createOptionsError) {
-    return {
-      success: false,
-      message: `Post updated, but poll options could not be saved: ${createOptionsError.message}`,
-      errors: {
-        poll: createOptionsError.message,
-      },
-    };
-  }
-
-  return {
-    success: true,
-    errors: {},
-  };
 }
 
 export async function updatePost(postId, formData) {
@@ -797,12 +248,7 @@ export async function updatePost(postId, formData) {
   }
 
   const isCeo = authStatus?.role === "ceo";
-  const postUpdate = {
-    title: validation.values.title,
-    body: validation.values.body,
-    visibility: validation.values.visibility,
-    is_sticky: isCeo ? wantsSticky : false,
-  };
+  const isSticky = isCeo ? wantsSticky : false;
 
   if (!validation.isValid) {
     await writeAuditLog(supabase, {
@@ -821,34 +267,6 @@ export async function updatePost(postId, formData) {
       success: false,
       message: "Please fix the post errors.",
       errors: validation.errors,
-    };
-  }
-
-  const { data: updatedPost, error } = await supabase
-    .from("posts")
-    .update(postUpdate)
-    .eq("id", postId)
-    .eq("user_id", user.id)
-    .eq("is_deleted", false)
-    .select("id")
-    .maybeSingle();
-
-  if (error || !updatedPost) {
-    await writeAuditLog(supabase, {
-      post_id: postId,
-      user_id: user.id,
-      event_type: "post_update_failed",
-      success: false,
-      error_code: error?.code || "not_found_or_forbidden",
-      error_message: error?.message || "Post was not found or you cannot edit it.",
-      metadata: {
-        source: "updatePost",
-      },
-    });
-
-    return {
-      success: false,
-      message: "Post could not be updated.",
     };
   }
 
@@ -874,89 +292,9 @@ export async function updatePost(postId, formData) {
     return pollValidation;
   }
 
-  if (shouldRemovePoll) {
-    const removePollResult = await removePostPoll({
-      supabase,
-      postId,
-    });
-
-    if (!removePollResult.success) {
-      await writeAuditLog(supabase, {
-        post_id: postId,
-        user_id: user.id,
-        event_type: "post_update_failed",
-        success: false,
-        error_code: "poll_remove_failed",
-        error_message: removePollResult.message,
-        metadata: {
-          source: "updatePost",
-          step: "remove_poll",
-          errors: removePollResult.errors,
-        },
-      });
-
-      return removePollResult;
-    }
-  }
-
-  if (pollValidation?.poll) {
-    const savePollResult = await savePostPoll({
-      supabase,
-      postId,
-      poll: pollValidation.poll,
-    });
-
-    if (!savePollResult.success) {
-      await writeAuditLog(supabase, {
-        post_id: postId,
-        user_id: user.id,
-        event_type: "post_update_failed",
-        success: false,
-        error_code: "poll_save_failed",
-        error_message: savePollResult.message,
-        metadata: {
-          source: "updatePost",
-          step: "save_poll",
-          errors: savePollResult.errors,
-        },
-      });
-
-      return savePollResult;
-    }
-  }
-
   const gifValue = formData.get("gif");
   const shouldRemoveGif = formData.get("remove_gif") === "true";
-
-  if (shouldRemoveGif) {
-    const { error: deleteGifError } = await removePostGif({
-      supabase,
-      postId,
-    });
-
-    if (deleteGifError) {
-      await writeAuditLog(supabase, {
-        post_id: postId,
-        user_id: user.id,
-        event_type: "post_update_failed",
-        success: false,
-        error_code: deleteGifError.code,
-        error_message: deleteGifError.message,
-        metadata: {
-          source: "updatePost",
-          step: "remove_gif",
-        },
-      });
-
-      return {
-        success: false,
-        message: "Post updated, but the existing GIF could not be removed.",
-        errors: {
-          gif: deleteGifError.message,
-        },
-      };
-    }
-  }
+  let rpcGif = null;
 
   if (gifValue) {
     let gif = null;
@@ -986,30 +324,87 @@ export async function updatePost(postId, formData) {
       };
     }
 
-    const gifResult = await savePostGif({
-      supabase,
-      postId,
-      userId: user.id,
-      gif,
-    });
+    const gifValidation = validateGif(gif);
 
-    if (!gifResult.success) {
+    if (!gifValidation.success) {
       await writeAuditLog(supabase, {
         post_id: postId,
         user_id: user.id,
         event_type: "post_update_failed",
         success: false,
-        error_code: "gif_save_failed",
-        error_message: gifResult.message,
+        error_code: "invalid_gif",
+        error_message: gifValidation.message,
         metadata: {
           source: "updatePost",
-          step: "save_gif",
-          errors: gifResult.errors,
+          step: "validate_gif",
+          errors: gifValidation.errors,
         },
       });
 
-      return gifResult;
+      return gifValidation;
     }
+
+    const sortOrder = getGifSortOrder(gif);
+
+    rpcGif = {
+      external_id: gifValidation.gifId,
+      external_url: gifValidation.gifUrl,
+      thumbnail_url: gifValidation.thumbnailUrl,
+      title: getGifTitle(gif),
+      sort_order: sortOrder,
+      display_order: sortOrder,
+    };
+  }
+
+  const rpcPoll = pollValidation?.poll
+    ? {
+        question: pollValidation.poll.question,
+        options: pollValidation.poll.options,
+        allows_multiple: pollValidation.poll.allowsMultiple,
+      }
+    : null;
+
+  const { error } = await supabase.rpc("update_post_transactional", {
+    p_post_id: postId,
+    p_title: validation.values.title,
+    p_body: validation.values.body,
+    p_visibility: validation.values.visibility,
+    p_is_sticky: isSticky,
+    p_gif: rpcGif,
+    p_remove_gif: shouldRemoveGif,
+    p_poll: rpcPoll,
+    p_remove_poll: shouldRemovePoll,
+  });
+
+  if (error) {
+    await writeAuditLog(supabase, {
+      post_id: postId,
+      user_id: user.id,
+      event_type: "post_update_failed",
+      success: false,
+      error_code: error?.code || "transaction_failed",
+      error_message: error?.message || "Post was not found or you cannot edit it.",
+      metadata: {
+        source: "updatePost",
+        step: "update_post_transactional",
+      },
+    });
+
+    if (error.message?.includes("poll")) {
+      return {
+        success: false,
+        message: error.message,
+        errors: {
+          poll: error.message,
+        },
+      };
+    }
+
+    return {
+      success: false,
+      message: error.message || "Post could not be updated.",
+      errors: {},
+    };
   }
 
   await writeAuditLog(supabase, {

@@ -1,6 +1,6 @@
 export const POST_MEDIA_LIMITS = {
-  maxTotalFiles: 4,
-  maxImageFiles: 4,
+  maxTotalFiles: 6,
+  maxImageFiles: 6,
   maxVideoFiles: 1,
 
   maxImageSizeBytes: 5 * 1024 * 1024,

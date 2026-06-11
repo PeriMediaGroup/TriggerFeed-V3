@@ -1,4 +1,5 @@
 import ProfilePrivacySettings from "./ProfilePrivacySettings";
+import DeleteAccountDangerZone from "./DeleteAccountDangerZone";
 import NotificationSettings from "@/features/notifications/components/NotificationSettings";
 
 export default function ProfileSettings({ profile, notificationSettings }) {
@@ -13,6 +14,8 @@ export default function ProfileSettings({ profile, notificationSettings }) {
         <ProfilePrivacySettings profile={profile} />
 
         <NotificationSettings initialSettings={notificationSettings} />
+
+        <DeleteAccountDangerZone />
       </div>
     </section>
   );

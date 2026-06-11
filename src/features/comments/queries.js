@@ -11,6 +11,19 @@ function normalizeAuthor(profile) {
   };
 }
 
+function getDeletedAuthor(userId) {
+  return {
+    id: userId,
+    username: null,
+    display_name: "Deleted User",
+    first_name: null,
+    last_name: null,
+    avatar_cloudinary_url: null,
+    profile_image_url: null,
+    is_deleted: true,
+  };
+}
+
 function logSupabaseError(label, error) {
   console.error(label, {
     raw: error,
@@ -95,7 +108,7 @@ export async function getCommentsByPostId(postId) {
 
   const commentsWithAuthors = comments.map((comment) => ({
     ...comment,
-    author: profilesById.get(comment.user_id) || null,
+    author: profilesById.get(comment.user_id) || getDeletedAuthor(comment.user_id),
   }));
 
   return {

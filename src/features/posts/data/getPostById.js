@@ -4,6 +4,21 @@ import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 
+function getDeletedAuthor(userId) {
+  return {
+    id: userId,
+    username: null,
+    display_name: "Deleted User",
+    first_name: null,
+    last_name: null,
+    avatar_cloudinary_url: null,
+    profile_badge: null,
+    city: null,
+    state: null,
+    is_deleted: true,
+  };
+}
+
 export async function getPostById(postId) {
   const supabase = await createClient();
 
@@ -55,11 +70,6 @@ export async function getPostById(postId) {
           id,
           option_text,
           display_order
-        ),
-        poll_responses (
-          id,
-          option_id,
-          user_id
         )
       )
     `
@@ -162,11 +172,72 @@ export async function getPostById(postId) {
     `${post.title || ""} ${post.body || ""}`
   );
 
+  const pollIds = (post.polls || []).map((poll) => poll.id).filter(Boolean);
+  let pollResults = [];
+  let myPollResponses = [];
+
+  if (pollIds.length > 0) {
+    const { data: results, error: pollResultsError } = await supabase.rpc(
+      "get_poll_results",
+      {
+        p_poll_ids: pollIds,
+      }
+    );
+
+    if (pollResultsError) {
+      console.error("GET POST POLL RESULTS ERROR:", {
+        code: pollResultsError.code,
+        message: pollResultsError.message,
+        details: pollResultsError.details,
+        hint: pollResultsError.hint,
+      });
+    }
+
+    pollResults = results || [];
+
+    if (user) {
+      const { data: responses, error: myResponsesError } = await supabase.rpc(
+        "get_my_poll_responses",
+        {
+          p_poll_ids: pollIds,
+        }
+      );
+
+      if (myResponsesError) {
+        console.error("GET MY POST POLL RESPONSES ERROR:", {
+          code: myResponsesError.code,
+          message: myResponsesError.message,
+          details: myResponsesError.details,
+          hint: myResponsesError.hint,
+        });
+      }
+
+      myPollResponses = responses || [];
+    }
+  }
+
+  const pollResultsByPollId = new Map();
+
+  for (const result of pollResults) {
+    const resultsForPoll = pollResultsByPollId.get(result.poll_id) || [];
+    resultsForPoll.push(result);
+    pollResultsByPollId.set(result.poll_id, resultsForPoll);
+  }
+
+  const myPollResponseMap = new Map(
+    myPollResponses.map((response) => [response.poll_id, response.option_id])
+  );
+
   return {
     post: {
       ...post,
+      polls: (post.polls || []).map((poll) => ({
+        ...poll,
+        poll_results: pollResultsByPollId.get(poll.id) || [],
+        my_option_id: myPollResponseMap.get(poll.id) || null,
+      })),
       media: normalizePostMedia(post.post_media),
-      author: profile || null,
+      author: profile || getDeletedAuthor(post.user_id),
       mentionProfiles,
       upvote_count: voteCounts?.upvote_count || 0,
       downvote_count: voteCounts?.downvote_count || 0,

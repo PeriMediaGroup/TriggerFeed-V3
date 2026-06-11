@@ -11,6 +11,7 @@ import { getTopGuns } from "@/features/profiles/data/getTopGuns";
 import ProfileHeader from "@/features/profiles/components/ProfileHeader";
 import { getFriendDashboard } from "@/features/friends/data/getFriendDashboard";
 import { getAcceptedFriends } from "@/features/friends/data/getAcceptedFriends";
+import { getFriendSuggestions } from "@/features/friends/data/getFriendSuggestions";
 import ProfileDashboardTabs from "@/features/profiles/components/ProfileDashboardTabs";
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
@@ -131,6 +132,7 @@ export default async function ProfilePage() {
     { topGuns },
     friendDashboard,
     { acceptedFriends },
+    friendSuggestionsResult,
   ] = await Promise.all([
     getProfileStats(profile.id),
     getUserRank(profile.id),
@@ -139,11 +141,13 @@ export default async function ProfilePage() {
     getTopGuns(profile.id),
     getFriendDashboard(),
     getAcceptedFriends(),
+    getFriendSuggestions({ limit: 4, viewerId: user.id }),
   ]);
 
   const incomingRequests = friendDashboard?.incomingRequests ?? [];
   const outgoingRequests = friendDashboard?.outgoingRequests ?? [];
   const friends = friendDashboard?.friends ?? [];
+  const friendSuggestions = friendSuggestionsResult?.suggestions ?? [];
 
   return (
     <main className="profile">
@@ -176,6 +180,14 @@ export default async function ProfilePage() {
                 friends={friends}
                 acceptedFriends={acceptedFriends}
                 topFriends={topFriends}
+                viewerId={user.id}
+                friendSuggestions={friendSuggestions}
+                friendSuggestionsHasError={Boolean(
+                  friendSuggestionsResult?.error,
+                )}
+                friendSuggestionsDidFetch={Boolean(
+                  friendSuggestionsResult?.didFetch,
+                )}
               />
             ),
           },

@@ -4,36 +4,11 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 import { useRouter } from "next/navigation";
-
-const AGE_GATE_VERSION = "v1";
-const MINIMUM_AGE = 18;
-
-function isValidDob(value) {
-  if (!value) return false;
-
-  const dobDate = new Date(`${value}T00:00:00`);
-  return !Number.isNaN(dobDate.getTime());
-}
-
-function isAtLeast18(value) {
-  if (!isValidDob(value)) return false;
-
-  const dobDate = new Date(`${value}T00:00:00`);
-  const today = new Date();
-
-  let age = today.getFullYear() - dobDate.getFullYear();
-
-  const hasHadBirthdayThisYear =
-    today.getMonth() > dobDate.getMonth() ||
-    (today.getMonth() === dobDate.getMonth() &&
-      today.getDate() >= dobDate.getDate());
-
-  if (!hasHadBirthdayThisYear) {
-    age -= 1;
-  }
-
-  return age >= MINIMUM_AGE;
-}
+import {
+  AGE_GATE_VERSION,
+  isAtLeastMinimumAge,
+  isValidDobString,
+} from "@/features/auth/ageGate";
 
 export default function SignupPage() {
   const supabase = createClient();
@@ -59,12 +34,12 @@ export default function SignupPage() {
       return;
     }
 
-    if (!isValidDob(cleanDob)) {
+    if (!isValidDobString(cleanDob)) {
       setStatus("Please enter a valid date of birth.");
       return;
     }
 
-    if (!isAtLeast18(cleanDob)) {
+    if (!isAtLeastMinimumAge(cleanDob)) {
       setStatus("TriggerFeed is only available to users 18 or older.");
       return;
     }

@@ -37,6 +37,27 @@ export async function sendFriendRequest(addresseeId) {
     };
   }
 
+  const { data: isVisibleProfile, error: visibleProfileError } =
+    await supabase.rpc("is_profile_visible", {
+      p_profile_id: addresseeId,
+    });
+
+  if (visibleProfileError || !isVisibleProfile) {
+    if (visibleProfileError) {
+      console.error("CHECK FRIEND PROFILE VISIBILITY ERROR:", {
+        code: visibleProfileError.code,
+        message: visibleProfileError.message,
+        details: visibleProfileError.details,
+        hint: visibleProfileError.hint,
+      });
+    }
+
+    return {
+      success: false,
+      message: "That profile is not available for friend requests.",
+    };
+  }
+
   const { data: existing, error: existingError } = await supabase
     .from("friends")
     .select("id, status")

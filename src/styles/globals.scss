@@ -28,6 +28,10 @@
 @use "../features/search/styles/__search";
 @use "../features/milestones/styles/__milestones";
 @use "../features/ranks/styles/__ranks";
+@use "./sections/install";
+@use "./sections/contact";
+@use "./sections/legal";
+@use "./sections/account";
 
 body {
   background: var(--color-bg);

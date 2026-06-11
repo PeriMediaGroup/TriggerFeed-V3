@@ -56,12 +56,22 @@ export default function EditPostMediaManager({
       return;
     }
 
-    onNewFilesChange?.((currentFiles = []) => [
-      ...Array.from(currentFiles || []),
-      ...nextFiles,
-    ]);
+    const nextMediaItems = onAddMedia?.(nextFiles) || [];
 
-    onAddMedia?.(nextFiles);
+    onNewFilesChange?.((currentItems = []) => [
+      ...Array.from(currentItems || []),
+      ...nextMediaItems,
+    ]);
+  }
+
+  function handleRemoveNewMedia(mediaId) {
+    onRemoveMedia?.(mediaId);
+
+    onNewFilesChange?.((currentItems = []) => {
+      return Array.from(currentItems || []).filter((item) => {
+        return item.id !== mediaId;
+      });
+    });
   }
 
   return (
@@ -91,7 +101,12 @@ export default function EditPostMediaManager({
                   ) : (
                     <Image
                       src={mediaUrl}
-                      alt={item.alt || item.alt_text || item.title || "Post media"}
+                      alt={
+                        item.alt ||
+                        item.alt_text ||
+                        item.title ||
+                        "Post media"
+                      }
                       fill
                       sizes="(max-width: 700px) 50vw, 300px"
                       unoptimized={
@@ -154,7 +169,7 @@ export default function EditPostMediaManager({
                 <button
                   type="button"
                   className="edit-post-media__remove"
-                  onClick={() => onRemoveMedia?.(item.id)}
+                  onClick={() => handleRemoveNewMedia(item.id)}
                 >
                   Remove
                 </button>

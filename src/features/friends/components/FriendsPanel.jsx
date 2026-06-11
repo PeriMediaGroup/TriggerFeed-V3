@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import FriendSearch from "@/features/friends/components/FriendSearch";
 import FriendRequests from "@/features/friends/components/FriendRequests";
+import FriendSuggestions from "@/features/friends/components/FriendSuggestions";
 import FriendsList from "@/features/friends/components/FriendsList";
 import EditTopFriends from "@/features/friends/components/EditTopFriends";
 import { updateTopFriends } from "@/features/profiles/actions/updateTopFriends";
@@ -35,6 +36,10 @@ export default function FriendsPanel({
   friends = [],
   acceptedFriends = [],
   topFriends = [],
+  viewerId = null,
+  friendSuggestions = [],
+  friendSuggestionsHasError = false,
+  friendSuggestionsDidFetch = false,
 }) {
   const [isPending, startTransition] = useTransition();
   const [saveMessage, setSaveMessage] = useState("");
@@ -128,14 +133,23 @@ export default function FriendsPanel({
   return (
     <>
       <section className="friends-panel">
-        
         <div className="friends-panel__grid">
-        <FriendRequests
-          incomingRequests={incomingRequests}
-          outgoingRequests={outgoingRequests}
-        />
+          <FriendRequests
+            incomingRequests={incomingRequests}
+            outgoingRequests={outgoingRequests}
+          />
 
-        <FriendSearch />
+          <div className="friends-panel__mobile-suggestions">
+            <FriendSuggestions
+              key={viewerId || "signed-out"}
+              viewerId={viewerId}
+              suggestions={friendSuggestions}
+              hasError={friendSuggestionsHasError}
+              didFetch={friendSuggestionsDidFetch}
+            />
+          </div>
+
+          <FriendSearch />
         </div>
 
         <div className="friends-panel__grid">

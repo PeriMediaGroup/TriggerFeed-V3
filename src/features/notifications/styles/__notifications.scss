@@ -31,8 +31,15 @@
       color: var(--color-accent);
     }
 
-    &--moderation_warning {
+    &--moderation_warning,
+    &--account_muted,
+    &--account_banned {
       color: var(--color-accent);
+    }
+
+    &--account_unmuted,
+    &--account_unbanned {
+      color: var(--color-success);
     }
 
     &--default {

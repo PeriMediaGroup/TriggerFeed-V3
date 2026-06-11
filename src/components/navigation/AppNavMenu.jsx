@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 
 import {
   APP_NAV_LINKS,
-  AUTH_NAV_LINKS,
-  LOGGED_OUT_SITE_LINKS,
-  SITE_NAV_LINKS,
+  AUTH_NAV_LINKS
 } from "./navigationLinks";
 
 export default function AppNavMenu({
@@ -20,9 +18,11 @@ export default function AppNavMenu({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   const cleanRole = typeof role === "string" ? role.trim().toLowerCase() : "";
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab");
 
@@ -78,6 +78,19 @@ export default function AppNavMenu({
     return 0;
   }
 
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+
+    const query = searchInputRef.current?.value.trim() || "";
+
+    if (!query) return;
+
+    const params = new URLSearchParams({ q: query });
+
+    router.push(`/search?${params.toString()}`);
+    closeMenu();
+  }
+
   function renderNavLinks(links, { onItemClick } = {}) {
     return links.filter(userCanSeeLink).map((link) => {
       const { href, label, Icon, className = "", external, badge } = link;
@@ -122,7 +135,7 @@ export default function AppNavMenu({
 
   function getDesktopLinks() {
     if (!isLoggedIn) {
-      return [...AUTH_NAV_LINKS, ...LOGGED_OUT_SITE_LINKS];
+      return [...AUTH_NAV_LINKS];
     }
 
     return APP_NAV_LINKS;
@@ -130,14 +143,13 @@ export default function AppNavMenu({
 
   function getMobileDropdownLinks() {
     if (!isLoggedIn) {
-      return [...AUTH_NAV_LINKS, ...LOGGED_OUT_SITE_LINKS];
+      return [...AUTH_NAV_LINKS];
     }
 
     const adminLinks = APP_NAV_LINKS.filter((link) => link.roles?.length);
     const logoutLink = APP_NAV_LINKS.find((link) => link.href === "/logout");
 
     return [
-      ...SITE_NAV_LINKS,
       ...adminLinks,
       ...(logoutLink ? [logoutLink] : []),
     ];
@@ -197,6 +209,31 @@ export default function AppNavMenu({
             className="app-nav__dropdown"
             aria-label="More navigation"
           >
+            <form className="app-nav__search" onSubmit={handleSearchSubmit}>
+              <label
+                className="app-nav__search-label"
+                htmlFor="app-nav-post-search-query"
+              >
+                Search posts
+              </label>
+              <input
+                ref={searchInputRef}
+                id="app-nav-post-search-query"
+                className="app-nav__search-input"
+                type="search"
+                name="q"
+                placeholder="Search posts"
+                autoComplete="off"
+                aria-label="Search posts"
+              />
+              <button
+                type="submit"
+                className="app-nav__search-submit"
+                aria-label="Submit search"
+              >
+                <Search size={16} strokeWidth={2} aria-hidden="true" />
+              </button>
+            </form>
 
             <ul className="app-nav__list">
               {renderNavLinks(getMobileDropdownLinks(), {

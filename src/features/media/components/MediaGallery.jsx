@@ -15,6 +15,11 @@ import "yet-another-react-lightbox/plugins/counter.css";
 
 import "../styles/MediaGallery.scss";
 
+const PORTRAIT_THRESHOLD = 0.75;
+const WIDE_THRESHOLD = 1.6;
+const STRONG_PORTRAIT_THRESHOLD = 0.7;
+const STRONG_WIDE_THRESHOLD = 1.8;
+
 function getMediaUrl(media) {
   return (
     media?.src ||
@@ -25,6 +30,8 @@ function getMediaUrl(media) {
     media?.url ||
     media?.secure_url ||
     media?.image_url ||
+    media?.media_url ||
+    media?.video_url ||
     ""
   );
 }
@@ -40,27 +47,168 @@ function getMediaAlt(media, index, fallbackAlt) {
 }
 
 function getMediaWidth(media) {
-  const width = Number(media?.width || media?.metadata?.width);
+  const width = Number(
+    media?.width ||
+      media?.metadata?.width ||
+      media?.original_width ||
+      media?.images?.original?.width,
+  );
 
-  return Number.isFinite(width) && width > 0 ? width : 1200;
+  return Number.isFinite(width) && width > 0 ? width : null;
 }
 
 function getMediaHeight(media) {
-  const height = Number(media?.height || media?.metadata?.height);
+  const height = Number(
+    media?.height ||
+      media?.metadata?.height ||
+      media?.original_height ||
+      media?.images?.original?.height,
+  );
 
-  return Number.isFinite(height) && height > 0 ? height : 900;
+  return Number.isFinite(height) && height > 0 ? height : null;
 }
 
 function getMediaType(media) {
   if (typeof media === "string") return "image";
 
-  return media?.mediaType || media?.media_type || media?.type || "image";
+  const mediaType =
+    media?.mediaType || media?.media_type || media?.type || "image";
+
+  return `${mediaType}`.toLowerCase();
 }
 
 function getSortOrder(media, index) {
   if (typeof media === "string") return index;
 
   return media?.sortOrder ?? media?.sort_order ?? media?.display_order ?? index;
+}
+
+function isVideoMedia(media) {
+  return media.media_type === "video" || media.mediaType === "video";
+}
+
+function isGifMedia(media) {
+  return (
+    media.media_type === "gif" ||
+    media.mediaType === "gif" ||
+    `${media.provider || ""}`.toLowerCase() === "giphy"
+  );
+}
+
+function getFallbackDimensions(mediaType) {
+  if (mediaType === "video") {
+    return {
+      width: 1600,
+      height: 900,
+    };
+  }
+
+  return {
+    width: 1000,
+    height: 1000,
+  };
+}
+
+function getMediaShape(aspectRatio) {
+  if (aspectRatio <= PORTRAIT_THRESHOLD) return "portrait";
+  if (aspectRatio >= WIDE_THRESHOLD) return "wide";
+
+  return "standard";
+}
+
+function getMediaShapeFlags(aspectRatio) {
+  return {
+    shape: getMediaShape(aspectRatio),
+    isStrongPortrait: aspectRatio <= STRONG_PORTRAIT_THRESHOLD,
+    isStrongWide: aspectRatio >= STRONG_WIDE_THRESHOLD,
+  };
+}
+
+function moveHeroFirst(mediaItems, heroIndex) {
+  if (heroIndex <= 0) return mediaItems;
+
+  const hero = mediaItems[heroIndex];
+
+  return [
+    hero,
+    ...mediaItems.slice(0, heroIndex),
+    ...mediaItems.slice(heroIndex + 1),
+  ];
+}
+
+function getDefaultLayoutClassName(mediaCount) {
+  if (mediaCount <= 1) return "single";
+  if (mediaCount === 2) return "two";
+  if (mediaCount === 3) return "three";
+  if (mediaCount === 4) return "four";
+
+  return "grid";
+}
+
+function pickGalleryLayout(mediaItems) {
+  const mediaCount = mediaItems.length;
+
+  if (mediaCount <= 1) {
+    return {
+      layout: "single",
+      displayMedia: mediaItems,
+      heroId: mediaItems[0]?.id || null,
+      visibleLimit: 1,
+    };
+  }
+
+  if (mediaCount === 2) {
+    const wideIndex = mediaItems.findIndex((item, index) => {
+      const otherItem = mediaItems[index === 0 ? 1 : 0];
+      return item.shape === "wide" && otherItem?.shape !== "wide";
+    });
+
+    if (wideIndex >= 0) {
+      const displayMedia = moveHeroFirst(mediaItems, wideIndex);
+
+      return {
+        layout: "wide-hero",
+        displayMedia,
+        heroId: displayMedia[0]?.id || null,
+        visibleLimit: 2,
+      };
+    }
+  }
+
+  const strongWideIndex = mediaItems.findIndex((item) => item.isStrongWide);
+
+  if (strongWideIndex >= 0) {
+    const displayMedia = moveHeroFirst(mediaItems, strongWideIndex);
+
+    return {
+      layout: "wide-hero",
+      displayMedia,
+      heroId: displayMedia[0]?.id || null,
+      visibleLimit: 6,
+    };
+  }
+
+  const strongPortraitIndex = mediaItems.findIndex((item) => {
+    return item.isStrongPortrait;
+  });
+
+  if (strongPortraitIndex >= 0) {
+    const displayMedia = moveHeroFirst(mediaItems, strongPortraitIndex);
+
+    return {
+      layout: "portrait-hero",
+      displayMedia,
+      heroId: displayMedia[0]?.id || null,
+      visibleLimit: mediaCount >= 6 ? 5 : 6,
+    };
+  }
+
+  return {
+    layout: getDefaultLayoutClassName(mediaCount),
+    displayMedia: mediaItems,
+    heroId: mediaCount === 3 ? mediaItems[0]?.id || null : null,
+    visibleLimit: 6,
+  };
 }
 
 function normalizeMedia(items = [], fallbackAlt = "Post media") {
@@ -76,6 +224,17 @@ function normalizeMedia(items = [], fallbackAlt = "Post media") {
       if (!src) return null;
 
       const mediaType = getMediaType(media);
+      const fallbackDimensions = getFallbackDimensions(mediaType);
+      const width =
+        typeof media === "string"
+          ? fallbackDimensions.width
+          : getMediaWidth(media) || fallbackDimensions.width;
+      const height =
+        typeof media === "string"
+          ? fallbackDimensions.height
+          : getMediaHeight(media) || fallbackDimensions.height;
+      const aspectRatio = width / height;
+      const shapeFlags = getMediaShapeFlags(aspectRatio);
 
       return {
         id: typeof media === "string" ? src : media?.id || src,
@@ -84,8 +243,10 @@ function normalizeMedia(items = [], fallbackAlt = "Post media") {
           typeof media === "string"
             ? `${fallbackAlt} ${index + 1}`
             : getMediaAlt(media, index, fallbackAlt),
-        width: typeof media === "string" ? 1200 : getMediaWidth(media),
-        height: typeof media === "string" ? 900 : getMediaHeight(media),
+        width,
+        height,
+        aspectRatio,
+        ...shapeFlags,
         mediaType,
         media_type: mediaType,
         provider: typeof media === "string" ? "" : media?.provider || "",
@@ -95,35 +256,31 @@ function normalizeMedia(items = [], fallbackAlt = "Post media") {
             : media?.publicId || media?.cloudinary_public_id || "",
         sortOrder: getSortOrder(media, index),
         title: typeof media === "string" ? "" : media?.title || "",
+        key: typeof media === "string" ? src : media?.id || src,
       };
     })
     .filter(Boolean);
 }
 
-function VideoMedia({ media }) {
+function VideoMedia({ media, className = "" }) {
   return (
-    <figure className="media-gallery__item media-gallery__item--video">
-      <video
-        className="media-gallery__video"
-        src={media.src}
-        controls
-        preload="metadata"
-      >
-        Your browser does not support the video tag.
-      </video>
-    </figure>
+    <video
+      className={`media-gallery__video ${className}`.trim()}
+      src={media.src}
+      controls
+      preload="metadata"
+      style={{ aspectRatio: `${media.width} / ${media.height}` }}
+    >
+      Your browser does not support the video tag.
+    </video>
   );
 }
 
-function ImageMedia({ media, onClick, single = false }) {
-  const isGif = media.media_type === "gif" || media.mediaType === "gif";
+function ImageMedia({ media, single = false }) {
+  const isGif = isGifMedia(media);
 
-  const figure = (
-    <figure
-      className={`media-gallery__item${
-        isGif ? " media-gallery__item--gif" : ""
-      }`}
-    >
+  return (
+    <>
       <Image
         className={`media-gallery__image${
           single ? " media-gallery__single-image" : ""
@@ -136,26 +293,58 @@ function ImageMedia({ media, onClick, single = false }) {
         unoptimized={isGif}
       />
 
-      {isGif && (
-        <figcaption className="media-gallery__credit">
-          GIF via GIPHY
-        </figcaption>
-      )}
-    </figure>
+      {isGif && <span className="media-gallery__credit">GIF via GIPHY</span>}
+    </>
+  );
+}
+
+function MediaGalleryItem({
+  media,
+  isHero = false,
+  isSingle = false,
+  overlayCount = 0,
+  onOpen,
+}) {
+  const canOpenLightbox = !isVideoMedia(media);
+  const className = [
+    "media-gallery__item",
+    isHero ? "media-gallery__item--hero" : "",
+    isGifMedia(media) ? "media-gallery__item--gif" : "",
+    overlayCount > 0 ? "media-gallery__item--has-overlay" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const mediaContent = isVideoMedia(media) ? (
+    <VideoMedia media={media} />
+  ) : (
+    <ImageMedia media={media} single={isSingle} />
   );
 
-  if (!onClick) {
-    return figure;
+  if (!canOpenLightbox) {
+    return (
+      <figure className={className}>
+        {mediaContent}
+        {overlayCount > 0 && (
+          <span className="media-gallery__overflow-count">
+            +{overlayCount}
+          </span>
+        )}
+      </figure>
+    );
   }
 
   return (
     <button
       type="button"
-      className="media-gallery__button"
-      onClick={onClick}
+      className={`media-gallery__button ${className}`}
+      onClick={onOpen}
       aria-label="Open media full size"
     >
-      {figure}
+      {mediaContent}
+      {overlayCount > 0 && (
+        <span className="media-gallery__overflow-count">+{overlayCount}</span>
+      )}
     </button>
   );
 }
@@ -173,7 +362,7 @@ export default function MediaGallery({
 
   const imageItems = useMemo(() => {
     return mediaItems.filter((media) => {
-      return media.media_type !== "video" && media.mediaType !== "video";
+      return !isVideoMedia(media);
     });
   }, [mediaItems]);
 
@@ -189,59 +378,40 @@ export default function MediaGallery({
 
   if (!mediaItems.length) return null;
 
-  if (mediaItems.length === 1) {
-    const media = mediaItems[0];
-
-    if (media.media_type === "video" || media.mediaType === "video") {
-      return <VideoMedia media={media} />;
-    }
-
-    return (
-      <>
-        <div className="media-gallery media-gallery--single">
-          <ImageMedia media={media} single onClick={() => setIndex(0)} />
-        </div>
-
-        <Lightbox
-          open={index >= 0}
-          index={index}
-          close={() => setIndex(-1)}
-          slides={lightboxSlides}
-          plugins={[Zoom, Fullscreen, Counter]}
-          carousel={{ finite: lightboxSlides.length <= 1 }}
-          zoom={{
-            maxZoomPixelRatio: 3,
-            scrollToZoom: true,
-          }}
-        />
-      </>
-    );
-  }
+  const galleryLayout = pickGalleryLayout(mediaItems);
+  const visibleMedia = galleryLayout.displayMedia.slice(
+    0,
+    galleryLayout.visibleLimit,
+  );
+  const hiddenMediaCount = Math.max(mediaItems.length - visibleMedia.length, 0);
+  const galleryClassName = [
+    "media-gallery",
+    `media-gallery--${galleryLayout.layout}`,
+    `media-gallery--visible-${visibleMedia.length}`,
+  ].join(" ");
 
   return (
-    <div
-      className={`media-gallery media-gallery--grid media-gallery--count-${Math.min(
-        mediaItems.length,
-        4,
-      )}`}
-    >
-      {mediaItems.map((media) => {
-        if (media.media_type === "video" || media.mediaType === "video") {
-          return <VideoMedia key={media.id || media.src} media={media} />;
-        }
+    <>
+      <div className={galleryClassName}>
+        {visibleMedia.map((media, mediaIndex) => {
+          const lightboxIndex = imageItems.findIndex((item) => {
+            return item.src === media.src;
+          });
 
-        const lightboxIndex = imageItems.findIndex((item) => {
-          return item.src === media.src;
-        });
-
-        return (
-          <ImageMedia
-            key={media.id || media.src}
-            media={media}
-            onClick={() => setIndex(lightboxIndex)}
-          />
-        );
-      })}
+          return (
+            <MediaGalleryItem
+              key={media.id || media.src}
+              media={media}
+              isHero={media.id === galleryLayout.heroId}
+              isSingle={mediaItems.length === 1}
+              overlayCount={
+                mediaIndex === visibleMedia.length - 1 ? hiddenMediaCount : 0
+              }
+              onOpen={() => setIndex(lightboxIndex)}
+            />
+          );
+        })}
+      </div>
 
       <Lightbox
         open={index >= 0}
@@ -264,6 +434,6 @@ export default function MediaGallery({
           scrollToZoom: true,
         }}
       />
-    </div>
+    </>
   );
 }

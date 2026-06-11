@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
+import { repairAgeGate } from "@/features/auth/actions/repairAgeGate";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -12,6 +13,8 @@ export default function OnboardingPage() {
 
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
+  const [dob, setDob] = useState("");
+  const [needsAgeRepair, setNeedsAgeRepair] = useState(false);
   const [status, setStatus] = useState("Loading your account...");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,6 +29,19 @@ export default function OnboardingPage() {
       }
 
       setUser(data.user);
+      const { data: profileStatus, error: profileStatusError } = await supabase
+        .rpc("get_my_profile_auth_status")
+        .maybeSingle();
+
+      if (profileStatusError) {
+        setStatus("We could not load your profile status. Please try again.");
+        return;
+      }
+
+      setUsername(profileStatus?.username || "");
+      setNeedsAgeRepair(
+        !profileStatus?.dob || !profileStatus?.age_verified_at,
+      );
       setStatus("");
     }
 
@@ -60,6 +76,21 @@ export default function OnboardingPage() {
     }
 
     setIsLoading(true);
+
+    if (needsAgeRepair) {
+      const ageGateFormData = new FormData();
+      ageGateFormData.set("dob", dob);
+
+      const ageGateResult = await repairAgeGate(ageGateFormData);
+
+      if (!ageGateResult.success) {
+        setStatus(ageGateResult.message || "We could not verify your age.");
+        setIsLoading(false);
+        return;
+      }
+
+      setNeedsAgeRepair(false);
+    }
 
     const { error } = await supabase
       .from("profiles")
@@ -126,6 +157,25 @@ export default function OnboardingPage() {
         </header>
 
         <form className="auth-onboarding__form" onSubmit={handleSubmit}>
+          {needsAgeRepair ? (
+            <label className="auth-onboarding__field" htmlFor="dob">
+              <span className="auth-onboarding__label">Date of birth</span>
+              <input
+                id="dob"
+                className="auth-onboarding__input"
+                type="date"
+                value={dob}
+                autoComplete="bday"
+                required
+                onChange={(event) => setDob(event.target.value)}
+              />
+              <span className="auth-onboarding__hint">
+                You must be 18 or older. Your DOB stays private unless you
+                choose to show your age later.
+              </span>
+            </label>
+          ) : null}
+
           <label className="auth-onboarding__field" htmlFor="username">
             <span className="auth-onboarding__label">Username</span>
             <input

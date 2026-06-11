@@ -1,0 +1,108 @@
+.legal-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: var(--space-xl);
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: var(--space-xl) 0;
+}
+
+.legal-layout__sidebar {
+  align-self: start;
+  position: sticky;
+  top: var(--space-xl);
+}
+
+.legal-sidebar {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  background: var(--color-surface-transparent);
+}
+
+.legal-sidebar__list {
+  display: grid;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legal-sidebar__link {
+  display: block;
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.75rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.legal-sidebar__link--active,
+.legal-sidebar__link:hover {
+  background: var(--color-danger-soft);
+  color: var(--color-text);
+}
+
+.legal-page__header {
+  display: grid;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.legal-page__header p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.legal-page__sections {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.legal-section {
+  scroll-margin-top: 7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.legal-section h2 {
+  margin-bottom: var(--space-md);
+  font-size: 1.35rem;
+}
+
+.legal-section p {
+  margin: 0 0 var(--space-md);
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+.legal-section p:last-child {
+  margin-bottom: 0;
+}
+
+.abuse-form__required {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.legal-section__note {
+  margin-top: var(--space-md);
+}
+
+@media (max-width: 860px) {
+  .legal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .legal-layout__sidebar {
+    position: static;
+  }
+
+  .legal-sidebar__list {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}

@@ -38,11 +38,15 @@ export default function PostCard({
     post.author?.username ||
     "Unknown user";
 
+  const isDeletedAuthor = Boolean(post.author?.is_deleted);
+
   const authorName = post.author?.username
     ? `@${post.author.username}`
-    : "Unknown user";
+    : isDeletedAuthor
+      ? "Deleted account"
+      : "Unknown user";
 
-  const authorId = post.user_id || post.author?.id;
+  const authorId = isDeletedAuthor ? null : post.user_id || post.author?.id;
   const commentCount = post.comment_count || 0;
   const canManagePost = currentUserId === post.user_id;
   const postMedia =

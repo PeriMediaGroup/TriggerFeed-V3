@@ -19,6 +19,8 @@ import {
   revokeMediaPreview,
   revokeMediaPreviews,
 } from "@/features/posts/create/utils/mediaHelpers";
+import { POST_MEDIA_LIMITS } from "@/features/media/mediaConstants";
+import { validatePostMediaFiles } from "@/features/media/mediaValidation";
 
 import {
   cleanPollDraft,
@@ -198,6 +200,26 @@ function isSameGif(leftGif, rightGif) {
   return Boolean(leftKey && rightKey && leftKey === rightKey);
 }
 
+function isVideoMediaItem(item) {
+  const mediaType = `${item?.mediaType || item?.media_type || item?.type || ""}`;
+  const resourceType = `${item?.resource_type || ""}`;
+
+  return (
+    mediaType.toLowerCase() === "video" ||
+    mediaType.toLowerCase().startsWith("video/") ||
+    resourceType.toLowerCase() === "video"
+  );
+}
+
+function countMediaItems({ existingMediaItems = [], mediaItems = [], selectedGif }) {
+  const allItems = [...existingMediaItems, ...mediaItems];
+
+  return {
+    total: allItems.length + (selectedGif ? 1 : 0),
+    videos: allItems.filter(isVideoMediaItem).length,
+  };
+}
+
 export default function PostComposer({
   mode = "create",
   initialTitle = "",
@@ -215,6 +237,7 @@ export default function PostComposer({
   pendingLabel = "Posting...",
   bodyPlaceholder = "What's going on?",
   className = "",
+  existingMediaItems = [],
   renderMediaManager,
   onSubmit,
 }) {
@@ -233,10 +256,6 @@ export default function PostComposer({
   const [activeTool, setActiveTool] = useState(() => {
     if (normalizedInitialPoll) {
       return "poll";
-    }
-
-    if (normalizedInitialGif) {
-      return "gif";
     }
 
     return null;
@@ -325,9 +344,50 @@ export default function PostComposer({
   }
 
   function handleAddMedia(files) {
+    const validation = validatePostMediaFiles(files);
+
+    if (!validation.isValid) {
+      setLocalErrors((currentErrors) => ({
+        ...currentErrors,
+        media: validation.errors[0],
+      }));
+      return [];
+    }
+
+    const currentCounts = countMediaItems({
+      existingMediaItems,
+      mediaItems,
+      selectedGif,
+    });
+    const selectedVideoCount = validation.videoFiles.length;
+    const nextTotal = currentCounts.total + validation.files.length;
+    const nextVideoCount = currentCounts.videos + selectedVideoCount;
+
+    if (nextTotal > POST_MEDIA_LIMITS.maxTotalFiles) {
+      setLocalErrors((currentErrors) => ({
+        ...currentErrors,
+        media: `You can add up to ${POST_MEDIA_LIMITS.maxTotalFiles} total media items per post.`,
+      }));
+      return [];
+    }
+
+    if (nextVideoCount > POST_MEDIA_LIMITS.maxVideoFiles) {
+      setLocalErrors((currentErrors) => ({
+        ...currentErrors,
+        media: "You can add 1 video per post for now.",
+      }));
+      return [];
+    }
+
     const nextMediaItems = createMediaItemsFromFiles(files);
 
+    setLocalErrors((currentErrors) => {
+      const { media, ...remainingErrors } = currentErrors;
+      return remainingErrors;
+    });
     setMediaItems((currentItems) => [...currentItems, ...nextMediaItems]);
+
+    return nextMediaItems;
   }
 
   function handleRemoveMedia(mediaId) {
@@ -359,6 +419,26 @@ export default function PostComposer({
   }
 
   function handleSelectGif(gif) {
+    const currentCounts = countMediaItems({
+      existingMediaItems,
+      mediaItems,
+      selectedGif,
+    });
+    const isReplacingGif = Boolean(selectedGif);
+    const nextTotal = currentCounts.total + (isReplacingGif ? 0 : 1);
+
+    if (nextTotal > POST_MEDIA_LIMITS.maxTotalFiles) {
+      setLocalErrors((currentErrors) => ({
+        ...currentErrors,
+        gif: `You can add up to ${POST_MEDIA_LIMITS.maxTotalFiles} total media items per post.`,
+      }));
+      return;
+    }
+
+    setLocalErrors((currentErrors) => {
+      const { gif, media, ...remainingErrors } = currentErrors;
+      return remainingErrors;
+    });
     setSelectedGif(gif);
     setActiveTool(null);
   }
@@ -396,6 +476,26 @@ export default function PostComposer({
 
     if (cleanedPoll?.error) {
       setLocalErrors({ poll: cleanedPoll.error });
+      return;
+    }
+
+    const currentCounts = countMediaItems({
+      existingMediaItems,
+      mediaItems,
+      selectedGif,
+    });
+
+    if (currentCounts.total > POST_MEDIA_LIMITS.maxTotalFiles) {
+      setLocalErrors({
+        media: `You can add up to ${POST_MEDIA_LIMITS.maxTotalFiles} total media items per post.`,
+      });
+      return;
+    }
+
+    if (currentCounts.videos > POST_MEDIA_LIMITS.maxVideoFiles) {
+      setLocalErrors({
+        media: "You can add 1 video per post for now.",
+      });
       return;
     }
 
@@ -532,7 +632,7 @@ export default function PostComposer({
       />
 
       {shouldShowCustomMediaManager &&
-        renderMediaManager({
+      renderMediaManager({
           mediaItems,
           onAddMedia: handleAddMedia,
           onRemoveMedia: handleRemoveMedia,
@@ -615,6 +715,14 @@ export default function PostComposer({
 
       {mergedErrors.poll && (
         <p className="post-form__error">{mergedErrors.poll}</p>
+      )}
+
+      {mergedErrors.media && (
+        <p className="post-form__error">{mergedErrors.media}</p>
+      )}
+
+      {mergedErrors.gif && (
+        <p className="post-form__error">{mergedErrors.gif}</p>
       )}
 
       {!renderMediaManager && (

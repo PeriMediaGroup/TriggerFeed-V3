@@ -9,6 +9,10 @@ const notificationIconMap = {
   friend_request: icons.userplus,
   mention: icons.mention,
   moderation_warning: icons.warning,
+  account_muted: icons.warning,
+  account_banned: icons.warning,
+  account_unmuted: icons.notifications,
+  account_unbanned: icons.notifications,
   reply: icons.reply,
 };
 
@@ -70,6 +74,26 @@ export default function NotificationsPanel({ notifications = [] }) {
             : "You received a warning from TriggerFeed moderation.";
         }
 
+        if (notification.type === "account_muted") {
+          actionText = notification.metadata?.reason
+            ? `Your TriggerFeed account has been muted. Reason: ${notification.metadata.reason}`
+            : "Your TriggerFeed account has been muted.";
+        }
+
+        if (notification.type === "account_banned") {
+          actionText = notification.metadata?.reason
+            ? `Your TriggerFeed account has been banned. Reason: ${notification.metadata.reason}`
+            : "Your TriggerFeed account has been banned.";
+        }
+
+        if (notification.type === "account_unmuted") {
+          actionText = "Your TriggerFeed account has been unmuted.";
+        }
+
+        if (notification.type === "account_unbanned") {
+          actionText = "Your TriggerFeed account has been unbanned.";
+        }
+
         let targetHref = null;
         let targetLabel = null;
 
@@ -116,7 +140,8 @@ export default function NotificationsPanel({ notifications = [] }) {
             </div>
 
             <div className="notifications-panel__content">
-              {notification.type === "moderation_warning" ? null : (
+              {notification.type === "moderation_warning" ||
+              notification.type?.startsWith("account_") ? null : (
                 <>
                   {actorHref ? (
                     <Link href={actorHref}>{actorLabel}</Link>

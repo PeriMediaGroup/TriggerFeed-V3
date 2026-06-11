@@ -54,10 +54,13 @@ export default function CommentItem({
     "";
 
   const authorInitial = authorName?.charAt(0)?.toUpperCase() || "?";
+  const isDeletedAuthor = Boolean(comment.author?.is_deleted);
 
-  const authorHref = comment.author?.id
+  const authorHref = !isDeletedAuthor && comment.author?.id
     ? `/profiles/${comment.author.id}`
-    : `/profiles/${comment.user_id}`;
+    : !isDeletedAuthor
+      ? `/profiles/${comment.user_id}`
+      : null;
 
   function handleEditSubmit(event) {
     event.preventDefault();
@@ -141,10 +144,9 @@ export default function CommentItem({
       className={isReply ? "comment-item comment-item--reply" : "comment-item"}
     >
       <article className="comment-item__content">
-        <Link
-          href={authorHref}
+        <span
           className="comment-item__avatar-link"
-          aria-label={`View ${authorName}'s profile`}
+          aria-label={authorHref ? `View ${authorName}'s profile` : undefined}
         >
           {authorAvatarUrl ? (
             <Image
@@ -163,15 +165,19 @@ export default function CommentItem({
               height="40"
             />
           )}
-        </Link>
+        </span>
 
         <div className="comment-item__main">
           <header className="comment-item__header">
-            <Link href={authorHref} className="comment-item__name">
-              <strong>{authorName}</strong>
-            </Link>
+            {authorHref ? (
+              <Link href={authorHref} className="comment-item__name">
+                <strong>{authorName}</strong>
+              </Link>
+            ) : (
+              <strong className="comment-item__name">{authorName}</strong>
+            )}
 
-            {authorUsername && (
+            {authorUsername && authorHref && (
               <Link href={authorHref} className="comment-item__username">
                 {authorUsername}
               </Link>

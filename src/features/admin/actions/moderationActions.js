@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { sendModerationEmail } from "@/lib/email/sendModerationEmail";
 
 const ROLE_VALUES = new Set(["user", "moderator", "admin"]);
 
@@ -31,7 +32,7 @@ function normalizeExpiresAt(value) {
   return date.toISOString();
 }
 
-function success(message) {
+function success(message, extra = {}) {
   revalidatePath("/admin/reports");
   revalidatePath("/admin/users");
   revalidatePath("/admin");
@@ -42,6 +43,7 @@ function success(message) {
   return {
     ok: true,
     message,
+    ...extra,
   };
 }
 
@@ -73,13 +75,115 @@ async function callModerationRpc(rpcName, payload, successMessage) {
     return failure("You must be logged in to use moderation actions.");
   }
 
-  const { error } = await supabase.rpc(rpcName, payload);
+  const { data, error } = await supabase.rpc(rpcName, payload);
 
   if (error) {
     return failure(error.message || "Moderation action failed.", error);
   }
 
-  return success(successMessage);
+  return success(successMessage, {
+    moderationEventId: data || null,
+  });
+}
+
+async function sendAccountModerationEmail({ supabase, moderationEventId }) {
+  if (!moderationEventId) {
+    return {
+      sent: false,
+      skipped: true,
+      error: "Missing moderation event id",
+    };
+  }
+
+  const { data: emailContext, error: contextError } = await supabase
+    .rpc("get_moderation_event_email_context", {
+      p_event_id: moderationEventId,
+    })
+    .maybeSingle();
+
+  if (contextError || !emailContext) {
+    const message =
+      contextError?.message || "Could not load moderation email context";
+
+    console.error("MODERATION EMAIL CONTEXT ERROR:", {
+      code: contextError?.code,
+      message,
+      details: contextError?.details,
+      hint: contextError?.hint,
+    });
+
+    await supabase.rpc("mark_moderation_event_email_result", {
+      p_event_id: moderationEventId,
+      p_email_sent: false,
+      p_email_error: message,
+    });
+
+    return {
+      sent: false,
+      skipped: false,
+      error: message,
+    };
+  }
+
+  const emailResult = await sendModerationEmail(emailContext);
+  const emailError = emailResult.sent ? null : emailResult.error;
+
+  const { error: markError } = await supabase.rpc(
+    "mark_moderation_event_email_result",
+    {
+      p_event_id: moderationEventId,
+      p_email_sent: emailResult.sent,
+      p_email_error: emailError,
+    },
+  );
+
+  if (markError) {
+    console.error("MODERATION EMAIL RESULT UPDATE ERROR:", {
+      code: markError.code,
+      message: markError.message,
+      details: markError.details,
+      hint: markError.hint,
+    });
+  }
+
+  return emailResult;
+}
+
+async function callModerationRpcWithEmailNotice({
+  rpcName,
+  payload,
+  sentMessage,
+  failedMessage,
+}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return failure("You must be logged in to use moderation actions.");
+  }
+
+  const { data: moderationEventId, error } = await supabase.rpc(
+    rpcName,
+    payload,
+  );
+
+  if (error) {
+    return failure(error.message || "Moderation action failed.", error);
+  }
+
+  const emailResult = await sendAccountModerationEmail({
+    supabase,
+    moderationEventId,
+  });
+
+  return success(emailResult.sent ? sentMessage : failedMessage, {
+    moderationEventId: moderationEventId || null,
+    email: emailResult,
+  });
 }
 
 export async function warnUser({
@@ -117,17 +221,18 @@ export async function muteUser({
     return failure("Missing target user.");
   }
 
-  return callModerationRpc(
-    "moderation_mute_user",
-    {
+  return callModerationRpcWithEmailNotice({
+    rpcName: "moderation_mute_user",
+    payload: {
       p_target_user_id: targetUserId,
       p_reason: nullableString(reason),
       p_expires_at: normalizeExpiresAt(expiresAt),
       p_related_post_id: relatedPostId || null,
       p_related_report_id: relatedReportId || null,
     },
-    "User muted.",
-  );
+    sentMessage: "User muted and notice sent.",
+    failedMessage: "User muted. Email notice could not be sent.",
+  });
 }
 
 export async function unmuteUser({ targetUserId, reason }) {
@@ -156,17 +261,18 @@ export async function banUser({
     return failure("Missing target user.");
   }
 
-  return callModerationRpc(
-    "moderation_ban_user",
-    {
+  return callModerationRpcWithEmailNotice({
+    rpcName: "moderation_ban_user",
+    payload: {
       p_target_user_id: targetUserId,
       p_reason: nullableString(reason),
       p_expires_at: normalizeExpiresAt(expiresAt),
       p_related_post_id: relatedPostId || null,
       p_related_report_id: relatedReportId || null,
     },
-    "User banned.",
-  );
+    sentMessage: "User banned and notice sent.",
+    failedMessage: "User banned. Email notice could not be sent.",
+  });
 }
 
 export async function unbanUser({ targetUserId, reason }) {

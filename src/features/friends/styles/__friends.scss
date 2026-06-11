@@ -21,6 +21,20 @@
       align-items: start;
     }
   }
+
+  &__mobile-suggestions {
+    display: block;
+
+    .app-right-rail__module {
+      width: 100%;
+      max-width: none;
+      box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
+    }
+
+    @media (min-width: 769px) {
+      display: none;
+    }
+  }
 }
 
 .edit-top-friends,

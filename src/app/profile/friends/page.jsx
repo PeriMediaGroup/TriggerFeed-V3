@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { getFriendDashboard } from "@/features/friends/data/getFriendDashboard";
 import { getAcceptedFriends } from "@/features/friends/data/getAcceptedFriends";
+import { getFriendSuggestions } from "@/features/friends/data/getFriendSuggestions";
 import { getTopFriends } from "@/features/profiles/data/getTopFriends";
 
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
@@ -16,10 +17,13 @@ export default async function FriendsPage() {
     redirect("/login");
   }
 
-  const [{ acceptedFriends }, { topFriends }] = await Promise.all([
-    getAcceptedFriends(),
-    getTopFriends(user.id),
-  ]);
+  const [{ acceptedFriends }, { topFriends }, friendSuggestionsResult] =
+    await Promise.all([
+      getAcceptedFriends(),
+      getTopFriends(user.id),
+      getFriendSuggestions({ limit: 4, viewerId: user.id }),
+    ]);
+  const friendSuggestions = friendSuggestionsResult?.suggestions ?? [];
 
   return (
     <main className="friends-page">
@@ -31,6 +35,11 @@ export default async function FriendsPage() {
         outgoingRequests={outgoingRequests}
         friends={friends}
         acceptedFriends={acceptedFriends}
+        topFriends={topFriends}
+        viewerId={user.id}
+        friendSuggestions={friendSuggestions}
+        friendSuggestionsHasError={Boolean(friendSuggestionsResult?.error)}
+        friendSuggestionsDidFetch={Boolean(friendSuggestionsResult?.didFetch)}
       />
     </main>
   );

@@ -1,7 +1,9 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { getPostMediaFolder } from "@/features/media/mediaPaths";
+import { POST_MEDIA_LIMITS } from "@/features/media/mediaConstants";
 
 export async function savePostMedia({ postId, media }) {
   const supabase = await createClient();
@@ -107,6 +109,56 @@ export async function savePostMedia({ postId, media }) {
     return {
       success: false,
       errors: ["No valid media records were provided."],
+      media: [],
+    };
+  }
+
+  const moderationBlock = await getCurrentUserModerationBlock(supabase);
+
+  if (moderationBlock.blocked) {
+    return {
+      success: false,
+      errors: [moderationBlock.message],
+      media: [],
+    };
+  }
+
+  const { data: existingMedia, error: existingMediaError } = await supabase
+    .from("post_media")
+    .select("id, media_type")
+    .eq("post_id", postId);
+
+  if (existingMediaError) {
+    return {
+      success: false,
+      errors: ["Could not check existing post media."],
+      media: [],
+    };
+  }
+
+  const existingMediaRows = Array.isArray(existingMedia) ? existingMedia : [];
+  const existingVideoCount = existingMediaRows.filter((item) => {
+    return `${item.media_type || ""}`.toLowerCase() === "video";
+  }).length;
+  const nextVideoCount =
+    existingVideoCount +
+    cleanedMedia.filter((item) => item.media_type === "video").length;
+  const nextTotalCount = existingMediaRows.length + cleanedMedia.length;
+
+  if (nextTotalCount > POST_MEDIA_LIMITS.maxTotalFiles) {
+    return {
+      success: false,
+      errors: [
+        `You can add up to ${POST_MEDIA_LIMITS.maxTotalFiles} total media items per post.`,
+      ],
+      media: [],
+    };
+  }
+
+  if (nextVideoCount > POST_MEDIA_LIMITS.maxVideoFiles) {
+    return {
+      success: false,
+      errors: ["You can add 1 video per post for now."],
       media: [],
     };
   }

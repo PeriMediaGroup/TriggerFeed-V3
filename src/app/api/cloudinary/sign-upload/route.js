@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { getPostMediaFolder } from "@/features/media/mediaPaths";
 import { POST_MEDIA_LIMITS } from "@/features/media/mediaConstants";
 
@@ -24,6 +25,15 @@ export async function POST(request) {
     return NextResponse.json(
       { error: "You must be logged in to upload media." },
       { status: 401 },
+    );
+  }
+
+  const moderationBlock = await getCurrentUserModerationBlock(supabase);
+
+  if (moderationBlock.blocked) {
+    return NextResponse.json(
+      { error: moderationBlock.message },
+      { status: 403 },
     );
   }
 

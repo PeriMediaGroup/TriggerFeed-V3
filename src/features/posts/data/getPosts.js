@@ -5,6 +5,21 @@ import { getMentionProfilesForText } from "@/features/mentions/data/getMentionPr
 import { getCommentsByPostId } from "@/features/comments/queries";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 
+function getDeletedAuthor(userId) {
+  return {
+    id: userId,
+    username: null,
+    display_name: "Deleted User",
+    first_name: null,
+    last_name: null,
+    avatar_cloudinary_url: null,
+    profile_badge: null,
+    city: null,
+    state: null,
+    is_deleted: true,
+  };
+}
+
 const POST_SELECT = `
   id,
   user_id,
@@ -45,11 +60,6 @@ const POST_SELECT = `
       id,
       option_text,
       display_order
-    ),
-    poll_responses (
-      id,
-      option_id,
-      user_id
     )
   )
 `;
@@ -276,6 +286,10 @@ export async function searchPosts({ query: rawQuery = "" } = {}) {
 async function hydratePosts({ supabase, posts, currentUserId }) {
   const safePosts = posts || [];
   const postIds = safePosts.map((post) => post.id);
+  const pollIds = safePosts
+    .flatMap((post) => post.polls || [])
+    .map((poll) => poll.id)
+    .filter(Boolean);
 
   // -----------------------------
   // Comment counts
@@ -367,6 +381,54 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
     (profiles || []).map((profile) => [profile.id, profile])
   );
 
+  // -----------------------------
+  // Poll aggregates and current user's answers
+  // -----------------------------
+  let pollResults = [];
+  let myPollResponses = [];
+
+  if (pollIds.length > 0) {
+    const { data: results, error: pollResultsError } = await supabase.rpc(
+      "get_poll_results",
+      {
+        p_poll_ids: pollIds,
+      }
+    );
+
+    if (pollResultsError) {
+      logSupabaseError("GET POLL RESULTS ERROR:", pollResultsError);
+    }
+
+    pollResults = results || [];
+
+    if (currentUserId) {
+      const { data: responses, error: myResponsesError } = await supabase.rpc(
+        "get_my_poll_responses",
+        {
+          p_poll_ids: pollIds,
+        }
+      );
+
+      if (myResponsesError) {
+        logSupabaseError("GET MY POLL RESPONSES ERROR:", myResponsesError);
+      }
+
+      myPollResponses = responses || [];
+    }
+  }
+
+  const pollResultsByPollId = new Map();
+
+  for (const result of pollResults) {
+    const resultsForPoll = pollResultsByPollId.get(result.poll_id) || [];
+    resultsForPoll.push(result);
+    pollResultsByPollId.set(result.poll_id, resultsForPoll);
+  }
+
+  const myPollResponseMap = new Map(
+    myPollResponses.map((response) => [response.poll_id, response.option_id])
+  );
+
   const postsWithAuthors = await Promise.all(
     safePosts.map(async (post) => {
       const voteCountsForPost = voteCountMap.get(post.id);
@@ -377,8 +439,13 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
 
       return {
         ...post,
+        polls: (post.polls || []).map((poll) => ({
+          ...poll,
+          poll_results: pollResultsByPollId.get(poll.id) || [],
+          my_option_id: myPollResponseMap.get(poll.id) || null,
+        })),
         media: normalizePostMedia(post.post_media),
-        author: profileMap.get(post.user_id) || null,
+        author: profileMap.get(post.user_id) || getDeletedAuthor(post.user_id),
         mentionProfiles,
         comment_count: commentCountMap.get(post.id) || 0,
         upvote_count: voteCountsForPost?.upvote_count || 0,
