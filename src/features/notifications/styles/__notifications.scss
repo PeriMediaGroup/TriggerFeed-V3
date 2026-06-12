@@ -59,4 +59,18 @@
         font-size: .8rem;
     }
   }
+
+  &__warning {
+    display: grid;
+    gap: 0.35rem;
+
+    p {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    strong {
+      color: var(--color-text);
+    }
+  }
 }

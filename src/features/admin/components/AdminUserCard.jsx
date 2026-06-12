@@ -305,7 +305,9 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
               onClick={() => setIsHistoryOpen((current) => !current)}
               aria-expanded={isHistoryOpen}
             >
-              {isHistoryOpen ? "Hide History" : `Show History (${historyCount})`}
+              {isHistoryOpen
+                ? "Hide History"
+                : `Show History (${historyCount})`}
             </button>
 
             {canManageRoles && user.role !== "ceo" && !isSelf ? (
@@ -363,7 +365,10 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
       </div>
 
       {isHistoryOpen ? (
-        <section className="admin-user-card__history" aria-label="Moderation history">
+        <section
+          className="admin-user-card__history"
+          aria-label="Moderation history"
+        >
           <h3>Moderation History</h3>
 
           {historyCount > 0 ? (
@@ -371,17 +376,25 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
               {user.moderation_history.map((action) => (
                 <li key={action.id} className="admin-user-card__history-item">
                   <div className="admin-user-card__history-header">
-                    <strong>
-                      {ACTION_LABELS[action.action_type] || action.action_type}
-                    </strong>
+                    <div className="admin-user-card__offense">
+                      <strong>
+                        {ACTION_LABELS[action.action_type] ||
+                          action.action_type}
+                      </strong>
+                      <p>&nbsp;
+                        Reason : {" "}
+                        {action.message || action.reason || "No note provided."}
+                      </p>
+                    </div>
                     <span>{formatDate(action.created_at)}</span>
                   </div>
 
-                  <p>{action.message || action.reason || "No note provided."}</p>
                   <p className="admin-user-card__history-meta">
                     Actor: {getProfileName(action.actor || {})}
                     {action.related_post_id ? (
-                      <Link href={`/posts/${action.related_post_id}`}>Post</Link>
+                      <Link href={`/posts/${action.related_post_id}`}>
+                        Post
+                      </Link>
                     ) : null}
                   </p>
                 </li>

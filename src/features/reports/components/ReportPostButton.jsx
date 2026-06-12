@@ -26,6 +26,23 @@ export default function ReportPostButton({
   const [details, setDetails] = useState("");
   const [isPending, startTransition] = useTransition();
   const isIcon = variant === "icon";
+  const reportFormId = `post-report-form-${postId}`;
+  const reportTitleId = `post-report-title-${postId}`;
+  const reportDescriptionId = `post-report-description-${postId}`;
+  const reportReasonId = `post-report-reason-${postId}`;
+  const reportDetailsId = `post-report-details-${postId}`;
+
+  function closeForm() {
+    if (!isPending) {
+      setIsOpen(false);
+    }
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      closeForm();
+    }
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -77,6 +94,7 @@ export default function ReportPostButton({
         }
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
+        aria-controls={isOpen ? reportFormId : undefined}
         aria-label={isIcon ? "Report post" : undefined}
         title={isIcon ? "Report post" : undefined}
       >
@@ -85,11 +103,30 @@ export default function ReportPostButton({
       </button>
 
       {isOpen && (
-        <form className="post-report__form" onSubmit={handleSubmit}>
-          <label className="post-report__field">
-            <span className="post-report__label">Reason</span>
+        <form
+          id={reportFormId}
+          className="post-report__form"
+          onSubmit={handleSubmit}
+          onKeyDown={handleKeyDown}
+          aria-labelledby={reportTitleId}
+          aria-describedby={reportDescriptionId}
+        >
+          <header className="post-report__header">
+            <h3 id={reportTitleId} className="post-report__title">
+              Report post
+            </h3>
+            <p id={reportDescriptionId} className="post-report__description">
+              Tell us what’s wrong with this post.
+            </p>
+          </header>
+
+          <div className="post-report__field">
+            <label className="post-report__label" htmlFor={reportReasonId}>
+              Reason
+            </label>
 
             <select
+              id={reportReasonId}
               className="post-report__select"
               value={reason}
               onChange={(event) => setReason(event.target.value)}
@@ -101,29 +138,37 @@ export default function ReportPostButton({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="post-report__field">
-            <span className="post-report__label">Details</span>
+          <div className="post-report__field">
+            <label className="post-report__label" htmlFor={reportDetailsId}>
+              Details
+            </label>
 
             <textarea
+              id={reportDetailsId}
               className="post-report__textarea"
               value={details}
               onChange={(event) => setDetails(event.target.value)}
               maxLength={1000}
-              placeholder="Optional details"
+              placeholder="Add any extra details..."
               disabled={isPending}
             />
-          </label>
+          </div>
 
           <div className="post-report__actions">
-            <button type="submit" disabled={isPending}>
+            <button
+              className="post-report__submit"
+              type="submit"
+              disabled={isPending}
+            >
               {isPending ? "Reporting..." : "Submit report"}
             </button>
 
             <button
+              className="post-report__cancel"
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={closeForm}
               disabled={isPending}
             >
               Cancel

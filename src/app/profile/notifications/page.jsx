@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getNotificationPostsById } from "@/features/notifications/data/getNotificationPostsById";
 import NotificationsReadMarker from "@/features/notifications/components/NotificationsReadMarker";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
 
@@ -90,6 +91,10 @@ export default async function NotificationsPage() {
   }
 
   const actorsById = new Map(actors?.map((actor) => [actor.id, actor]) ?? []);
+  const postsById = await getNotificationPostsById(
+    supabase,
+    notifications || [],
+  );
 
   return (
     <main className="profile-notifications-page">
@@ -104,6 +109,12 @@ export default async function NotificationsPage() {
           notifications?.map((notification) => ({
             ...notification,
             actor: actorsById.get(notification.actor_id) ?? null,
+            relatedPost:
+              postsById.get(
+                notification.post_id ||
+                  notification.metadata?.post_id ||
+                  notification.data?.post_id,
+              ) ?? null,
           })) ?? []
         }
       />

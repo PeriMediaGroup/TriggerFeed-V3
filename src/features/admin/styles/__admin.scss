@@ -189,7 +189,6 @@
 .admin-user-card__action {
   display: inline-flex;
   align-items: center;
-  min-height: 2rem;
   padding: 0.35rem 0.55rem;
   color: var(--color-text);
   font-size: 0.82rem;
@@ -256,6 +255,10 @@
   flex-wrap: wrap;
   gap: var(--space-sm);
   align-items: center;
+}
+
+.admin-user-card__offense {
+  display: flex;
 }
 
 .admin-user-card__history-header {

@@ -10,6 +10,7 @@ import {
   dismissReport,
   muteUser,
   removePost,
+  restorePost,
   reviewReport,
   unbanUser,
   unmuteUser,
@@ -85,6 +86,9 @@ function getTextPreview(value, maxLength = 120) {
 
 export default function ReportCard({ report, permissions }) {
   const [status, setStatus] = useState(report.status || "open");
+  const [isPostRemoved, setIsPostRemoved] = useState(
+    report.post?.is_deleted === true || Boolean(report.post?.removed_at),
+  );
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -93,21 +97,44 @@ export default function ReportCard({ report, permissions }) {
   const reviewerName = getProfileName(report.reviewer);
   const authorName = getProfileName(report.post_author);
   const postTitle = report.post?.title || "Untitled post";
+  const reportedPostId = report.post?.id || report.post_id || null;
   const targetUserId = report.post?.user_id || null;
-  const targetRole = report.post_author?.role || "user";
-  const postRemoved = report.post?.is_deleted === true || status === "actioned";
+  const targetRole =
+    typeof report.post_author?.role === "string"
+      ? report.post_author.role.trim().toLowerCase()
+      : null;
+  const targetRoleLabel = targetRole || "Unknown";
+  const postRemoved = isPostRemoved;
+  const actorRole = permissions?.role || "user";
   const canModerate = permissions?.canModerate === true;
   const canBan = permissions?.canBan === true;
+  const canCeoRestore = actorRole === "ceo";
+  const canTargetUser =
+    actorRole === "ceo"
+      ? Boolean(targetUserId && targetRole !== "ceo")
+      : actorRole === "admin" &&
+        Boolean(targetUserId && ["user", "moderator"].includes(targetRole));
+  const canRemovePost =
+    actorRole === "ceo" ||
+    (actorRole === "admin" && ["user", "moderator"].includes(targetRole));
   const isOpenReport = status === "open";
   const historyCount = report.moderation_history?.length || 0;
 
-  function runAction(action, optimisticStatus = null) {
+  function runAction(action, options = null) {
+    const optimisticStatus =
+      typeof options === "string" ? options : options?.optimisticStatus;
+    const onSuccess = typeof options === "object" ? options.onSuccess : null;
+
     startTransition(async () => {
       const result = await action();
 
       if (result.ok) {
         if (optimisticStatus) {
           setStatus(optimisticStatus);
+        }
+
+        if (onSuccess) {
+          onSuccess();
         }
 
         toast.success(result.message || "Moderation action completed.");
@@ -159,18 +186,54 @@ export default function ReportCard({ report, permissions }) {
       return;
     }
 
-    if (!window.confirm("Remove this post from public feeds?")) {
+    if (
+      !window.confirm(
+        "Remove this post?\n\nThis will hide the post from public feeds.",
+      )
+    ) {
       return;
     }
 
     runAction(
       () =>
         removePost({
-          postId: report.post?.id,
+          postId: reportedPostId,
           reason,
           relatedReportId: report.id,
         }),
-      "actioned",
+      {
+        optimisticStatus: "actioned",
+        onSuccess: () => setIsPostRemoved(true),
+      },
+    );
+  }
+
+  function handleRestorePost() {
+    const reason = getPromptValue("Restore note", "");
+
+    if (reason === null) {
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "Restore post?\n\nThis will make the post visible again if it is otherwise allowed by normal visibility rules.",
+      )
+    ) {
+      return;
+    }
+
+    runAction(
+      () =>
+        restorePost({
+          postId: reportedPostId,
+          reason,
+          relatedReportId: report.id,
+        }),
+      {
+        optimisticStatus: "reviewed",
+        onSuccess: () => setIsPostRemoved(false),
+      },
     );
   }
 
@@ -192,7 +255,7 @@ export default function ReportCard({ report, permissions }) {
         targetUserId,
         reason,
         message,
-        relatedPostId: report.post?.id || null,
+        relatedPostId: reportedPostId,
         relatedReportId: report.id,
       }),
     );
@@ -209,7 +272,7 @@ export default function ReportCard({ report, permissions }) {
       muteUser({
         targetUserId,
         reason,
-        relatedPostId: report.post?.id || null,
+        relatedPostId: reportedPostId,
         relatedReportId: report.id,
       }),
     );
@@ -245,7 +308,7 @@ export default function ReportCard({ report, permissions }) {
       banUser({
         targetUserId,
         reason,
-        relatedPostId: report.post?.id || null,
+        relatedPostId: reportedPostId,
         relatedReportId: report.id,
       }),
     );
@@ -277,7 +340,7 @@ export default function ReportCard({ report, permissions }) {
       addAdminNote({
         targetUserId,
         note,
-        relatedPostId: report.post?.id || null,
+        relatedPostId: reportedPostId,
         relatedReportId: report.id,
       }),
     );
@@ -290,7 +353,7 @@ export default function ReportCard({ report, permissions }) {
       <div className="report-card__summary">
         <header className="report-card__header">
           <span className="report-card__status">
-            {STATUS_LABELS[status] || status}
+            {postRemoved ? "Post removed" : STATUS_LABELS[status] || status}
           </span>
           <div className="report-card__heading">
             <p className="report-card__eyebrow">Post report</p>
@@ -313,6 +376,12 @@ export default function ReportCard({ report, permissions }) {
           <span className="report-card__meta-item">
             Author: {authorName}
           </span>
+          <span className="report-card__meta-item">
+            Author role: {targetRoleLabel}
+          </span>
+          {postRemoved ? (
+            <span className="report-card__meta-item">Status: Post removed</span>
+          ) : null}
           <span className="report-card__meta-item">
             Reported: {formatDate(report.created_at)}
           </span>
@@ -349,18 +418,20 @@ export default function ReportCard({ report, permissions }) {
                   type="button"
                   className="report-card__action report-card__action--danger"
                   onClick={handleRemovePost}
-                  disabled={isPending || !report.post?.id || postRemoved}
+                  disabled={
+                    isPending || !reportedPostId || postRemoved || !canRemovePost
+                  }
                 >
-                  Remove Post
+                  Remove post
                 </button>
 
                 <button
                   type="button"
                   className="report-card__action"
                   onClick={handleWarnUser}
-                  disabled={isPending || !targetUserId}
+                  disabled={isPending || !canTargetUser}
                 >
-                  Warn User
+                  Warn user
                 </button>
 
                 {report.post_author?.is_muted ? (
@@ -368,18 +439,18 @@ export default function ReportCard({ report, permissions }) {
                     type="button"
                     className="report-card__action"
                     onClick={handleUnmuteUser}
-                    disabled={isPending || !targetUserId}
+                    disabled={isPending || !canTargetUser}
                   >
-                    Unmute User
+                    Unmute user
                   </button>
                 ) : (
                   <button
                     type="button"
                     className="report-card__action"
                     onClick={handleMuteUser}
-                    disabled={isPending || !targetUserId}
+                    disabled={isPending || !canTargetUser}
                   >
-                    Mute User
+                    Mute user
                   </button>
                 )}
 
@@ -389,18 +460,18 @@ export default function ReportCard({ report, permissions }) {
                       type="button"
                       className="report-card__action"
                       onClick={handleUnbanUser}
-                      disabled={isPending || !targetUserId}
+                      disabled={isPending || !canTargetUser}
                     >
-                      Unban User
+                      Unban user
                     </button>
                   ) : (
                     <button
                       type="button"
                       className="report-card__action report-card__action--danger"
                       onClick={handleBanUser}
-                      disabled={isPending || !targetUserId}
+                      disabled={isPending || !canTargetUser}
                     >
-                      Ban User
+                      Ban user
                     </button>
                   ))}
               </>
@@ -413,6 +484,16 @@ export default function ReportCard({ report, permissions }) {
                   >
                     View Post
                   </Link>
+                ) : null}
+                {canCeoRestore && postRemoved && reportedPostId ? (
+                  <button
+                    type="button"
+                    className="report-card__action"
+                    onClick={handleRestorePost}
+                    disabled={isPending}
+                  >
+                    Restore post
+                  </button>
                 ) : null}
               </>
             )}
@@ -485,7 +566,7 @@ export default function ReportCard({ report, permissions }) {
                   authorName
                 )}
                 <span className="report-card__meta-item">
-                  Role: {targetRole}
+                  Role: {targetRoleLabel}
                   {report.post_author?.is_muted ? " | Muted" : ""}
                   {report.post_author?.is_banned ? " | Banned" : ""}
                 </span>

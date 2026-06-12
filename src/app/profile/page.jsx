@@ -16,6 +16,7 @@ import ProfileDashboardTabs from "@/features/profiles/components/ProfileDashboar
 import FriendsPanel from "@/features/friends/components/FriendsPanel";
 import ManageGunsPanel from "@/features/guns/components/ManageGunsPanel";
 import NotificationsPanel from "@/features/notifications/components/NotificationsPanel";
+import { getNotificationPostsById } from "@/features/notifications/data/getNotificationPostsById";
 import ProfileSettings from "@/features/profiles/components/ProfileSettings";
 import { getUserRank } from "@/features/ranks/data/getUserRank";
 import UserRankCard from "@/features/ranks/components/UserRankCard";
@@ -117,11 +118,22 @@ export default async function ProfilePage() {
   }
 
   const actorsById = new Map(actors?.map((actor) => [actor.id, actor]) ?? []);
+  const postsById = await getNotificationPostsById(
+    supabase,
+    notifications || [],
+  );
 
   const notificationsWithActors =
     notifications?.map((notification) => ({
       ...notification,
       actor: actorsById.get(notification.actor_id) ?? null,
+      relatedPost:
+        postsById.get(
+          notification.post_id ||
+            notification.metadata?.post_id ||
+            notification.data?.post_id,
+        ) ??
+        null,
     })) ?? [];
 
   const [

@@ -9,7 +9,7 @@ function normalizeRank(row) {
     userId: row.user_id,
     postCount: row.post_count ?? 0,
     rankKey: row.rank_key || "",
-    rankLabel: row.rank_label || "New Recruit",
+    rankLabel: row.rank_label || "FNG",
     nextRankKey: row.next_rank_key || null,
     nextRankLabel: row.next_rank_label || null,
     nextRankMinPosts: row.next_rank_min_posts ?? null,

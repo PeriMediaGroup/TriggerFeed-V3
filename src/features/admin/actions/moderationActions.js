@@ -63,7 +63,12 @@ function failure(message, error = null) {
   };
 }
 
-async function callModerationRpc(rpcName, payload, successMessage) {
+async function callModerationRpc(
+  rpcName,
+  payload,
+  successMessage,
+  failureMessage = null,
+) {
   const supabase = await createClient();
 
   const {
@@ -78,7 +83,10 @@ async function callModerationRpc(rpcName, payload, successMessage) {
   const { data, error } = await supabase.rpc(rpcName, payload);
 
   if (error) {
-    return failure(error.message || "Moderation action failed.", error);
+    return failure(
+      failureMessage || error.message || "Moderation action failed.",
+      error,
+    );
   }
 
   return success(successMessage, {
@@ -303,6 +311,29 @@ export async function removePost({ postId, reason, relatedReportId = null }) {
       p_related_report_id: relatedReportId || null,
     },
     "Post removed.",
+  );
+
+  if (result.ok) {
+    revalidatePath(`/posts/${postId}`);
+  }
+
+  return result;
+}
+
+export async function restorePost({ postId, reason, relatedReportId = null }) {
+  if (!postId) {
+    return failure("Missing post.");
+  }
+
+  const result = await callModerationRpc(
+    "moderation_restore_post",
+    {
+      p_post_id: postId,
+      p_reason: nullableString(reason),
+      p_related_report_id: relatedReportId || null,
+    },
+    "Post restored.",
+    "Could not restore post.",
   );
 
   if (result.ok) {
