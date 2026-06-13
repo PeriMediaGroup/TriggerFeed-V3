@@ -24,6 +24,123 @@ function getNotificationIconClass(type) {
   return `notifications-panel__icon notifications-panel__icon--${type || "default"}`;
 }
 
+function getTrimmedText(value, maxLength = 140) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const text = value.trim();
+
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  return `${text.slice(0, maxLength).trim()}...`;
+}
+
+function getPostLabel(post) {
+  if (!post) {
+    return "";
+  }
+
+  return (
+    getTrimmedText(post.title, 120) ||
+    getTrimmedText(post.body, 140)
+  );
+}
+
+function getWarningPostId(notification) {
+  const data = notification.metadata || notification.data || {};
+
+  return data.post_id || notification.post_id || null;
+}
+
+function getWarningPostLabel(notification) {
+  const data = notification.metadata || notification.data || {};
+
+  return (
+    getPostLabel(notification.relatedPost) ||
+    getTrimmedText(data.post_title, 120) ||
+    getTrimmedText(data.post_excerpt, 140)
+  );
+}
+
+function ModerationWarningContent({ notification }) {
+  const data = notification.metadata || notification.data || {};
+  const warningMessage = getTrimmedText(
+    data.message || (data.report_reason ? "" : data.reason),
+    500,
+  );
+  const reportReason = getTrimmedText(data.report_reason);
+  const warningPostId = getWarningPostId(notification);
+  const hasRelatedPostReference = Boolean(
+    warningPostId || data.report_id,
+  );
+  const relatedPostLabel = getWarningPostLabel(notification);
+  const targetHref = warningPostId ? `/posts/${warningPostId}` : null;
+
+  const hasNewWarningContext = Boolean(
+    warningMessage || reportReason || hasRelatedPostReference,
+  );
+
+  if (!hasNewWarningContext) {
+    return (
+      <>
+        You received a warning from TriggerFeed moderation.
+        <time dateTime={notification.created_at}>
+          {new Date(notification.created_at).toLocaleString()}
+        </time>
+      </>
+    );
+  }
+
+  return (
+    <div className="notifications-panel__warning">
+      <p>You received a warning from TriggerFeed moderation.</p>
+
+      {warningMessage ? (
+        <p>
+          <strong>Message:</strong> {warningMessage}
+        </p>
+      ) : null}
+
+      {reportReason ? (
+        <p>
+          <strong>Reason:</strong> {reportReason}
+        </p>
+      ) : null}
+
+      {hasRelatedPostReference ? (
+        <p>
+          <strong>Related post:</strong>{" "}
+          {relatedPostLabel ? (
+            <>
+              {relatedPostLabel}
+              {targetHref ? (
+                <>
+                  {" "}
+                  <NotificationTargetLink
+                    notificationId={notification.id}
+                    href={targetHref}
+                  >
+                    View flagged post
+                  </NotificationTargetLink>
+                </>
+              ) : null}
+            </>
+          ) : (
+            "Related post unavailable"
+          )}
+        </p>
+      ) : null}
+
+      <time dateTime={notification.created_at}>
+        {new Date(notification.created_at).toLocaleString()}
+      </time>
+    </div>
+  );
+}
+
 export default function NotificationsPanel({ notifications = [] }) {
   if (!notifications.length) {
     return <p>No notifications right now.</p>;
@@ -69,9 +186,7 @@ export default function NotificationsPanel({ notifications = [] }) {
         }
 
         if (notification.type === "moderation_warning") {
-          actionText = notification.metadata?.message
-            ? `You received a warning from TriggerFeed moderation: ${notification.metadata.message}`
-            : "You received a warning from TriggerFeed moderation.";
+          actionText = "You received a warning from TriggerFeed moderation.";
         }
 
         if (notification.type === "account_muted") {
@@ -118,14 +233,6 @@ export default function NotificationsPanel({ notifications = [] }) {
           targetLabel = "View profile";
         }
 
-        if (
-          notification.type === "moderation_warning" &&
-          notification.post_id
-        ) {
-          targetHref = `/posts/${notification.post_id}`;
-          targetLabel = "View post";
-        }
-
         return (
           <li
             key={notification.id}
@@ -140,31 +247,38 @@ export default function NotificationsPanel({ notifications = [] }) {
             </div>
 
             <div className="notifications-panel__content">
-              {notification.type === "moderation_warning" ||
-              notification.type?.startsWith("account_") ? null : (
+              {notification.type === "moderation_warning" ? (
+                <ModerationWarningContent notification={notification} />
+              ) : (
                 <>
-                  {actorHref ? (
-                    <Link href={actorHref}>{actorLabel}</Link>
+                  {notification.type?.startsWith("account_") ? null : (
+                    <>
+                      {actorHref ? (
+                        <Link href={actorHref}>{actorLabel}</Link>
+                      ) : (
+                        <span>{actorLabel}</span>
+                      )}{" "}
+                    </>
+                  )}
+                  {actionText}
+                  {targetHref && targetLabel ? (
+                    <>
+                      {" "}
+                      <NotificationTargetLink
+                        notificationId={notification.id}
+                        href={targetHref}
+                      >
+                        {targetLabel}
+                      </NotificationTargetLink>
+                    </>
                   ) : (
-                    <span>{actorLabel}</span>
-                  )}{" "}
+                    null
+                  )}
+                  <time dateTime={notification.created_at}>
+                    {new Date(notification.created_at).toLocaleString()}
+                  </time>
                 </>
               )}
-              {actionText}
-              {targetHref && targetLabel ? (
-                <>
-                  {" "}
-                  <NotificationTargetLink
-                    notificationId={notification.id}
-                    href={targetHref}
-                  >
-                    {targetLabel}
-                  </NotificationTargetLink>
-                </>
-              ) : null}
-              <time dateTime={notification.created_at}>
-                {new Date(notification.created_at).toLocaleString()}
-              </time>
             </div>
 
             <DismissNotificationButton notificationId={notification.id} />

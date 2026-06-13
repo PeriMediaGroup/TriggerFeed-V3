@@ -22,7 +22,7 @@ on public.user_rank_thresholds(sort_order);
 
 insert into public.user_rank_thresholds (key, label, min_posts, sort_order, is_active)
 values
-  ('new_recruit', 'New Recruit', 0, 10, true),
+  ('FNG', 'FNG', 0, 10, true),
   ('range_regular', 'Range Regular', 5, 20, true),
   ('trailhand', 'Trailhand', 15, 30, true),
   ('camp_builder', 'Camp Builder', 30, 40, true),

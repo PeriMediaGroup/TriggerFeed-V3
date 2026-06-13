@@ -63,44 +63,61 @@ export default function PollDisplay({ poll, postId, currentUserId }) {
   }
 
   return (
-    <section className="poll-display">
-      <h3 className="poll-display__question">{poll.question}</h3>
+    <section className="post-poll">
+      <h3 className="post-poll__question">{poll.question}</h3>
 
-      <div className="poll-display__options">
+      <div className="post-poll__options">
         {options.map((option) => {
           const count = responseCounts.get(option.id) || 0;
           const percentage =
             totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;
 
           const isSelected = selectedOptionId === option.id;
+          const showResults = Boolean(selectedOptionId) || totalResponses > 0;
 
           return (
             <button
               key={option.id}
               type="button"
-              className={`poll-display__option${
-                isSelected ? " poll-display__option--selected" : ""
-              }`}
+              className={`post-poll__option${
+                isSelected ? " post-poll__option--selected" : ""
+              }${showResults ? " post-poll__option--results" : ""}`}
               onClick={() => handleAnswer(option.id)}
               disabled={isPending}
             >
-              <span className="poll-display__option-text">
-                {option.option_text}
-              </span>
+              {showResults ? (
+                <span
+                  className="post-poll__result-bar"
+                  style={{ width: `${percentage}%` }}
+                />
+              ) : null}
 
-              <span className="poll-display__option-meta">
-                {count} {count === 1 ? "answer" : "answers"} · {percentage}%
+              <span className="post-poll__option-content">
+                <span className="post-poll__option-label">
+                  {option.option_text}
+                  {isSelected ? (
+                    <span className="post-poll__selected-badge">
+                      Selected
+                    </span>
+                  ) : null}
+                </span>
+
+                {showResults ? (
+                  <span className="post-poll__option-meta">
+                    {count} {count === 1 ? "answer" : "answers"} · {percentage}%
+                  </span>
+                ) : null}
               </span>
             </button>
           );
         })}
       </div>
 
-      <p className="poll-display__meta">
+      <p className="post-poll__total">
         {totalResponses} {totalResponses === 1 ? "response" : "responses"}
       </p>
 
-      {status && <p className="poll-display__status">{status}</p>}
+      {status && <p className="post-poll__status">{status}</p>}
     </section>
   );
 }

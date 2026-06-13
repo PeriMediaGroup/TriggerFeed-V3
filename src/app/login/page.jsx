@@ -170,6 +170,9 @@ export default function LoginPage() {
               autoComplete="current-password"
               onChange={(event) => setPassword(event.target.value)}
             />
+            <Link className="auth-login__forgot-link" href="/forgot-password">
+              Forgot password?
+            </Link>
           </div>
 
           <button

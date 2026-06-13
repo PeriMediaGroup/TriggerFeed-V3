@@ -1,17 +1,18 @@
 -- =========================================================
 -- Local Dev Seed: Test Users
--- Creates 11 confirmed Supabase Auth users + matching profiles.
+-- Creates confirmed Supabase Auth users + matching profiles.
 -- Password for all users: testMe123!
 -- LOCAL ONLY. Do not run this on production unless chaos is your hobby.
 --
 -- Role setup:
--- test_0 = ceo
+-- TF-One = ceo
+-- test_0 = admin
 -- test_1 = admin
 -- test_2 = moderator
--- test_3+ = user
+-- test_3 through test_10 = user
 --
 -- Location setup:
--- test_0, test_1, test_2 = SC
+-- TF-One, test_0, test_1, test_2 = SC
 -- test_3, test_4 = TX
 -- test_5, test_6, test_7 = MA
 -- test_8, test_9 = PA
@@ -25,67 +26,51 @@ create extension if not exists pgcrypto;
 
 do $$
 declare
-  i integer;
-  user_email text;
-  user_name text;
+  seed_user record;
   user_id uuid;
   user_dob date;
   birthday_date date;
-  profile_role text;
-  user_city text;
-  user_state text;
 begin
-  for i in 0..10 loop
-    user_email := 'test_' || i || '@example.com';
-    user_name := 'test_' || i;
-
-    -- Give each test user an upcoming birthday while keeping them adults.
-    birthday_date := current_date + ((i % 21) + 1);
+  for seed_user in
+    select *
+    from (
+      values
+        ('tf-one@example.com', 'TF-One', 'TF One', 'TriggerFeed', 'One', 'ceo', 'Greenville', 'SC', 0),
+        ('test_0@example.com', 'test_0', 'Test User 0', 'Test', 'User 0', 'admin', 'Simpsonville', 'SC', 1),
+        ('test_1@example.com', 'test_1', 'Test User 1', 'Test', 'User 1', 'admin', 'Greenville', 'SC', 2),
+        ('test_2@example.com', 'test_2', 'Test User 2', 'Test', 'User 2', 'moderator', 'Spartanburg', 'SC', 3),
+        ('test_3@example.com', 'test_3', 'Test User 3', 'Test', 'User 3', 'user', 'Austin', 'TX', 4),
+        ('test_4@example.com', 'test_4', 'Test User 4', 'Test', 'User 4', 'user', 'Dallas', 'TX', 5),
+        ('test_5@example.com', 'test_5', 'Test User 5', 'Test', 'User 5', 'user', 'Boston', 'MA', 6),
+        ('test_6@example.com', 'test_6', 'Test User 6', 'Test', 'User 6', 'user', 'Worcester', 'MA', 7),
+        ('test_7@example.com', 'test_7', 'Test User 7', 'Test', 'User 7', 'user', 'Springfield', 'MA', 8),
+        ('test_8@example.com', 'test_8', 'Test User 8', 'Test', 'User 8', 'user', 'Pittsburgh', 'PA', 9),
+        ('test_9@example.com', 'test_9', 'Test User 9', 'Test', 'User 9', 'user', 'Philadelphia', 'PA', 10),
+        ('test_10@example.com', 'test_10', 'Test User 10', 'Test', 'User 10', 'user', 'Charlotte', 'NC', 11)
+    ) as seed_data(
+      email,
+      username,
+      display_name,
+      first_name,
+      last_name,
+      role,
+      city,
+      state,
+      offset_days
+    )
+  loop
+    birthday_date := current_date + ((seed_user.offset_days % 21) + 1);
 
     user_dob := make_date(
-      1980 + (i % 20),
+      1980 + (seed_user.offset_days % 20),
       extract(month from birthday_date)::integer,
       extract(day from birthday_date)::integer
     );
 
-    profile_role := case
-      when i = 0 then 'ceo'
-      when i = 1 then 'admin'
-      when i = 2 then 'moderator'
-      else 'user'
-    end;
-
-    user_city := case
-      when i = 0 then 'Simpsonville'
-      when i = 1 then 'Greenville'
-      when i = 2 then 'Spartanburg'
-
-      when i = 3 then 'Austin'
-      when i = 4 then 'Dallas'
-
-      when i = 5 then 'Boston'
-      when i = 6 then 'Worcester'
-      when i = 7 then 'Springfield'
-
-      when i = 8 then 'Pittsburgh'
-      when i = 9 then 'Philadelphia'
-
-      else 'Charlotte'
-    end;
-
-    user_state := case
-      when i in (0, 1, 2) then 'SC'
-      when i in (3, 4) then 'TX'
-      when i in (5, 6, 7) then 'MA'
-      when i in (8, 9) then 'PA'
-      else 'NC'
-    end;
-
-    -- Reuse existing user id if already created, otherwise make a new one.
     select id
     into user_id
     from auth.users
-    where email = user_email
+    where email = seed_user.email
     limit 1;
 
     if user_id is null then
@@ -132,7 +117,7 @@ begin
         '00000000-0000-0000-0000-000000000000',
         'authenticated',
         'authenticated',
-        user_email,
+        seed_user.email,
         crypt('testMe123!', gen_salt('bf')),
         now(),
         null,
@@ -146,11 +131,11 @@ begin
         null,
         '{"provider":"email","providers":["email"]}'::jsonb,
         jsonb_build_object(
-          'username', user_name,
-          'display_name', 'Test User ' || i,
+          'username', seed_user.username,
+          'display_name', seed_user.display_name,
           'dob', user_dob,
-          'city', user_city,
-          'state', user_state
+          'city', seed_user.city,
+          'state', seed_user.state
         ),
         false,
         now(),
@@ -176,17 +161,16 @@ begin
         email_confirmed_at = coalesce(email_confirmed_at, now()),
         raw_app_meta_data = '{"provider":"email","providers":["email"]}'::jsonb,
         raw_user_meta_data = jsonb_build_object(
-          'username', user_name,
-          'display_name', 'Test User ' || i,
+          'username', seed_user.username,
+          'display_name', seed_user.display_name,
           'dob', user_dob,
-          'city', user_city,
-          'state', user_state
+          'city', seed_user.city,
+          'state', seed_user.state
         ),
         updated_at = now()
       where id = user_id;
     end if;
 
-    -- Email identity row. Needed so GoTrue treats this like a normal email user.
     insert into auth.identities (
       id,
       user_id,
@@ -203,7 +187,7 @@ begin
       user_id::text,
       jsonb_build_object(
         'sub', user_id::text,
-        'email', user_email,
+        'email', seed_user.email,
         'email_verified', true,
         'phone_verified', false
       ),
@@ -217,7 +201,6 @@ begin
       identity_data = excluded.identity_data,
       updated_at = now();
 
-    -- Profile row. Your auth trigger may create this too, but this guarantees it.
     insert into public.profiles (
       id,
       email,
@@ -242,19 +225,19 @@ begin
     )
     values (
       user_id,
-      user_email,
-      user_name,
-      lower(user_name),
-      'Test User ' || i,
-      'Test',
-      'User ' || i,
-      user_city,
-      user_state,
+      seed_user.email,
+      seed_user.username,
+      lower(seed_user.username),
+      seed_user.display_name,
+      seed_user.first_name,
+      seed_user.last_name,
+      seed_user.city,
+      seed_user.state,
       user_dob,
       now(),
       'v1',
       true,
-      profile_role,
+      seed_user.role,
       false,
       false,
       false,
@@ -294,22 +277,12 @@ begin
   end loop;
 end $$;
 
--- Verify
-select
-  u.email,
-  p.username,
-  p.username_lower,
-  p.display_name,
-  p.city,
-  p.state,
-  p.role,
-  p.dob,
-  to_char(p.dob, 'MM-DD') as birthday_month_day,
-  p.age_verified_at is not null as age_verified,
-  p.birthday_messages_enabled,
-  u.email_confirmed_at is not null as confirmed
-from auth.users u
-left join public.profiles p
-  on p.id = u.id
-where u.email like 'test\_%@example.com'
-order by u.email;
+select username, email, role
+from public.profiles
+order by
+  case
+    when username = 'TF-One' then 0
+    when username like 'test_%' then 1
+    else 2
+  end,
+  username;

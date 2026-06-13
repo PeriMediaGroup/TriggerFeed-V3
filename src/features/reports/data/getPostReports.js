@@ -15,29 +15,9 @@ function logSupabaseError(label, error) {
 export async function getPostReports() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("post_reports")
-    .select(`
-      id,
-      post_id,
-      reporter_id,
-      reason,
-      details,
-      status,
-      reviewed_by,
-      reviewed_at,
-      created_at,
-      updated_at,
-      post:posts (
-        id,
-        title,
-        body,
-        user_id,
-        is_deleted,
-        created_at
-      )
-    `)
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.rpc(
+    "get_post_reports_for_moderation",
+  );
 
   if (error) {
     logSupabaseError("GET POST REPORTS ERROR:", error);
@@ -49,61 +29,13 @@ export async function getPostReports() {
     ...new Set(reports.map((report) => report.post?.user_id).filter(Boolean)),
   ];
 
-  const profileIds = [
-    ...new Set(
-      reports
-        .flatMap((report) => [
-          report.reporter_id,
-          report.reviewed_by,
-          report.post?.user_id,
-        ])
-        .filter(Boolean)
-    ),
-  ];
-
   const moderationHistoryByUserId = await getModerationHistoryByUserId({
     supabase,
     targetUserIds,
   });
 
-  if (!profileIds.length) {
-    return reports.map((report) => ({
-      ...report,
-      reporter: null,
-      reviewer: null,
-      post_author: null,
-      moderation_history: moderationHistoryByUserId.get(report.post?.user_id) || [],
-    }));
-  }
-
-  const { data: profiles, error: profilesError } = await supabase.rpc(
-    "get_moderation_profile_cards",
-    {
-      p_profile_ids: profileIds,
-    }
-  );
-
-  if (profilesError) {
-    logSupabaseError("GET POST REPORT PROFILE CARDS ERROR:", profilesError);
-
-    return reports.map((report) => ({
-      ...report,
-      reporter: null,
-      reviewer: null,
-      post_author: null,
-      moderation_history: moderationHistoryByUserId.get(report.post?.user_id) || [],
-    }));
-  }
-
-  const profileMap = new Map(
-    (profiles || []).map((profile) => [profile.id, profile])
-  );
-
   return reports.map((report) => ({
     ...report,
-    reporter: profileMap.get(report.reporter_id) || null,
-    reviewer: profileMap.get(report.reviewed_by) || null,
-    post_author: profileMap.get(report.post?.user_id) || null,
     moderation_history: moderationHistoryByUserId.get(report.post?.user_id) || [],
   }));
 }
