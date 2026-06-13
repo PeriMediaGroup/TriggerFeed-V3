@@ -84,6 +84,35 @@ function getTextPreview(value, maxLength = 120) {
   return `${text.slice(0, maxLength).trim()}...`;
 }
 
+function normalizeRunActionOptions(options) {
+  if (!options) {
+    return {
+      optimisticStatus: null,
+      onSuccess: null,
+    };
+  }
+
+  if (typeof options === "string") {
+    return {
+      optimisticStatus: options,
+      onSuccess: null,
+    };
+  }
+
+  if (typeof options === "object") {
+    return {
+      optimisticStatus: options.optimisticStatus ?? null,
+      onSuccess:
+        typeof options.onSuccess === "function" ? options.onSuccess : null,
+    };
+  }
+
+  return {
+    optimisticStatus: null,
+    onSuccess: null,
+  };
+}
+
 export default function ReportCard({ report, permissions }) {
   const [status, setStatus] = useState(report.status || "open");
   const [isPostRemoved, setIsPostRemoved] = useState(
@@ -121,9 +150,7 @@ export default function ReportCard({ report, permissions }) {
   const historyCount = report.moderation_history?.length || 0;
 
   function runAction(action, options = null) {
-    const optimisticStatus =
-      typeof options === "string" ? options : options?.optimisticStatus;
-    const onSuccess = typeof options === "object" ? options.onSuccess : null;
+    const { optimisticStatus, onSuccess } = normalizeRunActionOptions(options);
 
     startTransition(async () => {
       const result = await action();

@@ -32,7 +32,7 @@ export default function NotificationTargetLink({
   return (
     <a
       href={href}
-      className="profile-notifications-page__target"
+      className="notifications-panel__target profile-notifications-page__target"
       onClick={handleClick}
       aria-disabled={isPending}
     >

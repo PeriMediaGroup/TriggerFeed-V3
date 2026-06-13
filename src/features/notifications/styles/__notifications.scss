@@ -52,11 +52,38 @@
     min-width: 0;
     margin-bottom: 1em;
     justify-content: space-between;
+
     a {
-        margin-right: .5em;
+      margin-right: 0.5em;
     }
+
     time {
-        font-size: .8rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  &__target {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.5rem;
+    background: var(--color-surface-soft);
+    color: var(--color-text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-surface-hover);
+    }
+
+    &[aria-disabled="true"] {
+      cursor: wait;
+      opacity: 0.65;
     }
   }
 
