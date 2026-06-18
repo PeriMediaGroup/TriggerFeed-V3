@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { useRouter } from "next/navigation";
 import {
   AGE_GATE_VERSION,
@@ -92,7 +93,9 @@ export default function SignupPage() {
         },
       });
 
-      setStatus(error.message || "We could not create your account.");
+      setStatus(
+        getUserSafeErrorMessage(error, "We could not create your account."),
+      );
       setIsLoading(false);
       return;
     }

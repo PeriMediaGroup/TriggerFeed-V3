@@ -60,14 +60,14 @@ export default function NotificationSettings({ initialSettings }) {
 
         if (!result?.success) {
           setSettings(previousSettings);
-          setStatus(result?.message || "Could not save");
+          setStatus(result?.message || "Could not save settings.");
           return;
         }
 
-        setStatus("Saved");
+        setStatus("Settings saved.");
       } catch (error) {
         setSettings(previousSettings);
-        setStatus("Could not save");
+        setStatus("Could not save settings.");
       }
     });
   }
@@ -106,10 +106,6 @@ export default function NotificationSettings({ initialSettings }) {
 function SettingsToggle({ label, description, checked, disabled, onChange }) {
   return (
     <label className="settings-toggle">
-      <span className="settings-toggle__copy">
-        <span className="settings-toggle__label">{label}</span>
-        <span className="settings-toggle__description">{description}</span>
-      </span>
 
       <span className="settings-toggle__switch">
         <input
@@ -120,6 +116,10 @@ function SettingsToggle({ label, description, checked, disabled, onChange }) {
           className="settings-toggle__input"
         />
         <span className="settings-toggle__slider" />
+      </span>
+      <span className="settings-toggle__copy">
+        <span className="settings-toggle__label">{label}</span>
+        <span className="settings-toggle__description">{description}</span>
       </span>
     </label>
   );

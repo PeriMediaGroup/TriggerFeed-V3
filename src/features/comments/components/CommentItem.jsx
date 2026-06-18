@@ -91,7 +91,7 @@ export default function CommentItem({
   }
 
   function handleDelete() {
-    const confirmed = window.confirm("Delete this comment?");
+    const confirmed = window.confirm("Remove this comment?");
 
     if (!confirmed) return;
 
@@ -103,7 +103,7 @@ export default function CommentItem({
       });
 
       if (!result.success) {
-        setStatus(result.error || "Could not delete comment.");
+        setStatus(result.error || "Could not remove comment.");
       }
     });
   }
@@ -275,7 +275,7 @@ export default function CommentItem({
                     className="comment-item__icon-button"
                     disabled={isPending}
                     onClick={handleDelete}
-                    aria-label="Delete comment"
+                    aria-label="Remove comment"
                   >
                     <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
                   </button>

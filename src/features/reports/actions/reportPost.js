@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 const ALLOWED_REASONS = new Set([
   "spam",
@@ -73,7 +74,7 @@ export async function reportPost({ postId, reason, details = "" }) {
 
     return {
       ok: false,
-      message: "Could not report this post.",
+      message: getUserSafeErrorMessage(error, "Could not submit report."),
     };
   }
 
@@ -82,6 +83,6 @@ export async function reportPost({ postId, reason, details = "" }) {
 
   return {
     ok: true,
-    message: "Post reported. Thanks for helping keep TriggerFeed clean.",
+    message: "Report submitted.",
   };
 }

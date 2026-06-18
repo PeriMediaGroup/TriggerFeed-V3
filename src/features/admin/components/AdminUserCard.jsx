@@ -85,6 +85,10 @@ function getStatusLabels(user) {
   return labels.length ? labels : ["Active"];
 }
 
+function getRoleLabel(role) {
+  return typeof role === "string" && role.trim() ? role : "Unknown";
+}
+
 export default function AdminUserCard({ user, currentUserId, permissions }) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -226,7 +230,9 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
         </div>
 
         <div className="admin-user-card__meta" aria-label="User metadata">
-          <span className="admin-user-card__badge">{user.role || "user"}</span>
+          <span className="admin-user-card__badge">
+            {getRoleLabel(user.role)}
+          </span>
           {statusLabels.map((label) => (
             <span
               key={label}

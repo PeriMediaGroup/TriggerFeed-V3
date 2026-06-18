@@ -8,6 +8,7 @@ import { deletePostMedia } from "../actions/deletePostMedia";
 import { savePostMedia } from "../actions/savePostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
 import PostComposer from "@/features/posts/components/PostComposer";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 function getMediaUrl(item) {
   return (
@@ -255,7 +256,7 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
 
           if (!result.success) {
             setErrors(result.errors || {});
-            setStatus(result.message || "Something went wrong.");
+            setStatus(result.message || "Could not update post.");
             setSubmitStep("");
             resolve(false);
             return;
@@ -346,7 +347,7 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
             stack: error?.stack,
           });
 
-          setStatus(error?.message || "Post save failed. Check the console.");
+          setStatus(getUserSafeErrorMessage(error, "Could not update post."));
           setSubmitStep("");
           resolve(false);
         }

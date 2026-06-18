@@ -10,6 +10,19 @@ import {
   DEFAULT_PROFILE_BANNER_LABEL,
 } from "@/features/profiles/constants/profileImages";
 
+function formatBirthdayMonthDay(dob) {
+  if (!dob) return "";
+
+  const date = new Date(`${dob}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export default function ProfileHeader({
   profile,
   stats,
@@ -49,6 +62,9 @@ export default function ProfileHeader({
 
   const email = canShowEmail ? profile?.email : "";
   const username = profile?.username || "your_username";
+  const birthdayDisplay = isCurrentUser
+    ? formatBirthdayMonthDay(profile?.dob)
+    : profile?.birthday_display || "";
 
   const location = [
     canShowCity ? profile?.city : "",
@@ -144,6 +160,15 @@ export default function ProfileHeader({
                 </a>
               )}
             </div>
+
+            {birthdayDisplay && (
+              <div className="profile-header__row">
+                <span className="profile-header__meta-item">
+                  <CalendarDays size={15} strokeWidth={2} aria-hidden="true" />
+                  Birthday: {birthdayDisplay}
+                </span>
+              </div>
+            )}
 
             {displayBadge && (
               <span className="profile-header__badge">{displayBadge}</span>

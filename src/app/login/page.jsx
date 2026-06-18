@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { UserPlus } from "lucide-react";
 import Link from "next/link";
 
@@ -46,7 +47,7 @@ export default function LoginPage() {
         },
       });
 
-      setStatus(error.message || "Login failed.");
+      setStatus(getUserSafeErrorMessage(error, "Could not log in."));
       setIsLoading(false);
       return;
     }
@@ -138,8 +139,7 @@ export default function LoginPage() {
             Log in to TriggerFeed
           </h1>
           <p className="auth-login__intro">
-            Get back to the feed, your profile, and whatever else we&apos;ve
-            managed to wire together without offending the database gods.
+            Get back to your feed, profile, friends, and notifications.
           </p>
         </header>
 

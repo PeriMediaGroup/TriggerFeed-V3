@@ -94,7 +94,7 @@ export async function updateTopGuns(_prevState, formData) {
     
     return {
         success: true,
-        message: "Saved",
+        message: "Top guns saved.",
         errors: {},
     };
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { sendModerationEmail } from "@/lib/email/sendModerationEmail";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 const ROLE_VALUES = new Set(["user", "moderator", "admin"]);
 
@@ -68,6 +69,7 @@ async function callModerationRpc(
   payload,
   successMessage,
   failureMessage = null,
+  permissionMessage = "You do not have permission to do that.",
 ) {
   const supabase = await createClient();
 
@@ -84,7 +86,11 @@ async function callModerationRpc(
 
   if (error) {
     return failure(
-      failureMessage || error.message || "Moderation action failed.",
+      getUserSafeErrorMessage(
+        error,
+        failureMessage || "Moderation action failed.",
+        permissionMessage,
+      ),
       error,
     );
   }
@@ -162,6 +168,7 @@ async function callModerationRpcWithEmailNotice({
   payload,
   sentMessage,
   failedMessage,
+  permissionMessage = "You do not have permission to do that.",
 }) {
   const supabase = await createClient();
 
@@ -180,7 +187,14 @@ async function callModerationRpcWithEmailNotice({
   );
 
   if (error) {
-    return failure(error.message || "Moderation action failed.", error);
+    return failure(
+      getUserSafeErrorMessage(
+        error,
+        "Moderation action failed.",
+        permissionMessage,
+      ),
+      error,
+    );
   }
 
   const emailResult = await sendAccountModerationEmail({
@@ -214,7 +228,9 @@ export async function warnUser({
       p_related_post_id: relatedPostId || null,
       p_related_report_id: relatedReportId || null,
     },
-    "Warning recorded.",
+    "Warning sent.",
+    "Could not send warning.",
+    "You do not have permission to warn this user.",
   );
 }
 
@@ -240,6 +256,7 @@ export async function muteUser({
     },
     sentMessage: "User muted and notice sent.",
     failedMessage: "User muted. Email notice could not be sent.",
+    permissionMessage: "You do not have permission to mute this user.",
   });
 }
 
@@ -255,6 +272,8 @@ export async function unmuteUser({ targetUserId, reason }) {
       p_reason: nullableString(reason),
     },
     "User unmuted.",
+    "Could not unmute user.",
+    "You do not have permission to unmute this user.",
   );
 }
 
@@ -280,6 +299,7 @@ export async function banUser({
     },
     sentMessage: "User banned and notice sent.",
     failedMessage: "User banned. Email notice could not be sent.",
+    permissionMessage: "You do not have permission to ban this user.",
   });
 }
 
@@ -295,6 +315,8 @@ export async function unbanUser({ targetUserId, reason }) {
       p_reason: nullableString(reason),
     },
     "User unbanned.",
+    "Could not unban user.",
+    "You do not have permission to unban this user.",
   );
 }
 
@@ -311,6 +333,8 @@ export async function removePost({ postId, reason, relatedReportId = null }) {
       p_related_report_id: relatedReportId || null,
     },
     "Post removed.",
+    "Could not remove post.",
+    "You do not have permission to remove this post.",
   );
 
   if (result.ok) {
@@ -334,6 +358,7 @@ export async function restorePost({ postId, reason, relatedReportId = null }) {
     },
     "Post restored.",
     "Could not restore post.",
+    "You do not have permission to restore this post.",
   );
 
   if (result.ok) {

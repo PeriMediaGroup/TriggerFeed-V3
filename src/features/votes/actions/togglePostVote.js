@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 export async function togglePostVote({ postId, voteType }) {
   const supabase = await createClient();
@@ -38,10 +39,10 @@ export async function togglePostVote({ postId, voteType }) {
   if (error) {
     console.error("TOGGLE POST VOTE ERROR:", error);
 
-  const message =
-    error.message === "You must be logged in to vote."
-      ? "Log in to vote."
-      : error.message || "Unable to update vote.";
+    const message =
+      error.message === "You must be logged in to vote."
+        ? "Log in to vote."
+        : getUserSafeErrorMessage(error, "Could not update vote.");
 
     return {
       success: false,

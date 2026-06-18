@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 
+export const BASE_RANK_KEY = "FNG";
+export const BASE_RANK_MIN_POSTS = 0;
+
 function normalizeRank(row) {
   if (!row) {
     return null;
@@ -73,15 +76,74 @@ export async function getRankSortOrderMap() {
   return new Map((data || []).map((rank) => [rank.key, rank.sort_order]));
 }
 
+export async function getRankThresholdMap() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("user_rank_thresholds")
+    .select("key, min_posts, sort_order")
+    .eq("is_active", true);
+
+  if (error) {
+    console.error("GET RANK THRESHOLDS ERROR:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+
+    return new Map();
+  }
+
+  return new Map(
+    (data || []).map((rank) => [
+      rank.key,
+      {
+        minPosts: rank.min_posts ?? 0,
+        sortOrder: rank.sort_order ?? 0,
+      },
+    ]),
+  );
+}
+
+function getRankSortOrder(rankKey, rankThresholdMap) {
+  const rankThreshold = rankThresholdMap?.get(rankKey);
+
+  if (typeof rankThreshold === "number") {
+    return rankThreshold;
+  }
+
+  return rankThreshold?.sortOrder ?? 0;
+}
+
 export function isHigherRank(rankKey, previousRankKey, rankSortOrderMap) {
   if (!rankKey || !rankSortOrderMap?.has(rankKey)) {
     return false;
   }
 
-  const currentSortOrder = rankSortOrderMap.get(rankKey) || 0;
-  const previousSortOrder = previousRankKey
-    ? rankSortOrderMap.get(previousRankKey) || 0
-    : 0;
+  const currentSortOrder = getRankSortOrder(rankKey, rankSortOrderMap);
+  const previousSortOrder =
+    previousRankKey && rankSortOrderMap.has(previousRankKey)
+      ? getRankSortOrder(previousRankKey, rankSortOrderMap)
+      : 0;
 
   return currentSortOrder > previousSortOrder;
+}
+
+export function isMilestoneEligibleRank(rankKey, rankThresholdMap) {
+  if (!rankKey || rankKey === BASE_RANK_KEY) {
+    return false;
+  }
+
+  const rankThreshold = rankThresholdMap?.get(rankKey);
+
+  if (!rankThreshold) {
+    return false;
+  }
+
+  const minPosts =
+    typeof rankThreshold === "number"
+      ? null
+      : rankThreshold.minPosts ?? BASE_RANK_MIN_POSTS;
+
+  return minPosts !== BASE_RANK_MIN_POSTS;
 }

@@ -4,9 +4,10 @@ import PostFeed from "@/features/posts/components/PostFeed";
 import BirthdayGreeting from "@/features/milestones/components/BirthdayGreeting";
 import { getCurrentProfile } from "@/features/profiles/data/getCurrentProfile";
 import {
-  getRankSortOrderMap,
+  getRankThresholdMap,
   getUserRank,
   isHigherRank,
+  isMilestoneEligibleRank,
 } from "@/features/ranks/data/getUserRank";
 import { acknowledgeRankMilestone } from "@/features/ranks/actions/acknowledgeRankMilestone";
 
@@ -40,17 +41,17 @@ export default async function FeedPage({ feedType = "main" }) {
     activeFeed === "main" && currentUserId
       ? await getCurrentProfile()
       : { profile: null };
-  const [{ rank }, rankSortOrderMap] =
+  const [{ rank }, rankThresholdMap] =
     activeFeed === "main" && currentUserId
-      ? await Promise.all([getUserRank(currentUserId), getRankSortOrderMap()])
+      ? await Promise.all([getUserRank(currentUserId), getRankThresholdMap()])
       : [{ rank: null }, new Map()];
   const todayKey = getTodayKey();
   const lastSeenRankKey = profile?.last_seen_rank_key || "new_recruit";
   const shouldShowRankMilestone =
     activeFeed === "main" &&
     rank?.rankKey &&
-    rank.rankKey !== "new_recruit" &&
-    isHigherRank(rank.rankKey, lastSeenRankKey, rankSortOrderMap);
+    isMilestoneEligibleRank(rank.rankKey, rankThresholdMap) &&
+    isHigherRank(rank.rankKey, lastSeenRankKey, rankThresholdMap);
 
   return (
     <section className="feed-page">
@@ -70,7 +71,7 @@ export default async function FeedPage({ feedType = "main" }) {
       {shouldShowRankMilestone ? (
         <BirthdayGreeting
           userId={currentUserId}
-          dateKey={todayKey}
+          dateKey={rank.rankKey}
           isActive
           milestoneType="rank"
           rankName={rank.rankLabel}

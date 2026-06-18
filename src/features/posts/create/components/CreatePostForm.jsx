@@ -7,6 +7,7 @@ import { createPost } from "../../actions/createPost";
 import { uploadFilesToCloudinary } from "@/features/media/uploadToCloudinaryClient";
 import { savePostMedia } from "@/features/posts/actions/savePostMedia";
 import PostComposer from "@/features/posts/components/PostComposer";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import toast from "react-hot-toast";
 
 export default function CreatePostForm({ canCreateStickyPost = false }) {
@@ -31,7 +32,7 @@ export default function CreatePostForm({ canCreateStickyPost = false }) {
 
           if (!result.success) {
             setErrors(result.errors || {});
-            setStatus(result.message || "Something went wrong.");
+            setStatus(result.message || "Could not create post.");
             setSubmitStep("");
             resolve(false);
             return;
@@ -72,9 +73,6 @@ export default function CreatePostForm({ canCreateStickyPost = false }) {
               setSubmitStep("");
               resolve(false);
               return;
-              setSubmitStep("");
-              resolve(false);
-              return;
             }
           }
           setSubmitStep("Finishing up...");
@@ -89,7 +87,7 @@ export default function CreatePostForm({ canCreateStickyPost = false }) {
           resolve(true);
         } catch (error) {
           console.error("CREATE POST SAVE ERROR:", error);
-          setStatus(error?.message || "Create post failed. Check the console.");
+          setStatus(getUserSafeErrorMessage(error, "Could not create post."));
           setSubmitStep("");
           resolve(false);
         }

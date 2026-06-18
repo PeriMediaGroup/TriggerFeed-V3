@@ -1,0 +1,23 @@
+// coming soon
+.ad-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+  padding: var(--space-sm);
+  &__label {
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+  &__image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  &__content {
+    color: #fff;
+    text-decoration: none;
+  }
+  &__cta {
+    font-size: .75rem;
+  }
+}

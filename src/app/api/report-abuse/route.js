@@ -15,6 +15,20 @@ function getSupabasePublicConfig() {
   };
 }
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidHttpUrl(value) {
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request) {
   let body;
 
@@ -39,9 +53,13 @@ export async function POST(request) {
     return NextResponse.json({ ok: true });
   }
 
-  if (!payload.email || !payload.link || !payload.details) {
+  if (
+    !isValidEmail(payload.email) ||
+    !isValidHttpUrl(payload.link) ||
+    payload.details.length < 10
+  ) {
     return NextResponse.json(
-      { error: "Email, link, and details are required." },
+      { error: "Please include a valid email, link, and report details." },
       { status: 400 },
     );
   }
@@ -55,26 +73,46 @@ export async function POST(request) {
     );
   }
 
-  const response = await fetch(
-    `${supabaseConfig.url}/functions/v1/report-abuse`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: supabaseConfig.key,
-        Authorization: `Bearer ${supabaseConfig.key}`,
+  let response;
+
+  try {
+    response = await fetch(
+      `${supabaseConfig.url}/functions/v1/report-abuse`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: supabaseConfig.key,
+          Authorization: `Bearer ${supabaseConfig.key}`,
+        },
+        body: JSON.stringify({
+          email: payload.email,
+          link: payload.link,
+          offending_username: payload.offending_username,
+          details: payload.details,
+          source: "triggerfeed-v3-legal",
+        }),
       },
-      body: JSON.stringify({
-        email: payload.email,
-        link: payload.link,
-        offending_username: payload.offending_username,
-        details: payload.details,
-        source: "triggerfeed-v3-legal",
-      }),
-    },
-  );
+    );
+  } catch (error) {
+    console.error("REPORT ABUSE FUNCTION FETCH ERROR:", {
+      message: error?.message,
+    });
+
+    return NextResponse.json(
+      { error: "Report could not be submitted." },
+      { status: 502 },
+    );
+  }
 
   if (!response.ok) {
+    const errorText = await response.text();
+
+    console.error("REPORT ABUSE FUNCTION ERROR:", {
+      status: response.status,
+      body: errorText,
+    });
+
     return NextResponse.json(
       { error: "Report could not be submitted." },
       { status: 502 },

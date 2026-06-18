@@ -114,7 +114,7 @@ export default function EditProfileForm({ profile }) {
       const result = await updateProfile(initialState, formData);
 
       if (result?.success) {
-        setSaveMessage("Saved");
+        setSaveMessage(result.message || "Profile updated.");
         setErrors({});
         return;
       }

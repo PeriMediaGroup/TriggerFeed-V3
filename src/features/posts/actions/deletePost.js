@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 export async function deletePost(postId) {
   if (!postId) {
@@ -37,7 +38,7 @@ export async function deletePost(postId) {
 
     return {
       success: false,
-      error: postError.message,
+      error: getUserSafeErrorMessage(postError, "Could not remove post."),
     };
   }
 
@@ -79,7 +80,7 @@ export async function deletePost(postId) {
 
     return {
       success: false,
-      error: deleteError.message,
+      error: getUserSafeErrorMessage(deleteError, "Could not remove post."),
     };
   }
 

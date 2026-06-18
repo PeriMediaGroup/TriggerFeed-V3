@@ -143,7 +143,9 @@ function ModerationWarningContent({ notification }) {
 
 export default function NotificationsPanel({ notifications = [] }) {
   if (!notifications.length) {
-    return <p>No notifications right now.</p>;
+    return (
+      <p className="notifications-panel__empty">No notifications right now.</p>
+    );
   }
 
   return (

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AGE_GATE_VERSION, isValidDobString } from "@/features/auth/ageGate";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 export async function repairAgeGate(formData) {
   const dob = String(formData.get("dob") || "").trim();
@@ -44,8 +45,10 @@ export async function repairAgeGate(formData) {
   if (error) {
     return {
       success: false,
-      message:
-        error.message || "We could not verify your age. Please try again.",
+      message: getUserSafeErrorMessage(
+        error,
+        "We could not verify your age. Please try again.",
+      ),
     };
   }
 

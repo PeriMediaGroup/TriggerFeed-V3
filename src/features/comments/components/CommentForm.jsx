@@ -24,7 +24,7 @@ export default function CommentForm({ postId, isLoggedIn }) {
     const cleanBody = body.trim();
 
     if (!cleanBody) {
-      setError("Comment cannot be empty");
+      setError("Comment cannot be empty.");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function CommentForm({ postId, isLoggedIn }) {
       });
 
       if (!result.success) {
-        setError(result.error || "Something went wrong creating your comment");
+        setError(result.error || "Could not post comment.");
         return;
       }
 

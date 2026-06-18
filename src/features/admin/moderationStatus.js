@@ -1,3 +1,5 @@
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
+
 export async function getCurrentUserModerationBlock(supabase) {
   const { error } = await supabase.rpc("assert_current_user_can_interact");
 
@@ -11,7 +13,10 @@ export async function getCurrentUserModerationBlock(supabase) {
 
     return {
       blocked: true,
-      message: error.message || "Could not verify your account status.",
+      message: getUserSafeErrorMessage(
+        error,
+        "Could not verify your account status.",
+      ),
     };
   }
 

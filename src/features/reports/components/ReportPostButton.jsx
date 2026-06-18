@@ -55,12 +55,12 @@ export default function ReportPostButton({
       });
 
       if (result.ok) {
-        toast.success(result.message || "Post reported.");
+        toast.success(result.message || "Report submitted.");
         setIsOpen(false);
         return;
       }
 
-      toast.error(result.message || "Could not report this post.");
+      toast.error(result.message || "Could not submit report.");
     });
   }
 
@@ -162,7 +162,7 @@ export default function ReportPostButton({
               type="submit"
               disabled={isPending}
             >
-              {isPending ? "Reporting..." : "Submit report"}
+              {isPending ? "Submitting..." : "Submit report"}
             </button>
 
             <button
