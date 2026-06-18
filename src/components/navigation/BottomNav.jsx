@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Home, PlusCircle, User, Users } from "lucide-react";
+import { Bell, Home, PlusCircle, Search, User } from "lucide-react";
 
 function isActivePath(pathname, href) {
   if (href === "/") {
@@ -23,10 +23,10 @@ export default function BottomNav({ unreadNotifications = 0 }) {
       match: (pathname) => pathname === "/",
     },
     {
-      href: "/profile?tab=friends",
-      label: "Friends",
-      icon: Users,
-      match: (pathname) => pathname === "/profile/friends",
+      href: "/search",
+      label: "Search",
+      icon: Search,
+      match: (pathname) => pathname === "/search",
     },
     {
       href: "/posts/new",

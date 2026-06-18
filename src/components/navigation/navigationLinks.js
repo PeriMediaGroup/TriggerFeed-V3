@@ -8,8 +8,8 @@ import {
   LogOut,
   Mail,
   PlusCircle,
-  Scale,
   ShieldAlert,
+  Scale,
   ShoppingBag,
   User,
   UserPlus,
@@ -107,6 +107,34 @@ export const SITE_NAV_LINKS = [
     href: "/merch",
     label: "Merch",
     Icon: ShoppingBag,
+  },
+  {
+    href: "/legal",
+    label: "Legal",
+    Icon: Scale,
+  },
+];
+
+export const MOBILE_UTILITY_LINKS = [
+  {
+    href: "/about",
+    label: "About",
+    Icon: Info,
+  },
+  {
+    href: "/merch",
+    label: "Merch",
+    Icon: ShoppingBag,
+  },
+  {
+    href: "/contact",
+    label: "Contact",
+    Icon: Mail,
+  },
+  {
+    href: "/install",
+    label: "Install App",
+    Icon: Download,
   },
   {
     href: "/legal",

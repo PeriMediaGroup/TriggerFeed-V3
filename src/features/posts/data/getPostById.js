@@ -121,21 +121,16 @@ export async function getPostById(postId) {
   }
 
   // -----------------------------
-  // Vote counts from SQL view
+  // Aggregate vote counts. Raw post_votes rows and the backing view are not client-readable.
   // -----------------------------
-  const { data: voteCounts, error: voteCountsError } = await supabase
-    .from("post_vote_counts")
-    .select(
-      `
-      post_id,
-      upvote_count,
-      downvote_count,
-      interaction_count,
-      score
-    `
-    )
-    .eq("post_id", postId)
-    .maybeSingle();
+  const { data: voteCountRows, error: voteCountsError } = await supabase.rpc(
+    "get_post_vote_counts",
+    {
+      p_post_ids: [postId],
+    }
+  );
+
+  const voteCounts = voteCountRows?.[0] ?? null;
 
   if (voteCountsError) {
     console.error("GET POST VOTE COUNTS ERROR:", voteCountsError);

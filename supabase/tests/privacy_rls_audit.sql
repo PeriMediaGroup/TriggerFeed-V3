@@ -203,13 +203,20 @@ begin
       null;
   end;
 
+  begin
+    select count(*) into raw_count from public.post_vote_counts;
+    raise exception 'authenticated direct post_vote_counts select should fail';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+
   select vote_count
   into aggregate_count
-  from public.post_vote_counts
-  where post_id = (select id from privacy_test_post_id);
+  from public.get_post_vote_counts(array[(select id from privacy_test_post_id)]);
 
   if aggregate_count <> 2 then
-    raise exception 'post_vote_counts should expose aggregate count only, got %', aggregate_count;
+    raise exception 'get_post_vote_counts should expose aggregate count only, got %', aggregate_count;
   end if;
 
   select count(*)
@@ -228,6 +235,7 @@ set role anon;
 do $$
 declare
   raw_count integer;
+  aggregate_count integer;
 begin
   begin
     select count(*) into raw_count from public.post_votes;
@@ -236,6 +244,22 @@ begin
     when insufficient_privilege then
       null;
   end;
+
+  begin
+    select count(*) into raw_count from public.post_vote_counts;
+    raise exception 'anon direct post_vote_counts select should fail';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+
+  select vote_count
+  into aggregate_count
+  from public.get_post_vote_counts(array[(select id from privacy_test_post_id)]);
+
+  if aggregate_count <> 2 then
+    raise exception 'anon get_post_vote_counts should expose aggregate count only, got %', aggregate_count;
+  end if;
 end $$;
 
 reset role;

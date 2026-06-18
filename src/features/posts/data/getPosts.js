@@ -313,21 +313,14 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
   }
 
   // -----------------------------
-  // Vote counts from SQL view
+  // Aggregate vote counts. Raw post_votes rows and the backing view are not client-readable.
   // -----------------------------
-  const { data: voteCounts, error: voteCountsError } = await supabase
-    .from("post_vote_counts")
-    .select(
-      `
-      post_id,
-      upvote_count,
-      downvote_count,
-      vote_count,
-      interaction_count,
-      score
-    `
-    )
-    .in("post_id", postIds);
+  const { data: voteCounts, error: voteCountsError } = await supabase.rpc(
+    "get_post_vote_counts",
+    {
+      p_post_ids: postIds,
+    }
+  );
 
   if (voteCountsError) {
     logSupabaseError("GET POST VOTE COUNTS ERROR:", voteCountsError);
