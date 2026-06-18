@@ -6,7 +6,8 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 
-const RESET_LINK_INVALID_MESSAGE = "This reset link is invalid or expired.";
+const RESET_LINK_INVALID_MESSAGE =
+  "Your reset link has expired. Please request a new one.";
 const RESET_LINK_CHECKING_MESSAGE = "Checking reset link...";
 const RECOVERY_SESSION_WAIT_MS = 2500;
 const RECOVERY_HASH_EVENT = "RECOVERY_HASH";
@@ -16,7 +17,7 @@ const RECOVERY_SUBMIT_EVENT = "RECOVERY_SUBMIT";
 const PASSWORD_UNCHANGED_MESSAGE =
   "Please choose a new password that is different from your current password.";
 const PASSWORD_UPDATE_SESSION_MESSAGE =
-  "Could not update your password. Request a new reset link.";
+  "Your reset link has expired. Please request a new one.";
 const PASSWORD_UPDATE_GENERIC_MESSAGE =
   "Could not update your password. Please try again.";
 
@@ -203,7 +204,7 @@ function ResetPasswordForm() {
     setStatus("");
 
     if (!hasRecoverySession) {
-      setStatus("Request a new password reset link to continue.");
+      setStatus(RESET_LINK_INVALID_MESSAGE);
       return;
     }
 
@@ -231,7 +232,7 @@ function ResetPasswordForm() {
     debugRecoverySession(RECOVERY_SUBMIT_EVENT, session);
 
     if (!session) {
-      setStatus("Request a new password reset link to continue.");
+      setStatus(RESET_LINK_INVALID_MESSAGE);
       setIsLoading(false);
       return;
     }

@@ -3,7 +3,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { normalizeProfilePrivacySettings } from "@/features/profiles/lib/privacySettings";
 
-const ALLOWED_KEYS = ["show_email", "show_city", "show_state", "show_real_name"];
+const ALLOWED_KEYS = [
+  "show_email",
+  "show_city",
+  "show_state",
+  "show_real_name",
+  "show_birthday",
+];
 
 function logSupabaseError(label, error) {
   console.error(label, {

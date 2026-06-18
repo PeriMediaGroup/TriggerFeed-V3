@@ -2,11 +2,12 @@ import { redirect } from "next/navigation";
 
 import ReportPanel from "@/features/reports/components/ReportPanel";
 import { getModerationPermissions } from "@/features/admin/permissions";
+import { getAbuseReports } from "@/features/reports/data/getAbuseReports";
 import { getPostReports } from "@/features/reports/data/getPostReports";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Post Reports | TriggerFeed Admin",
+  title: "Reports | TriggerFeed Admin",
 };
 
 export default async function AdminReportsPage() {
@@ -43,6 +44,15 @@ export default async function AdminReportsPage() {
   }
 
   const reports = await getPostReports();
+  const abuseReports = ["admin", "ceo"].includes(permissions.role)
+    ? await getAbuseReports()
+    : [];
 
-  return <ReportPanel reports={reports} permissions={permissions} />;
+  return (
+    <ReportPanel
+      reports={reports}
+      abuseReports={abuseReports}
+      permissions={permissions}
+    />
+  );
 }

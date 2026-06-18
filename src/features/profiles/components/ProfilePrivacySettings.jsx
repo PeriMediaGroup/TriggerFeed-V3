@@ -26,10 +26,41 @@ const PRIVACY_OPTIONS = [
     label: "Email",
     description: "Show your email address on your public profile.",
   },
+  {
+    key: "show_birthday",
+    label: "Show my birthday on my public profile",
+    description: "Shows only month and day. Your birth year and age stay private.",
+  },
 ];
+
+function formatLockedDob(dob) {
+  if (!dob) {
+    return "";
+  }
+
+  const dateParts = String(dob).slice(0, 10).split("-");
+
+  if (dateParts.length !== 3) {
+    return "";
+  }
+
+  const [year, month, day] = dateParts.map((part) => Number.parseInt(part, 10));
+
+  if (!year || !month || !day) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
 
 export default function ProfilePrivacySettings({ profile }) {
   const initialVisibility = getProfileVisibility(profile?.privacy_settings);
+  const lockedDob = formatLockedDob(profile?.dob);
 
   const [visibility, setVisibility] = useState(initialVisibility);
   const [status, setStatus] = useState("");
@@ -52,14 +83,14 @@ export default function ProfilePrivacySettings({ profile }) {
 
         if (!result?.success) {
           setVisibility(previousVisibility);
-          setStatus(result?.message || "Could not save");
+          setStatus(result?.message || "Could not save settings.");
           return;
         }
 
-        setStatus("Saved");
+        setStatus("Settings saved.");
       } catch (error) {
         setVisibility(previousVisibility);
-        setStatus("Could not save");
+        setStatus("Could not save settings.");
       }
     });
   }
@@ -77,6 +108,16 @@ export default function ProfilePrivacySettings({ profile }) {
             {isPending ? "Saving..." : status}
           </p>
         )}
+      </div>
+
+      <div className="profile-privacy-settings__locked-field">
+        <span className="profile-privacy-settings__locked-label">Birthday</span>
+        <span className="profile-privacy-settings__locked-value">
+          {lockedDob || "Birthday has not been set."}
+        </span>
+        <span className="profile-privacy-settings__locked-help">
+          Birthday is locked after signup.
+        </span>
       </div>
 
       <div className="settings-toggle-list">
@@ -98,10 +139,6 @@ export default function ProfilePrivacySettings({ profile }) {
 function SettingsToggle({ label, description, checked, disabled, onChange }) {
   return (
     <label className="settings-toggle">
-      <span className="settings-toggle__copy">
-        <span className="settings-toggle__label">{label}</span>
-        <span className="settings-toggle__description">{description}</span>
-      </span>
 
       <span className="settings-toggle__switch">
         <input
@@ -112,6 +149,10 @@ function SettingsToggle({ label, description, checked, disabled, onChange }) {
           className="settings-toggle__input"
         />
         <span className="settings-toggle__slider" />
+      </span>
+      <span className="settings-toggle__copy">
+        <span className="settings-toggle__label">{label}</span>
+        <span className="settings-toggle__description">{description}</span>
       </span>
     </label>
   );

@@ -208,6 +208,31 @@
   max-width: 100%;
 }
 
+.reports-panel__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.reports-panel__tabs a {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.7rem;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reports-panel__tabs a:hover,
+.reports-panel__tabs a:focus-visible {
+  background: var(--color-surface-hover);
+}
+
 .report-card {
   display: grid;
   gap: var(--space-sm);
@@ -312,6 +337,7 @@
   gap: var(--space-sm);
   align-items: center;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .report-card__actions {

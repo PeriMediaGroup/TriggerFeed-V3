@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { validatePostInput } from "../utils/validatePost";
 
 function isTrustedGiphyMediaUrl(value) {
@@ -391,18 +392,20 @@ export async function updatePost(postId, formData) {
     });
 
     if (error.message?.includes("poll")) {
+      const pollMessage = getUserSafeErrorMessage(error, "Could not update poll.");
+
       return {
         success: false,
-        message: error.message,
+        message: pollMessage,
         errors: {
-          poll: error.message,
+          poll: pollMessage,
         },
       };
     }
 
     return {
       success: false,
-      message: error.message || "Post could not be updated.",
+      message: getUserSafeErrorMessage(error, "Could not update post."),
       errors: {},
     };
   }

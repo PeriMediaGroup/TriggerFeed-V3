@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
   gap: var(--space-xl);
-  width: min(1180px, calc(100% - 2rem));
+  width: min(1180px, 100%);
   margin: 0 auto;
   padding: var(--space-xl) 0;
 }

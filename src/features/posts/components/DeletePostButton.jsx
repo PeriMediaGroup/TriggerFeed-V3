@@ -11,7 +11,7 @@ export default function DeletePostButton({ postId, variant = "default" }) {
 
   function handleDelete() {
     const confirmed = window.confirm(
-      "Delete this post? This will hide it from the feed.",
+      "Remove this post? This will hide it from the feed.",
     );
 
     if (!confirmed) return;
@@ -31,15 +31,15 @@ export default function DeletePostButton({ postId, variant = "default" }) {
       }
       onClick={handleDelete}
       disabled={isPending}
-      aria-label={isIcon ? "Delete post" : undefined}
-      title={isIcon ? "Delete post" : undefined}
+      aria-label={isIcon ? "Remove post" : undefined}
+      title={isIcon ? "Remove post" : undefined}
     >
       {isIcon ? (
         <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
       ) : isPending ? (
-        "Deleting..."
+        "Removing..."
       ) : (
-        "Delete Post"
+        "Remove Post"
       )}
     </button>
   );

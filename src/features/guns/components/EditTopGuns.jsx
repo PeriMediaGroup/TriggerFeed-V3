@@ -55,7 +55,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
         const result = await updateTopGuns(initialState, formData);
 
         if (result?.success) {
-          setSaveMessage("Saved");
+          setSaveMessage("Top guns saved.");
           return;
         }
 
@@ -92,7 +92,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
       const result = await updateTopGuns(initialState, formData);
 
       if (result?.success) {
-        setSaveMessage("Saved");
+        setSaveMessage("Top guns saved.");
         return;
       }
 
@@ -200,8 +200,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
       </ol>
 
       <p className="edit-top-guns__hint">
-        Changes save automatically. Because manually saving four text fields is
-        how software becomes a DMV form.
+        Changes save automatically.
       </p>
     </section>
   );

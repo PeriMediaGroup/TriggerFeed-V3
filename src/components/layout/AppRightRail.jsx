@@ -1,5 +1,6 @@
 import PostSearchForm from "@/features/search/components/PostSearchForm";
 import FriendSuggestions from "@/features/friends/components/FriendSuggestions";
+import AdSlot from "@/features/ads/components/AdSlot";
 import { getFriendSuggestions } from "@/features/friends/data/getFriendSuggestions";
 
 export default async function AppRightRail({ user = null }) {
@@ -25,12 +26,9 @@ export default async function AppRightRail({ user = null }) {
         hasError={Boolean(error)}
         didFetch={didFetch}
       />
-      <div className="app-right-rail__module app-right-rail__ad app-right-rail__ad--placeholder">
-        <div className="app-right-rail__module-inner">
-          <h2 className="app-right-rail__title">Advertisement</h2>
-          Coming soon!
-        </div>
-      </div>
+      <section className="app-right-rail__module">
+        <AdSlot slot="right-sidebar-small" />
+      </section>
     </div>
   );
 }

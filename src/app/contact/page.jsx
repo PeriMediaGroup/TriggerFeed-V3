@@ -80,11 +80,10 @@ export default function ContactPage() {
         message: "Message sent. We will reply if a reply is needed.",
       });
     } catch (error) {
+      console.error("CONTACT FORM ERROR:", error);
       setStatus({
         type: "error",
-        message: `Could not send message. ${
-          error?.message || "Try again later."
-        }`,
+        message: "Could not send message. Please try again later.",
       });
     } finally {
       setIsSending(false);

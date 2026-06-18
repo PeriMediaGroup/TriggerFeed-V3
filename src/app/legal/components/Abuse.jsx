@@ -53,11 +53,10 @@ export default function Abuse() {
       form.reset();
       setStatus({ type: "success", message: "Report submitted. Thank you." });
     } catch (error) {
+      console.error("ABUSE REPORT ERROR:", error);
       setStatus({
         type: "error",
-        message: `There was an error submitting the report. ${
-          error?.message || "Try again later."
-        }`,
+        message: "Could not submit report. Please try again later.",
       });
     } finally {
       setIsSending(false);

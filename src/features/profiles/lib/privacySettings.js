@@ -4,6 +4,7 @@ export const DEFAULT_PROFILE_PRIVACY_SETTINGS = Object.freeze({
     show_state: false,
     show_email: false,
     show_real_name: false,
+    show_birthday: false,
   }),
 });
 
@@ -38,6 +39,10 @@ export function normalizeProfilePrivacySettings(settings) {
       show_real_name: readBoolean(
         profileVisibility.show_real_name,
         DEFAULT_PROFILE_PRIVACY_SETTINGS.profile_visibility.show_real_name,
+      ),
+      show_birthday: readBoolean(
+        profileVisibility.show_birthday,
+        DEFAULT_PROFILE_PRIVACY_SETTINGS.profile_visibility.show_birthday,
       ),
     },
   };

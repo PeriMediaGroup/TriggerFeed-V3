@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 function normalizeCommentBody(body) {
   return String(body || "").trim();
@@ -119,7 +120,7 @@ export async function createComment({ postId, body, parentCommentId = null }) {
 
     return {
       success: false,
-      error: error.message,
+      error: getUserSafeErrorMessage(error, "Could not post comment."),
     };
   }
   const notificationRpc = parentCommentId
@@ -247,7 +248,7 @@ export async function updateComment({ commentId, body }) {
 
     return {
       success: false,
-      error: updateError.message,
+      error: getUserSafeErrorMessage(updateError, "Could not update comment."),
     };
   }
 
@@ -325,7 +326,7 @@ export async function deleteComment({ commentId }) {
 
     return {
       success: false,
-      error: deleteError.message || "Could not delete comment",
+      error: getUserSafeErrorMessage(deleteError, "Could not remove comment."),
     };
   }
 

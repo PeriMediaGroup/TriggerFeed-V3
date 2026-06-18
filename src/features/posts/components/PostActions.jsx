@@ -17,7 +17,7 @@ export default function PostActions({ postId, isOwner }) {
 
   function handleDelete() {
     const confirmed = window.confirm(
-      "Delete this post? This cannot be undone.",
+      "Remove this post? This will hide it from the feed.",
     );
 
     if (!confirmed) {
@@ -30,7 +30,7 @@ export default function PostActions({ postId, isOwner }) {
       const result = await deletePost(postId);
 
       if (!result.success) {
-        setError(result.error || "Could not delete post.");
+        setError(result.error || "Could not remove post.");
         return;
       }
 
@@ -48,7 +48,7 @@ export default function PostActions({ postId, isOwner }) {
       {" | "}
       <button type="button" onClick={handleDelete} disabled={isPending}>
         <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
-        <span>Delete Post</span>
+        <span>{isPending ? "Removing..." : "Remove Post"}</span>
       </button>
 
       {error && <p className="post-actions__error">{error}</p>}

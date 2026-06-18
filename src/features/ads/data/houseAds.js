@@ -1,0 +1,51 @@
+// src/features/ads/data/houseAds.js
+
+export const houseAds = [
+    {
+        id: "buy-me-coffee-sidebar",
+        slot: "right-sidebar-small",
+        type: "qr",
+        title: "",
+        body: "Buy us a coffee and help keep the lights on.",
+        image: "/ads/bmc_qr.png",
+        href: "https://buymeacoffee.com/triggerfeed",
+        cta: "Buy Us a Coffee, or ammo",
+        newTab: true,
+        active: true,
+    },
+    {
+        id: "triggerfeed-stickers-sidebar",
+        slot: "right-sidebar-small",
+        type: "merch",
+        title: "TriggerFeed Stickers",
+        body: "Slap one on your safe, cooler, or emotional support ammo can.",
+        image: "/ads/tf-sticker.png",
+        href: "/merch",
+        cta: "Shop Stickers",
+        newTab: false,
+        active: true,
+    },
+    {
+        id: "triggerfeed-shirts-sidebar",
+        slot: "right-sidebar-small",
+        type: "merch",
+        title: "TriggerFeed Shirts",
+        body: "Train. Build. Carry. Stay ready.",
+        image: "/ads/tf-shirt.png",
+        href: "/merch",
+        cta: "Shop Shirts",
+        newTab: false,
+        active: false,
+    }, 
+    {
+        id: "advertise-with-us-sidebar",
+        slot: "right-sidebar-small",
+        type: "house",
+        title: "Advertise with us!",
+        body: "Promote your brand to a focused community that cares about training, gear, and readiness.",
+        href: "/contact?topic=advertising",
+        cta: "Get in Touch",
+        newTab: false,
+        active: true,
+    }
+];

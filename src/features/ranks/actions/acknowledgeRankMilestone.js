@@ -1,5 +1,9 @@
 "use server";
 
+import {
+  BASE_RANK_KEY,
+  BASE_RANK_MIN_POSTS,
+} from "@/features/ranks/data/getUserRank";
 import { createClient } from "@/lib/supabase/server";
 
 export async function acknowledgeRankMilestone(rankKey) {
@@ -27,7 +31,7 @@ export async function acknowledgeRankMilestone(rankKey) {
 
   const { data: rankExists, error: rankError } = await supabase
     .from("user_rank_thresholds")
-    .select("key")
+    .select("key, min_posts")
     .eq("key", cleanRankKey)
     .eq("is_active", true)
     .maybeSingle();
@@ -36,6 +40,16 @@ export async function acknowledgeRankMilestone(rankKey) {
     return {
       success: false,
       message: "Rank not found.",
+    };
+  }
+
+  if (
+    rankExists.key === BASE_RANK_KEY ||
+    rankExists.min_posts === BASE_RANK_MIN_POSTS
+  ) {
+    return {
+      success: false,
+      message: "Base rank does not create a milestone.",
     };
   }
 

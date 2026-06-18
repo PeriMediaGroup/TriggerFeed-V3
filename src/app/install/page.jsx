@@ -38,7 +38,7 @@ export default function InstallPage() {
             <li>
               Open{" "}
               <a href={APP_URL} target="_blank" rel="noreferrer">
-                app.triggerfeed.com
+                triggerfeed.com
               </a>{" "}
               in Chrome.
             </li>
@@ -57,7 +57,7 @@ export default function InstallPage() {
             <li>
               Open{" "}
               <a href={APP_URL} target="_blank" rel="noreferrer">
-                app.triggerfeed.com
+                triggerfeed.com
               </a>{" "}
               in Safari.
             </li>
@@ -74,7 +74,7 @@ export default function InstallPage() {
           </ol>
 
           <p className="install-page__soon">
-            iOS App Store version coming soon.
+            iOS App Store version someday.
           </p>
         </section>
       </div>

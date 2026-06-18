@@ -6,7 +6,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const SUCCESS_MESSAGE =
-  "If an account exists for that email, a password reset link has been sent.";
+  "If an account exists for that email, we sent a reset link.";
 
 export default function ForgotPasswordPage() {
   const supabase = createClient();

@@ -30,7 +30,7 @@ export default async function AdminUsersPage({ searchParams }) {
 
   const permissions = getModerationPermissions(profile?.role);
   const canViewUsers =
-    permissions.canModerate &&
+    ["admin", "ceo"].includes(permissions.role) &&
     profile?.is_banned !== true &&
     profile?.is_deleted !== true;
 

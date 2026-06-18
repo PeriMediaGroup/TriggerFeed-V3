@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 function hasRealFile(file) {
   return file instanceof File && file.size > 0 && file.name;
@@ -90,7 +91,10 @@ export async function updateProfile(_prevState, formData) {
 
     return {
       success: false,
-      message: uploadError.message || "Could not upload profile image.",
+      message: getUserSafeErrorMessage(
+        uploadError,
+        "Could not upload profile image.",
+      ),
       errors: {},
     };
   }
@@ -143,7 +147,7 @@ export async function updateProfile(_prevState, formData) {
 
     return {
       success: false,
-      message: updateError.message || "Could not update profile.",
+      message: getUserSafeErrorMessage(updateError, "Could not update profile."),
       errors: {},
     };
   }
@@ -153,7 +157,7 @@ export async function updateProfile(_prevState, formData) {
 
   return {
     success: true,
-    message: "Saved",
+    message: "Profile updated.",
     errors: {},
   };
 }

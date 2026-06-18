@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 import {
@@ -90,6 +91,13 @@ export async function createPost(formData) {
 
   const isCeo = authStatus?.role === "ceo";
   const isSticky = isCeo && wantsSticky;
+
+  if (wantsSticky && !isCeo) {
+    return {
+      success: false,
+      message: "You do not have permission to create official sticky posts.",
+    };
+  }
 
   const validation = validatePostInput(rawPost);
 
@@ -312,7 +320,7 @@ export async function createPost(formData) {
 
     return {
       success: false,
-      message: "Post could not be created.",
+      message: getUserSafeErrorMessage(postError, "Could not create post."),
     };
   }
 

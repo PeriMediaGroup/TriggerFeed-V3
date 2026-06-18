@@ -80,7 +80,7 @@ export default function FriendsPanel({
       const result = await updateTopFriends(saveInitialState, formData);
 
       if (result?.success) {
-        setSaveMessage("Saved");
+        setSaveMessage("Top friends saved.");
         return;
       }
 

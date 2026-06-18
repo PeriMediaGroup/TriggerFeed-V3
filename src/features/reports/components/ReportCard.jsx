@@ -89,6 +89,7 @@ function normalizeRunActionOptions(options) {
     return {
       optimisticStatus: null,
       onSuccess: null,
+      pendingLabel: "",
     };
   }
 
@@ -96,6 +97,7 @@ function normalizeRunActionOptions(options) {
     return {
       optimisticStatus: options,
       onSuccess: null,
+      pendingLabel: "",
     };
   }
 
@@ -104,12 +106,15 @@ function normalizeRunActionOptions(options) {
       optimisticStatus: options.optimisticStatus ?? null,
       onSuccess:
         typeof options.onSuccess === "function" ? options.onSuccess : null,
+      pendingLabel:
+        typeof options.pendingLabel === "string" ? options.pendingLabel : "",
     };
   }
 
   return {
     optimisticStatus: null,
     onSuccess: null,
+    pendingLabel: "",
   };
 }
 
@@ -120,6 +125,7 @@ export default function ReportCard({ report, permissions }) {
   );
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [activeAction, setActiveAction] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const reporterName = getProfileName(report.reporter);
@@ -150,25 +156,32 @@ export default function ReportCard({ report, permissions }) {
   const historyCount = report.moderation_history?.length || 0;
 
   function runAction(action, options = null) {
-    const { optimisticStatus, onSuccess } = normalizeRunActionOptions(options);
+    const { optimisticStatus, onSuccess, pendingLabel } =
+      normalizeRunActionOptions(options);
 
     startTransition(async () => {
-      const result = await action();
+      setActiveAction(pendingLabel || "Working...");
 
-      if (result.ok) {
-        if (optimisticStatus) {
-          setStatus(optimisticStatus);
+      try {
+        const result = await action();
+
+        if (result.ok) {
+          if (optimisticStatus) {
+            setStatus(optimisticStatus);
+          }
+
+          if (onSuccess) {
+            onSuccess();
+          }
+
+          toast.success(result.message || "Moderation action completed.");
+          return;
         }
 
-        if (onSuccess) {
-          onSuccess();
-        }
-
-        toast.success(result.message || "Moderation action completed.");
-        return;
+        toast.error(result.message || "Moderation action failed.");
+      } finally {
+        setActiveAction("");
       }
-
-      toast.error(result.message || "Moderation action failed.");
     });
   }
 
@@ -231,6 +244,7 @@ export default function ReportCard({ report, permissions }) {
       {
         optimisticStatus: "actioned",
         onSuccess: () => setIsPostRemoved(true),
+        pendingLabel: "Removing...",
       },
     );
   }
@@ -260,6 +274,7 @@ export default function ReportCard({ report, permissions }) {
       {
         optimisticStatus: "reviewed",
         onSuccess: () => setIsPostRemoved(false),
+        pendingLabel: "Restoring...",
       },
     );
   }
@@ -277,14 +292,18 @@ export default function ReportCard({ report, permissions }) {
       return;
     }
 
-    runAction(() =>
-      warnUser({
-        targetUserId,
-        reason,
-        message,
-        relatedPostId: reportedPostId,
-        relatedReportId: report.id,
-      }),
+    runAction(
+      () =>
+        warnUser({
+          targetUserId,
+          reason,
+          message,
+          relatedPostId: reportedPostId,
+          relatedReportId: report.id,
+        }),
+      {
+        pendingLabel: "Sending...",
+      },
     );
   }
 
@@ -449,7 +468,7 @@ export default function ReportCard({ report, permissions }) {
                     isPending || !reportedPostId || postRemoved || !canRemovePost
                   }
                 >
-                  Remove post
+                  {activeAction === "Removing..." ? "Removing..." : "Remove post"}
                 </button>
 
                 <button
@@ -458,7 +477,7 @@ export default function ReportCard({ report, permissions }) {
                   onClick={handleWarnUser}
                   disabled={isPending || !canTargetUser}
                 >
-                  Warn user
+                  {activeAction === "Sending..." ? "Sending..." : "Warn user"}
                 </button>
 
                 {report.post_author?.is_muted ? (
@@ -519,7 +538,9 @@ export default function ReportCard({ report, permissions }) {
                     onClick={handleRestorePost}
                     disabled={isPending}
                   >
-                    Restore post
+                    {activeAction === "Restoring..."
+                      ? "Restoring..."
+                      : "Restore post"}
                   </button>
                 ) : null}
               </>
