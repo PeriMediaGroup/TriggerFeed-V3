@@ -1,4 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Migration Dumps
+migration-dumps/
+*.dump
+old-auth-data.sql
+old-profiles.csv
 
 # dependencies
 /node_modules

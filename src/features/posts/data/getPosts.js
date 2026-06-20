@@ -545,44 +545,15 @@ async function sortPostsForFeed({ supabase, posts, feedType }) {
     return posts;
   }
 
-  const feedRankMap = await getFeedRankMap(
-    supabase,
-    posts.map((post) => post.id)
-  );
+return [...posts].sort((a, b) => {
+  const stickyDifference = compareStickyPosts(a, b);
 
-  return [...posts].sort((a, b) => {
-    const stickyDifference = compareStickyPosts(a, b);
-
-    if (stickyDifference !== 0) {
-      return stickyDifference;
-    }
-
-    const rankDifference =
-      (feedRankMap.get(b.id) || 1) - (feedRankMap.get(a.id) || 1);
-
-    if (rankDifference !== 0) {
-      return rankDifference;
-    }
-
-    return compareCreatedAtDesc(a, b);
-  });
-}
-
-async function getFeedRankMap(supabase, postIds) {
-  if (!postIds.length) {
-    return new Map();
+  if (stickyDifference !== 0) {
+    return stickyDifference;
   }
 
-  const { data, error } = await supabase.rpc("get_feed_post_ranks", {
-    p_post_ids: postIds,
-  });
-
-  if (error) {
-    logSupabaseError("GET FEED POST RANKS ERROR:", error);
-    return new Map();
-  }
-
-  return new Map((data || []).map((item) => [item.post_id, item.feed_rank]));
+  return compareCreatedAtDesc(a, b);
+});
 }
 
 function getPostTotalVotes(post) {
