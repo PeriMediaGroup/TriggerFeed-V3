@@ -1,18 +1,98 @@
 .profile-showcase {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    width: 100%;
-    margin: .5em 2em;
-    h2 {
-        width: 100%;
-    }
-}
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5, 1.25rem);
+  width: 100%;
+  margin: var(--space-3, 0.75rem) 0;
 
-.profile-showcase__section {
-    width: 50%;
-}
+  > h2 {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
 
-.profile-showcase__grid {
+  &__section {
+    min-width: 0;
+    padding: var(--space-4, 1rem);
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+    border-radius: var(--radius-md, 0.75rem);
+    background: var(--color-surface-raised, rgba(255, 255, 255, 0.045));
+  }
+
+  &__title {
+    margin: 0 0 var(--space-3, 0.75rem);
+  }
+
+  &__grid {
+    display: grid;
+    gap: var(--space-2, 0.5rem);
+    padding: 0;
+    margin: 0;
     list-style: none;
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    min-width: 0;
+  }
+
+  &__rank {
+    color: var(--color-accent, #b22222);
+    font-weight: 800;
+  }
+
+  &__link,
+  &__gun {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3, 0.75rem);
+    min-width: 0;
+    color: var(--color-text, #fff);
+    text-decoration: none;
+  }
+
+  &__avatar,
+  &__gun-image {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 3.125rem;
+    height: 3.125rem;
+    overflow: hidden;
+    border: 2px solid var(--color-accent, #b22222);
+    border-radius: 999px;
+    background: var(--color-surface-muted, rgba(255, 255, 255, 0.06));
+    color: var(--color-accent, #b22222);
+  }
+
+  &__avatar-image,
+  &__gun-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 700;
+  }
+
+  &__empty {
+    margin: 0;
+    color: var(--color-text-muted, #9ca3af);
+  }
+}
+
+@media (max-width: 720px) {
+  .profile-showcase {
+    grid-template-columns: 1fr;
+
+    > h2 {
+      grid-column: auto;
+    }
+  }
 }

@@ -9,8 +9,13 @@
 # - pg_dump and psql available
 #
 # Usage:
+#npx supabase db reset
 #   $env:OLD_TRIGGERFEED_DB_URL="postgresql://postgres.usvcucujzfzazszcaonb:FnRmbP2LntmCME7u@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
-#   .\scripts\migration\import-current-users-local.ps1 -ResetLocal
+#.\scripts\migration\import-current-users-local.ps1
+#.\scripts\migration\import-current-posts-local.ps1
+#.\scripts\migration\import-current-comments-local.ps1
+#.\scripts\migration\import-current-friends-local.ps1
+#.\scripts\migration\import-current-votes-local.ps1
 
 param(
   [switch]$ResetLocal,

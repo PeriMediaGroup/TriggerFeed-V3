@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 export default function ProfileDashboardTabs({
   defaultTab = "notifications",
@@ -9,14 +9,38 @@ export default function ProfileDashboardTabs({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-const pathname = usePathname();
+  const pathname = usePathname();
+  const tabsRef = useRef(null);
+  const lastScrolledTabRef = useRef(null);
   const tabKeys = useMemo(() => tabs.map((tab) => tab.key), [tabs]);
 
   const urlTab = searchParams.get("tab");
+  const hasValidUrlTab = tabKeys.includes(urlTab);
 
   const activeTab = useMemo(() => {
-    return tabKeys.includes(urlTab) ? urlTab : defaultTab;
-  }, [urlTab, tabKeys, defaultTab]);
+    return hasValidUrlTab ? urlTab : defaultTab;
+  }, [urlTab, hasValidUrlTab, defaultTab]);
+
+  useEffect(() => {
+    if (!hasValidUrlTab) {
+      lastScrolledTabRef.current = null;
+      return;
+    }
+
+    if (lastScrolledTabRef.current === urlTab) {
+      return;
+    }
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      tabsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      lastScrolledTabRef.current = urlTab;
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [hasValidUrlTab, urlTab]);
 
   function handleTabClick(tabKey) {
     const params = new URLSearchParams(searchParams.toString());
@@ -37,7 +61,12 @@ const pathname = usePathname();
   const activePanel = tabs.find((tab) => tab.key === activeTab)?.panel;
 
   return (
-    <section className="profile-dashboard-tabs">
+    <section
+      id="profile-tabs"
+      ref={tabsRef}
+      className="profile-dashboard-tabs profile-tabs-anchor"
+      data-profile-tabs
+    >
       <div
         className="profile-dashboard-tabs__list"
         role="tablist"

@@ -8,6 +8,17 @@ import AppFooter from "./AppFooter";
 import BottomNav from "../navigation/BottomNav";
 
 export default function AppShell({ children, user, unreadNotifications = 0 }) {
+  if (!user) {
+    return (
+      <div className="public-shell">
+        <AppHeader />
+        <main className="public-shell__main">{children}</main>
+        <AppFooter />
+        <ToastProvider />
+      </div>
+    );
+  }
+
   return (
     <>
       <AppHeader user={user} unreadNotifications={unreadNotifications} />

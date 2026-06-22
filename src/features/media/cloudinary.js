@@ -120,6 +120,50 @@ export async function uploadPostImage({ file, folder }) {
   });
 }
 
+export async function uploadGunImage({ file, userId, gunId }) {
+  if (!file || file.size === 0) {
+    return null;
+  }
+
+  if (!file.type?.startsWith("image/")) {
+    throw new Error("Only image uploads are allowed");
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error("Top gun image must be 2MB or smaller");
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: `triggerfeed/guns/${userId}`,
+        public_id: gunId,
+        overwrite: true,
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve({
+          url: result.secure_url,
+          secureUrl: result.secure_url,
+          publicId: result.public_id,
+          width: result.width,
+          height: result.height,
+        });
+      },
+    );
+
+    uploadStream.end(buffer);
+  });
+}
+
 export async function deleteCloudinaryMedia(publicId, resourceType = "image") {
   if (!publicId) {
     return null;
