@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 const VALID_FEEDS = ["main", "friends", "trending"];
 
-export default async function Home({ searchParams }) {
+export default async function FeedRoute({ searchParams }) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -15,10 +15,8 @@ export default async function Home({ searchParams }) {
   }
 
   const params = await searchParams;
-
   const requestedFeed =
     typeof params?.feed === "string" ? params.feed : "main";
-
   const feedType = VALID_FEEDS.includes(requestedFeed)
     ? requestedFeed
     : "main";

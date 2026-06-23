@@ -1,0 +1,245 @@
+.about {
+  --about-section-padding: clamp(1.1rem, 3vw, 1.75rem);
+}
+
+.about__section-kicker {
+  margin: 0;
+  color: var(--color-accent, #b22222);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.about__intro {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+}
+
+.about__intro svg {
+  flex: 0 0 auto;
+  color: var(--color-accent, #b22222);
+}
+
+.about__story,
+.about__beliefs {
+  display: grid;
+  gap: var(--space-lg, 1.5rem);
+  padding: var(--about-section-padding);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 1rem);
+  background: color-mix(
+    in srgb,
+    var(--color-surface, #2a3439) 58%,
+    transparent
+  );
+}
+
+.about__community,
+.about__identity {
+  display: grid;
+  gap: var(--space-lg, 1.5rem);
+  padding: var(--about-section-padding);
+}
+
+.about__section-heading {
+  display: grid;
+  gap: var(--space-xs, 0.25rem);
+}
+
+.about__section-heading h2 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.about__story {
+  grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.5fr);
+}
+
+.about__story-copy {
+  display: grid;
+  gap: var(--space-md, 1rem);
+}
+
+.about__story-copy p,
+.about__belief-card p,
+.about__belief-note,
+.about__identity-intro p,
+.about__closing p {
+  margin: 0;
+  color: var(--color-text-muted, #a9a9a9);
+  line-height: 1.7;
+}
+
+.about__belief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md, 1rem);
+}
+
+.about__belief-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-sm, 0.5rem);
+  overflow: hidden;
+  padding: var(--space-lg, 1.5rem);
+  border: 1px solid var(--color-border);
+  border-top-color: var(--color-accent, #b22222);
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--color-surface, #2a3439);
+}
+
+.about__belief-card::after {
+  position: absolute;
+  right: -2.5rem;
+  bottom: -2.5rem;
+  width: 7rem;
+  height: 7rem;
+  border: 1px solid color-mix(
+    in srgb,
+    var(--color-accent, #b22222) 14%,
+    transparent
+  );
+  border-radius: 50%;
+  content: "";
+}
+
+.about__belief-icon {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: var(--radius-md, 0.75rem);
+  background: color-mix(
+    in srgb,
+    var(--color-accent, #b22222) 16%,
+    transparent
+  );
+  color: var(--color-accent, #b22222);
+}
+
+.about__belief-card h3 {
+  margin-top: var(--space-xs, 0.25rem);
+  font-size: 1.05rem;
+}
+
+.about__belief-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  font-weight: 700;
+}
+
+.about__belief-note::before {
+  width: 1.5rem;
+  height: 1px;
+  background: var(--color-accent, #b22222);
+  content: "";
+}
+
+.about__identity-intro {
+  display: grid;
+  max-width: 48rem;
+  gap: var(--space-sm, 0.5rem);
+}
+
+.about__identity-intro .about__callout {
+  color: var(--color-text, #fff);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.about__identity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md, 1rem);
+}
+
+.about__identity-card {
+  padding: var(--space-lg, 1.5rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--color-surface, #2a3439);
+}
+
+.about__identity-card--is {
+  border-left: 3px solid var(--color-accent, #b22222);
+}
+
+.about__identity-card--not {
+  border-left: 3px solid var(--color-text-muted, #a9a9a9);
+}
+
+.about__identity-card h3 {
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.about__identity-card ul {
+  display: grid;
+  gap: var(--space-sm, 0.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about__identity-card li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-sm, 0.5rem);
+  color: var(--color-text-muted, #a9a9a9);
+  line-height: 1.5;
+}
+
+.about__identity-card--is li svg {
+  color: var(--color-accent, #b22222);
+}
+
+.about__identity-card--not li svg {
+  color: var(--color-text-muted, #a9a9a9);
+}
+
+.about__closing {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md, 1rem);
+  padding: var(--space-lg, 1.5rem);
+  border-left: 3px solid var(--color-accent, #b22222);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent, #b22222) 12%, transparent),
+    transparent
+  );
+}
+
+.about__closing > svg {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--color-accent, #b22222);
+}
+
+.about__closing h2 {
+  margin-bottom: var(--space-xs, 0.25rem);
+  font-size: 1.15rem;
+}
+
+.about__closing p + p {
+  margin-top: var(--space-xs, 0.25rem);
+}
+
+@media (max-width: 48rem) {
+  .about__story {
+    grid-template-columns: 1fr;
+  }
+
+  .about__belief-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 36rem) {
+  .about__identity-grid {
+    grid-template-columns: 1fr;
+  }
+}

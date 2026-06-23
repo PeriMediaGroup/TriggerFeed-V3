@@ -11,7 +11,12 @@ export async function getTopGuns(userId) {
       `
       id,
       name,
-      display_order
+      display_order,
+      image_cloudinary_url,
+      image_cloudinary_secure_url,
+      image_cloudinary_public_id,
+      image_width,
+      image_height
     `
     )
     .eq("user_id", userId)

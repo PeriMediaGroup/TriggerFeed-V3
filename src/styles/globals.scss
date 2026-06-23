@@ -29,10 +29,17 @@
 @use "../features/milestones/styles/__milestones";
 @use "../features/ranks/styles/__ranks";
 @use "../features/ads/styles/_ads";
+@use "./sections/public-pages";
 @use "./sections/install";
 @use "./sections/contact";
+@use "./sections/merch";
 @use "./sections/legal";
 @use "./sections/account";
+@use "./sections/about";
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   background: var(--color-bg);

@@ -1,9 +1,14 @@
-// src/features/guns/components/EditTopGuns.jsx
-
 "use client";
 
+import Image from "next/image";
+import { Crosshair, ImagePlus, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState, useTransition } from "react";
+
 import { updateTopGuns } from "@/features/profiles/actions/updateTopGuns";
+import {
+  removeTopGunImage,
+  updateTopGunImage,
+} from "@/features/profiles/actions/updateTopGunImage";
 
 const initialState = {
   success: false,
@@ -12,32 +17,62 @@ const initialState = {
 };
 
 function createBlankSlots(existingGuns = []) {
-  const names = existingGuns
-    .map((gun) => gun.name || "")
-    .filter(Boolean)
-    .slice(0, 4);
+  const slots = existingGuns.slice(0, 4).map((gun) => ({ ...gun }));
 
-  while (names.length < 4) {
-    names.push("");
+  while (slots.length < 4) {
+    slots.push({
+      id: "",
+      name: "",
+      image_cloudinary_url: null,
+      image_cloudinary_secure_url: null,
+      image_cloudinary_public_id: null,
+      image_width: null,
+      image_height: null,
+    });
   }
 
-  return names;
+  return slots;
+}
+
+function getGunImageUrl(gun) {
+  return gun.image_cloudinary_secure_url || gun.image_cloudinary_url || "";
 }
 
 export default function EditTopGuns({ currentTopGuns = [] }) {
   const [isPending, startTransition] = useTransition();
   const [saveMessage, setSaveMessage] = useState("");
   const saveTimerRef = useRef(null);
-
-  const initialGunNames = useMemo(
+  const fileInputRefs = useRef([]);
+  const initialSlots = useMemo(
     () => createBlankSlots(currentTopGuns),
     [currentTopGuns],
   );
+  const [guns, setGuns] = useState(initialSlots);
+  const [uploadingIndex, setUploadingIndex] = useState(null);
 
-  const [gunNames, setGunNames] = useState(initialGunNames);
+  function mergeSavedGuns(savedGuns = []) {
+    setGuns(
+      createBlankSlots(
+        [...savedGuns].sort(
+          (left, right) => left.display_order - right.display_order,
+        ),
+      ),
+    );
+  }
 
-  function saveTopGuns(nextGunNames, debounce = false) {
-    setGunNames(nextGunNames);
+  function buildFormData(nextGuns) {
+    const formData = new FormData();
+
+    nextGuns.forEach((gun) => {
+      formData.append("top_gun_ids", gun.id || "");
+      formData.append("top_gun_names", gun.name || "");
+    });
+
+    return formData;
+  }
+
+  function saveGuns(nextGuns, debounce = false) {
+    setGuns(nextGuns);
     setSaveMessage("Saving...");
 
     if (saveTimerRef.current) {
@@ -46,15 +81,13 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
 
     const runSave = () => {
       startTransition(async () => {
-        const formData = new FormData();
-
-        nextGunNames.forEach((name) => {
-          formData.append("top_gun_names", name);
-        });
-
-        const result = await updateTopGuns(initialState, formData);
+        const result = await updateTopGuns(
+          initialState,
+          buildFormData(nextGuns),
+        );
 
         if (result?.success) {
+          mergeSavedGuns(result.topGuns);
           setSaveMessage("Top guns saved.");
           return;
         }
@@ -72,59 +105,85 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
   }
 
   function updateGunName(index, value) {
-    setGunNames((current) => {
+    setGuns((current) => {
       const next = [...current];
-      next[index] = value;
+      next[index] = { ...next[index], name: value };
       return next;
     });
   }
 
-  function saveGunNames(nextGunNames) {
-    setSaveMessage("Saving...");
-
-    startTransition(async () => {
-      const formData = new FormData();
-
-      nextGunNames.forEach((name) => {
-        formData.append("top_gun_names", name);
-      });
-
-      const result = await updateTopGuns(initialState, formData);
-
-      if (result?.success) {
-        setSaveMessage("Top guns saved.");
-        return;
-      }
-
-      setSaveMessage(result?.message || "Could not save top guns.");
-    });
-  }
-
-  function saveCurrentGunNames() {
-    saveGunNames(gunNames);
+  function saveCurrentGuns() {
+    saveGuns(guns);
   }
 
   function clearGun(index) {
-    const next = [...gunNames];
-    next[index] = "";
-
-    setGunNames(next);
-    saveGunNames(next);
+    const next = [...guns];
+    next[index] = createBlankSlots([])[0];
+    saveGuns(next);
   }
 
   function moveGun(index, direction) {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
 
-    if (targetIndex < 0 || targetIndex >= gunNames.length) {
+    if (targetIndex < 0 || targetIndex >= guns.length) {
       return;
     }
 
-    const next = [...gunNames];
-
+    const next = [...guns];
     [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+    saveGuns(next);
+  }
 
-    setGunNames(next);
-    saveGunNames(next);
+  function updateGunInState(index, updatedGun) {
+    setGuns((current) => {
+      const next = [...current];
+      next[index] = { ...next[index], ...updatedGun };
+      return next;
+    });
+  }
+
+  async function handleImageChange(index, event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file || !guns[index]?.id) return;
+
+    setUploadingIndex(index);
+    setSaveMessage("Uploading image...");
+
+    const formData = new FormData();
+    formData.append("gun_id", guns[index].id);
+    formData.append("image", file);
+
+    const result = await updateTopGunImage(formData);
+
+    if (result?.success) {
+      updateGunInState(index, result.gun);
+      setSaveMessage(result.message);
+    } else {
+      setSaveMessage(result?.message || "Could not upload top gun image.");
+    }
+
+    setUploadingIndex(null);
+  }
+
+  async function handleRemoveImage(index) {
+    const gun = guns[index];
+    if (!gun?.id || !getGunImageUrl(gun)) return;
+
+    setUploadingIndex(index);
+    setSaveMessage("Removing image...");
+
+    const result = await removeTopGunImage(gun.id);
+
+    if (result?.success) {
+      updateGunInState(index, result.gun);
+      setSaveMessage(result.message);
+    } else {
+      setSaveMessage(result?.message || "Could not remove top gun image.");
+    }
+
+    setUploadingIndex(null);
   }
 
   return (
@@ -138,7 +197,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
         {saveMessage && (
           <span
             className={`edit-top-guns__status ${
-              isPending ? "is-saving" : "is-saved"
+              isPending || uploadingIndex !== null ? "is-saving" : "is-saved"
             }`}
           >
             {saveMessage}
@@ -147,29 +206,79 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
       </div>
 
       <ol className="edit-top-guns__list">
-        {gunNames.map((name, index) => {
+        {guns.map((gun, index) => {
+          const imageUrl = getGunImageUrl(gun);
           const isFirst = index === 0;
-          const isLast = index === gunNames.length - 1;
+          const isLast = index === guns.length - 1;
+          const isUploading = uploadingIndex === index;
 
           return (
-            <li key={`top-gun-${index}`} className="edit-top-guns__item">
+            <li key={gun.id || `top-gun-${index}`} className="edit-top-guns__item">
               <span className="edit-top-guns__rank">{index + 1}</span>
 
-              <input
-                id={`top-gun-${index}`}
-                name="top_gun_names"
-                type="text"
-                value={name}
-                onChange={(event) => updateGunName(index, event.target.value)}
-                onBlur={saveCurrentGunNames}
-                maxLength={60}
-                placeholder="Add a favorite"
-              />
+              <div className="edit-top-guns__image">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt=""
+                    width={52}
+                    height={52}
+                    className="edit-top-guns__image-photo"
+                  />
+                ) : (
+                  <Crosshair size={25} strokeWidth={1.8} aria-hidden="true" />
+                )}
+              </div>
+
+              <div className="edit-top-guns__details">
+                <input
+                  id={`top-gun-${index}`}
+                  name="top_gun_names"
+                  type="text"
+                  value={gun.name}
+                  onChange={(event) => updateGunName(index, event.target.value)}
+                  onBlur={saveCurrentGuns}
+                  maxLength={60}
+                  placeholder="Add a favorite"
+                />
+
+                <div className="edit-top-guns__image-actions">
+                  <button
+                    type="button"
+                    disabled={!gun.id || !gun.name || isUploading || isPending}
+                    onClick={() => fileInputRefs.current[index]?.click()}
+                  >
+                    <ImagePlus size={15} strokeWidth={2} aria-hidden="true" />
+                    {imageUrl ? "Change image" : "Upload image"}
+                  </button>
+
+                  {imageUrl ? (
+                    <button
+                      type="button"
+                      disabled={isUploading || isPending}
+                      onClick={() => handleRemoveImage(index)}
+                    >
+                      <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
+                      Remove image
+                    </button>
+                  ) : null}
+
+                  <input
+                    ref={(node) => {
+                      fileInputRefs.current[index] = node;
+                    }}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(event) => handleImageChange(index, event)}
+                  />
+                </div>
+              </div>
 
               <div className="edit-top-guns__actions">
                 <button
                   type="button"
-                  disabled={isFirst || isPending}
+                  disabled={isFirst || isPending || isUploading}
                   onClick={() => moveGun(index, "up")}
                   aria-label={`Move top gun ${index + 1} up`}
                 >
@@ -178,7 +287,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
 
                 <button
                   type="button"
-                  disabled={isLast || isPending}
+                  disabled={isLast || isPending || isUploading}
                   onClick={() => moveGun(index, "down")}
                   aria-label={`Move top gun ${index + 1} down`}
                 >
@@ -187,7 +296,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
 
                 <button
                   type="button"
-                  disabled={!name || isPending}
+                  disabled={!gun.name || isPending || isUploading}
                   onClick={() => clearGun(index)}
                   aria-label={`Clear top gun ${index + 1}`}
                 >
@@ -199,9 +308,7 @@ export default function EditTopGuns({ currentTopGuns = [] }) {
         })}
       </ol>
 
-      <p className="edit-top-guns__hint">
-        Changes save automatically.
-      </p>
+      <p className="edit-top-guns__hint">Changes save automatically.</p>
     </section>
   );
 }

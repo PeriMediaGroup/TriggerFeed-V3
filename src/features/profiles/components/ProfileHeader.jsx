@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
-import { Pencil, CalendarDays, MapPin, Mail, IdCard } from "lucide-react";
+import { Pencil, CalendarDays, MapPin, Mail, IdCard, User } from "lucide-react";
 
 import {
   DEFAULT_PROFILE_AVATAR_URL,
@@ -120,10 +120,21 @@ export default function ProfileHeader({
               </div>
 
               {isCurrentUser && (
-                <Link href="/profile/edit" className="profile-header__edit">
-                  <Pencil size={16} strokeWidth={2} aria-hidden="true" />
-                  <span>Edit Profile</span>
-                </Link>
+                <div className="profile-header__column">
+                  <Link href="/profile/edit" className="profile-header__edit">
+                    <Pencil size={16} strokeWidth={2} aria-hidden="true" />
+                    <span>Edit Profile</span>
+                  </Link>
+                  {profile?.id && (
+                    <Link
+                      href={`/profiles/${profile.id}`}
+                      className="profile-header__public-link"
+                    >
+                      <User size={16} strokeWidth={2} aria-hidden="true" />
+                      View Public Profile
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
 

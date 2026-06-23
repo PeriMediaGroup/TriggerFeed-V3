@@ -2,18 +2,32 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { sendFriendRequest } from "@/features/friends/actions/sendFriendRequest";
+import { DEFAULT_PROFILE_AVATAR_URL } from "@/features/profiles/constants/profileImages";
+import { createClient } from "@/lib/supabase/client";
 
 function getDisplayName(user) {
-  return (
-    user?.display_name ||
-    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
-    user?.username ||
-    "Unknown user"
-  );
+  return user?.display_name || user?.username || "Unknown user";
+}
+
+function getFriendAction(user) {
+  if (user.friendship_status === "accepted") {
+    return { label: "Friends", disabled: true };
+  }
+
+  if (user.friendship_status === "pending") {
+    return { label: "Pending", disabled: true };
+  }
+
+  if (user.friendship_status) {
+    return { label: "Unavailable", disabled: true };
+  }
+
+  return { label: "Add Friend", disabled: false };
 }
 
 export default function FriendSearch() {
@@ -21,21 +35,45 @@ export default function FriendSearch() {
   const [results, setResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const searchRequestId = useRef(0);
+  const supabase = useMemo(() => createClient(), []);
 
   async function handleSearch(value) {
     setQuery(value);
+    const requestId = searchRequestId.current + 1;
+    searchRequestId.current = requestId;
 
     if (value.trim().length < 2) {
       setResults([]);
+      setIsSearching(false);
       return;
     }
 
     setIsSearching(true);
 
-    const response = await fetch(`/api/users/search?q=${encodeURIComponent(value)}`);
-    const data = await response.json();
+    const { data, error } = await supabase.rpc("search_friend_candidates", {
+      p_query: value,
+      p_limit: 25,
+    });
 
-    setResults(data.users || []);
+    if (requestId !== searchRequestId.current) {
+      return;
+    }
+
+    if (error) {
+      console.error("FRIEND SEARCH ERROR:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      setResults([]);
+      toast.error("Could not search for friends.");
+      setIsSearching(false);
+      return;
+    }
+
+    setResults(data || []);
     setIsSearching(false);
   }
 
@@ -44,7 +82,13 @@ export default function FriendSearch() {
       const result = await sendFriendRequest(userId);
 
       if (result.success) {
-        setResults((current) => current.filter((user) => user.id !== userId));
+        setResults((current) =>
+          current.map((user) =>
+            user.id === userId
+              ? { ...user, friendship_status: "pending" }
+              : user
+          )
+        );
         toast.success(result.message || "Friend request sent.");
         return;
       }
@@ -72,20 +116,42 @@ export default function FriendSearch() {
         <ul className="friends-search__results">
           {results.map((user) => {
             const displayName = getDisplayName(user);
+            const location = [user.city, user.state].filter(Boolean).join(", ");
+            const action = getFriendAction(user);
 
             return (
               <li key={user.id} className="friends-search__result">
-                <Link href={`/profiles/${user.id}`}>
-                  {displayName}
-                  {user.username && <span> @{user.username}</span>}
+                <Link
+                  className="friends-search__profile"
+                  href={`/profiles/${user.id}`}
+                >
+                  <Image
+                    src={
+                      user.avatar_cloudinary_url ||
+                      DEFAULT_PROFILE_AVATAR_URL
+                    }
+                    alt=""
+                    width={40}
+                    height={40}
+                    sizes="40px"
+                  />
+                  <span className="friends-search__identity">
+                    <strong>{displayName}</strong>
+                    {user.username && <span>@{user.username}</span>}
+                    {location && (
+                      <span className="friends-search__location">
+                        {location}
+                      </span>
+                    )}
+                  </span>
                 </Link>
 
                 <button
                   type="button"
-                  disabled={isPending}
+                  disabled={isPending || action.disabled}
                   onClick={() => handleSendRequest(user.id)}
                 >
-                  Add Friend
+                  {action.label}
                 </button>
               </li>
             );

@@ -71,13 +71,14 @@ begin
   set
     first_name = 'Hidden',
     last_name = 'User',
+    dob = '1980-01-01',
     city = 'Hidden City',
     state = 'HC',
     privacy_settings = jsonb_build_object(
       'profile_visibility',
       jsonb_build_object(
         'show_real_name', false,
-        'show_age', false,
+        'show_birthday', false,
         'show_email', false,
         'show_city', false,
         'show_state', false
@@ -89,13 +90,14 @@ begin
   set
     first_name = 'Public',
     last_name = 'User',
+    dob = '1981-01-01',
     city = 'Public City',
     state = 'PC',
     privacy_settings = jsonb_build_object(
       'profile_visibility',
       jsonb_build_object(
         'show_real_name', true,
-        'show_age', true,
+        'show_birthday', true,
         'show_email', true,
         'show_city', true,
         'show_state', true
@@ -134,7 +136,7 @@ begin
   if hidden_profile.email is not null
     or hidden_profile.first_name is not null
     or hidden_profile.last_name is not null
-    or hidden_profile.age is not null
+    or hidden_profile.birthday_display is not null
     or hidden_profile.city is not null
     or hidden_profile.state is not null
     or hidden_profile.privacy_settings is not null then
@@ -150,7 +152,7 @@ begin
     or public_profile.last_name <> 'User'
     or public_profile.city <> 'Public City'
     or public_profile.state <> 'PC'
-    or public_profile.age is null then
+    or public_profile.birthday_display <> 'January 1' then
     raise exception 'public profile did not expose opted-in public fields';
   end if;
 
@@ -177,6 +179,7 @@ select public.create_post_transactional(
 create temp table privacy_test_post_id (id uuid primary key);
 insert into privacy_test_post_id (id)
 values (:'post_id'::uuid);
+grant select on privacy_test_post_id to anon;
 
 select *
 from public.toggle_post_vote(:'post_id'::uuid, 'upvote');

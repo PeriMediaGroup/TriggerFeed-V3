@@ -18,6 +18,11 @@ export default function CSAE() {
         If you encounter such material on TriggerFeed, report it immediately
         through the Report Abuse form. All reports are reviewed promptly.
       </p>
+      <p>
+        <a href="#legal-top" className="legal-section__back-top">
+          ↑ Back to top
+        </a>
+      </p>
     </section>
   );
 }

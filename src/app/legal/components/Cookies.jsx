@@ -10,6 +10,11 @@ export default function Cookies() {
       </p>
 
       <p>Disabling cookies may result in limited functionality.</p>
+      <p>
+        <a href="#legal-top" className="legal-section__back-top">
+          ↑ Back to top
+        </a>
+      </p>
     </section>
   );
 }

@@ -3,6 +3,33 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 
+const PUBLIC_PATHS = new Set([
+  "/about",
+  "/account-deleted",
+  "/contact",
+  "/delete-account",
+  "/forgot-password",
+  "/install",
+  "/legal",
+  "/login",
+  "/merch",
+  "/reset-password",
+  "/signup",
+  "/welcome",
+]);
+
+function isPublicPage(pathname) {
+  if (PUBLIC_PATHS.has(pathname)) {
+    return true;
+  }
+
+  return (
+    pathname.startsWith("/auth/") ||
+    pathname.startsWith("/legal/") ||
+    pathname.startsWith("/signup/")
+  );
+}
+
 export async function updateSession(request) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -37,7 +64,24 @@ export async function updateSession(request) {
     }
   );
 
-  await supabase.auth.getClaims();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const hasAuthenticatedUser = Boolean(claimsData?.claims?.sub);
+  const { pathname } = request.nextUrl;
+  const isApiRoute = pathname.startsWith("/api/");
+
+  if (!hasAuthenticatedUser && !isApiRoute && !isPublicPage(pathname)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/welcome";
+    redirectUrl.search = "";
+
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+
+    supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+      redirectResponse.cookies.set(name, value, options);
+    });
+
+    return redirectResponse;
+  }
 
   return supabaseResponse;
 }

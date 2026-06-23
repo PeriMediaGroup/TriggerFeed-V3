@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Crosshair } from "lucide-react";
 
 export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
   return (
@@ -75,16 +76,40 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
 
         {topGuns.length > 0 ? (
           <ol className="profile-showcase__grid">
-            {topGuns.map((gun) => (
+            {topGuns.map((gun) => {
+              const imageUrl =
+                gun.image_cloudinary_secure_url ||
+                gun.image_cloudinary_url ||
+                "";
+
+              return (
               <li key={gun.id} className="profile-showcase__item">
                 <span className="profile-showcase__rank">
                   #{gun.display_order + 1} &nbsp;
                 </span>
                 <div className="profile-showcase__gun">
+                  <div className="profile-showcase__gun-image">
+                    {imageUrl ? (
+                      <Image
+                        src={imageUrl}
+                        alt=""
+                        width={50}
+                        height={50}
+                        className="profile-showcase__gun-photo"
+                      />
+                    ) : (
+                      <Crosshair
+                        size={24}
+                        strokeWidth={1.8}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
                   <span className="profile-showcase__name">{gun.name}</span>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ol>
         ) : (
           <p className="profile-showcase__empty">No top guns added yet.</p>
