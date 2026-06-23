@@ -18,6 +18,11 @@ export default function Terms() {
         Additional sections coming soon as our lawyers drink more coffee and
         expand this.
       </p>
+      <p>
+        <a href="#legal-top" className="legal-section__back-top">
+          ↑ Back to top
+        </a>
+      </p>
     </section>
   );
 }

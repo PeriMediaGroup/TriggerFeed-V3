@@ -2,11 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { houseAds } from "../data/houseAds";
 
-function pickAd(slot) {
+function pickAd(slot, deterministic = false) {
   const ads = houseAds.filter((ad) => ad.slot === slot && ad.active);
   if (!ads.length) return null;
 
-  const index = Math.floor(Math.random() * ads.length);
+  const index = deterministic ? 0 : Math.floor(Math.random() * ads.length);
   return ads[index];
 }
 
@@ -33,8 +33,11 @@ function AdContent({ ad }) {
   );
 }
 
-export default function AdSlot({ slot = "right-sidebar-small" }) {
-  const ad = pickAd(slot);
+export default function AdSlot({
+  slot = "right-sidebar-small",
+  deterministic = false,
+}) {
+  const ad = pickAd(slot, deterministic);
 
   if (!ad) return null;
 

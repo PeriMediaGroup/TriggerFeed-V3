@@ -6,16 +6,20 @@ import AppSidebar from "./AppSidebar";
 import AppRightRail from "./AppRightRail";
 import AppFooter from "./AppFooter";
 import BottomNav from "../navigation/BottomNav";
+import LoggedOutShell from "./LoggedOutShell";
 
 export default function AppShell({ children, user, unreadNotifications = 0 }) {
   if (!user) {
     return (
-      <div className="public-shell">
-        <AppHeader />
-        <main className="public-shell__main">{children}</main>
-        <AppFooter />
+      <>
+        <LoggedOutShell
+          footer={<AppFooter />}
+          header={<AppHeader />}
+        >
+          {children}
+        </LoggedOutShell>
         <ToastProvider />
-      </div>
+      </>
     );
   }
 

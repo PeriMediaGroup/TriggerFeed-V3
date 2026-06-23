@@ -7,7 +7,7 @@ export default function AppFooter() {
     <footer className="app-footer">
       <div className="app-footer__inner">
         <p className="app-footer__copyright">
-          &copy; 2026 TriggerFeed. All rights reserved. &bull; Peri Media Group
+          &copy; 2026 TriggerFeed. All rights reserved.
         </p>
 
         <nav className="app-footer__nav" aria-label="Footer navigation">

@@ -107,12 +107,7 @@ export default function Abuse() {
 
         <label className="abuse-form__field abuse-form__field--hidden">
           <span>Website</span>
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-          />
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
 
         <label className="abuse-form__field">
@@ -125,12 +120,18 @@ export default function Abuse() {
           <textarea name="details" rows="6" required />
         </label>
 
-        <button type="submit" className="abuse-form__submit" disabled={isSending}>
+        <button
+          type="submit"
+          className="abuse-form__submit"
+          disabled={isSending}
+        >
           {isSending ? "Sending..." : "Submit Report"}
         </button>
 
         {status.message && (
-          <p className={`abuse-form__status abuse-form__status--${status.type}`}>
+          <p
+            className={`abuse-form__status abuse-form__status--${status.type}`}
+          >
             {status.message}
           </p>
         )}
@@ -139,6 +140,11 @@ export default function Abuse() {
       <p className="legal-section__note">
         For immediate danger or CSAE content, contact your local authorities and
         NCMEC.
+      </p>
+      <p>
+        <a href="#legal-top" className="legal-section__back-top">
+          ↑ Back to top
+        </a>
       </p>
     </section>
   );

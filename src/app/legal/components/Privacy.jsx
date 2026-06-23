@@ -16,6 +16,11 @@ export default function Privacy() {
       </p>
 
       <p>You control which parts of your profile are publicly visible.</p>
+      <p>
+        <a href="#legal-top" className="legal-section__back-top">
+          ↑ Back to top
+        </a>
+      </p>
     </section>
   );
 }

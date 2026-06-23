@@ -91,15 +91,24 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="tf-page__content contact-page">
-      <header className="contact-page__header">
-        <p className="contact-page__eyebrow">Support</p>
-        <h1>Contact Us</h1>
-        <p>
-          Have a question, found a bug, or need help with your account? Send it
-          here.
-        </p>
-      </header>
+    <main className="tf-page__content public-page contact-page">
+      <section className="public-page-hero" aria-labelledby="contact-title">
+        <div className="public-page-hero__content">
+          <p className="public-page-hero__eyebrow">Get in touch</p>
+          <h1 className="public-page-hero__title" id="contact-title">
+            Contact TriggerFeed
+          </h1>
+          <p className="public-page-hero__body">
+            Questions, feedback, media, support, or partnership ideas? Reach out
+            and we’ll point you in the right direction.
+          </p>
+          <div className="public-page-hero__actions">
+            <a className="public-page-hero__action" href="/legal#abuse">
+              Report Abuse
+            </a>
+          </div>
+        </div>
+      </section>
 
       <section className="contact-page__panel tf-page__content--ghost">
         <form className="contact-form" onSubmit={handleSubmit}>
