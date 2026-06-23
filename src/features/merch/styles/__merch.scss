@@ -1,0 +1,276 @@
+.merch-page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 4rem);
+}
+
+.merch-section {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) clamp(3rem, 6vw, 5rem);
+
+  &__header {
+    max-width: 760px;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  &__eyebrow {
+    margin: 0 0 0.5rem;
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    line-height: 1.08;
+  }
+
+  &__body {
+    margin: 0.85rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.98rem, 1.4vw, 1.08rem);
+    line-height: 1.65;
+  }
+}
+
+.merch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.merch-card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl, 1.25rem);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.015)
+    ),
+    var(--color-surface);
+  box-shadow: var(--shadow-card, 0 18px 40px rgba(0, 0, 0, 0.22));
+
+  &__media {
+    display: grid;
+    min-height: 220px;
+    place-items: center;
+    border-bottom: 1px solid var(--color-border);
+    background:
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 32%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  }
+
+  &__placeholder {
+    display: grid;
+    width: min(72%, 260px);
+    min-height: 132px;
+    place-items: center;
+    border: 1px dashed var(--color-border-strong, var(--color-border));
+    border-radius: var(--radius-lg, 1rem);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    padding: clamp(1rem, 2vw, 1.35rem);
+  }
+
+  &__topline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    line-height: 1.15;
+  }
+
+  &__status {
+    flex: 0 0 auto;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+    color: var(--color-text-muted);
+    background: var(--color-surface-soft, rgba(255, 255, 255, 0.05));
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &--in_stock {
+      color: var(--color-success, #7bd88f);
+      border-color: color-mix(in srgb, var(--color-success, #7bd88f), transparent 55%);
+      background: color-mix(in srgb, var(--color-success, #7bd88f), transparent 90%);
+    }
+
+    &--limited {
+      color: var(--color-warning, #f6c177);
+      border-color: color-mix(in srgb, var(--color-warning, #f6c177), transparent 55%);
+      background: color-mix(in srgb, var(--color-warning, #f6c177), transparent 90%);
+    }
+
+    &--sold_out {
+      color: var(--color-danger, #ff7b7b);
+      border-color: color-mix(in srgb, var(--color-danger, #ff7b7b), transparent 55%);
+      background: color-mix(in srgb, var(--color-danger, #ff7b7b), transparent 90%);
+    }
+
+    &--coming_soon {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__price {
+    margin: -0.35rem 0 0;
+    color: var(--color-text);
+    font-size: 1.35rem;
+    font-weight: 900;
+  }
+
+  &__description {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+
+  &__note {
+    margin: 0;
+    border-left: 3px solid var(--color-accent);
+    padding-left: 0.8rem;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  &__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.15rem;
+  }
+
+  &__option {
+    display: inline-flex;
+    min-width: 2.65rem;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 0.7rem;
+    padding: 0.35rem 0.65rem;
+    color: var(--color-text);
+    background: var(--color-surface-soft, rgba(255, 255, 255, 0.05));
+    font-size: 0.84rem;
+    font-weight: 850;
+
+    &--sold-out {
+      position: relative;
+      color: var(--color-text-muted);
+      background: transparent;
+      opacity: 0.52;
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0.42rem;
+        right: 0.42rem;
+        top: 50%;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+        transform: rotate(-18deg);
+      }
+    }
+  }
+
+  &__button {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-accent);
+    border-radius: 999px;
+    padding: 0.75rem 1.05rem;
+    color: var(--color-on-accent, #0d0d0d);
+    background: var(--color-accent);
+    font-size: 0.92rem;
+    font-weight: 900;
+    text-decoration: none;
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease,
+      opacity 160ms ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent), transparent 72%);
+    }
+
+    &:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--color-accent), transparent 55%);
+      outline-offset: 3px;
+    }
+
+    &--disabled {
+      cursor: not-allowed;
+      color: var(--color-text-muted);
+      border-color: var(--color-border);
+      background: var(--color-surface-soft, rgba(255, 255, 255, 0.05));
+      box-shadow: none;
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  .merch-section {
+    padding-inline: clamp(1rem, 4vw, 1.25rem);
+  }
+
+  .merch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .merch-card {
+    &__media {
+      min-height: 180px;
+    }
+
+    &__topline {
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    &__status {
+      width: fit-content;
+    }
+
+    &__button {
+      width: 100%;
+    }
+  }
+}
