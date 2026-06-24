@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const statusLabels = {
   in_stock: "In stock",
   limited: "Limited quantity",
@@ -10,16 +12,29 @@ export function MerchProductCard({ product }) {
 
   return (
     <article className="merch-card">
-      <div className="merch-card__media" aria-hidden="true">
-        <span className="merch-card__placeholder">
-          {product.type === "shirt" ? "TF Shirt" : "TF Stickers"}
-        </span>
+      <div className="merch-card__media" aria-hidden={!product.image}>
+        {product.image?.src ? (
+          <Image
+            className="merch-card__image"
+            src={product.image.src}
+            alt={product.image.alt}
+            width={720}
+            height={540}
+            sizes="(max-width: 760px) 100vw, 520px"
+          />
+        ) : (
+          <span className="merch-card__placeholder">
+            {product.type === "shirt" ? "TF Shirt" : "TF Stickers"}
+          </span>
+        )}
       </div>
 
       <div className="merch-card__content">
         <div className="merch-card__topline">
           <h3 className="merch-card__title">{product.name}</h3>
-          <span className={`merch-card__status merch-card__status--${product.status}`}>
+          <span
+            className={`merch-card__status merch-card__status--${product.status}`}
+          >
             {statusLabels[product.status] ?? product.status}
           </span>
         </div>
@@ -33,24 +48,36 @@ export function MerchProductCard({ product }) {
         ) : null}
 
         {hasOptions ? (
-          <div className="merch-card__options" aria-label={`${product.name} sizes`}>
+          <div
+            className="merch-card__options"
+            aria-label={`${product.name} sizes`}
+          >
             {product.options.map((option) => {
-              const isSoldOut = option.quantity <= 0;
+              const isSoldOut = option.quantity <= 0 || !option.ctaHref;
+
+              if (isSoldOut) {
+                return (
+                  <span
+                    className="merch-card__option merch-card__option--sold-out"
+                    key={option.label}
+                    title={`${option.label} sold out`}
+                  >
+                    {option.label}
+                  </span>
+                );
+              }
 
               return (
-                <span
-                  className={`merch-card__option ${
-                    isSoldOut ? "merch-card__option--sold-out" : ""
-                  }`}
+                <a
+                  className="merch-card__option merch-card__option--available"
+                  href={option.ctaHref}
                   key={option.label}
-                  title={
-                    isSoldOut
-                      ? `${option.label} sold out`
-                      : `${option.label} available`
-                  }
+                  rel="noreferrer"
+                  target="_blank"
+                  title={`${option.label} available`}
                 >
                   {option.label}
-                </span>
+                </a>
               );
             })}
           </div>
