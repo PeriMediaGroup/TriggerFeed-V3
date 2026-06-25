@@ -43,6 +43,7 @@
 .admin-users__search-row a {
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.7rem;
@@ -52,6 +53,11 @@
 
 .admin-management-nav a[aria-current="page"] {
   background: var(--color-surface-soft);
+}
+
+.admin-management-nav__badge {
+  min-width: 1.15rem;
+  font-size: 0.7rem;
 }
 
 .admin-users__search {

@@ -10,12 +10,14 @@ import {
   AUTH_NAV_LINKS,
   MOBILE_UTILITY_LINKS,
 } from "./navigationLinks";
+import NavBadge from "./NavBadge";
 
 export default function AppNavMenu({
   isLoggedIn,
   displayName,
   role,
   unreadNotifications = 0,
+  adminCounts = null,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -74,6 +76,10 @@ export default function AppNavMenu({
       return unreadNotifications;
     }
 
+    if (badge === "adminCountsTotal") {
+      return adminCounts?.total ?? 0;
+    }
+
     return 0;
   }
 
@@ -81,15 +87,18 @@ export default function AppNavMenu({
     return links.filter(userCanSeeLink).map((link) => {
       const { href, label, Icon, className = "", external, badge } = link;
       const badgeValue = getBadgeValue(badge);
+      const formattedBadgeValue = badgeValue > 99 ? "99+" : badgeValue;
 
       const content = (
         <>
           {Icon && <Icon size={17} strokeWidth={2} aria-hidden="true" />}
           <span>{label}</span>
 
-          {badgeValue > 0 && (
-            <span className="app-nav__badge">{badgeValue}</span>
-          )}
+          <NavBadge
+            count={badgeValue}
+            className="app-nav__badge"
+            label={`${formattedBadgeValue} pending ${label.toLowerCase()} item${badgeValue === 1 ? "" : "s"}`}
+          />
         </>
       );
 

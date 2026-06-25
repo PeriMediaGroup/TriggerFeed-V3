@@ -9,6 +9,7 @@ export default function AdminUsersPanel({
   currentUserId,
   permissions,
   error = null,
+  adminCounts = null,
 }) {
   return (
     <section className="admin-users">
@@ -21,7 +22,7 @@ export default function AdminUsersPanel({
           </p>
         </div>
 
-        <AdminManagementNav activeSection="users" />
+        <AdminManagementNav activeSection="users" counts={adminCounts} />
       </header>
 
       <form className="admin-users__search" action="/admin/users">

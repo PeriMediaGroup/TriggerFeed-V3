@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import toast from "react-hot-toast";
 
@@ -30,6 +31,7 @@ const ACTION_LABELS = {
   admin_note: "Admin note",
   promote_user: "Promoted",
   demote_user: "Demoted",
+  role_changed: "Role changed",
 };
 
 function getProfileName(profile) {
@@ -90,11 +92,13 @@ function getRoleLabel(role) {
 }
 
 export default function AdminUserCard({ user, currentUserId, permissions }) {
+  const router = useRouter();
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const displayName = getProfileName(user);
   const canModerate = permissions?.canModerate === true;
   const canBan = permissions?.canBan === true;
+  const canMute = permissions?.canMute === true;
   const canManageRoles = permissions?.canManageRoles === true;
   const isSelf = user.id === currentUserId;
   const statusLabels = getStatusLabels(user);
@@ -106,6 +110,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
 
       if (result.ok) {
         toast.success(result.message || "User action completed.");
+        router.refresh();
         return;
       }
 
@@ -135,6 +140,11 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
       return;
     }
 
+    if (!reason) {
+      toast.error("Mute reason is required.");
+      return;
+    }
+
     runAction(() =>
       muteUser({
         targetUserId: user.id,
@@ -150,6 +160,11 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
       return;
     }
 
+    if (!reason) {
+      toast.error("Unmute reason is required.");
+      return;
+    }
+
     runAction(() =>
       unmuteUser({
         targetUserId: user.id,
@@ -162,6 +177,11 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
     const reason = getPromptValue("Ban reason", "");
 
     if (reason === null) {
+      return;
+    }
+
+    if (!reason) {
+      toast.error("Ban reason is required.");
       return;
     }
 
@@ -184,6 +204,11 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
       return;
     }
 
+    if (!reason) {
+      toast.error("Unban reason is required.");
+      return;
+    }
+
     runAction(() =>
       unbanUser({
         targetUserId: user.id,
@@ -196,6 +221,19 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
     const reason = getPromptValue(`Reason for changing role to ${newRole}`, "");
 
     if (reason === null) {
+      return;
+    }
+
+    if (!reason) {
+      toast.error("Role change reason is required.");
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Change ${displayName}'s role to ${newRole}?\n\nThis will be audited.`,
+      )
+    ) {
       return;
     }
 
@@ -264,7 +302,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
               Add Note
             </button>
 
-            {user.is_muted ? (
+            {canMute && user.is_muted ? (
               <button
                 type="button"
                 className="admin-user-card__action"
@@ -273,7 +311,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
               >
                 Unmute
               </button>
-            ) : (
+            ) : canMute ? (
               <button
                 type="button"
                 className="admin-user-card__action"
@@ -282,7 +320,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
               >
                 Mute
               </button>
-            )}
+            ) : null}
 
             {canBan &&
               (user.is_banned ? (

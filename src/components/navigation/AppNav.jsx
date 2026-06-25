@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAdminNavCounts } from "@/features/admin/data/getAdminNavCounts";
+import { MODERATION_ROLES, normalizeRole } from "@/features/admin/permissions";
 import AppNavMenu from "@/components/navigation/AppNavMenu";
 
 export default async function AppNav() {
@@ -16,6 +18,7 @@ export default async function AppNav() {
         displayName={null}
         role={null}
         unreadNotifications={0}
+        adminCounts={null}
       />
     );
   }
@@ -58,6 +61,10 @@ export default async function AppNav() {
     : profile?.first_name
       ? profile.first_name
       : user.email || "Account";
+  const cleanRole = normalizeRole(authStatus?.role);
+  const adminCounts = MODERATION_ROLES.includes(cleanRole)
+    ? await getAdminNavCounts({ supabase, role: cleanRole })
+    : null;
 
   return (
     <AppNavMenu
@@ -65,6 +72,7 @@ export default async function AppNav() {
       displayName={displayName}
       role={authStatus?.role}
       unreadNotifications={unreadNotifications ?? 0}
+      adminCounts={adminCounts}
     />
   );
 }

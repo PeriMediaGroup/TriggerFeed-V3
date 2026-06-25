@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import AdminUsersPanel from "@/features/admin/components/AdminUsersPanel";
+import { getAdminNavCounts } from "@/features/admin/data/getAdminNavCounts";
 import { getAdminUsers } from "@/features/admin/data/getAdminUsers";
 import { getModerationPermissions } from "@/features/admin/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -39,6 +40,10 @@ export default async function AdminUsersPage({ searchParams }) {
   }
 
   const { users, error } = await getAdminUsers({ query });
+  const adminCounts = await getAdminNavCounts({
+    supabase,
+    role: permissions.role,
+  });
 
   return (
     <AdminUsersPanel
@@ -47,6 +52,7 @@ export default async function AdminUsersPage({ searchParams }) {
       currentUserId={user.id}
       permissions={permissions}
       error={error}
+      adminCounts={adminCounts}
     />
   );
 }

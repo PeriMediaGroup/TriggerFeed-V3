@@ -1,20 +1,35 @@
 import AdminManagementNav from "@/features/admin/components/AdminManagementNav";
+import NavBadge from "@/components/navigation/NavBadge";
 
 import AbuseReportCard from "./AbuseReportCard";
 import ReportCard from "./ReportCard";
+
+const ACTIONABLE_REPORT_STATUSES = new Set([
+  "open",
+  "pending",
+  "under_review",
+  "escalated",
+  "ban_recommended",
+]);
 
 export default function ReportPanel({
   reports = [],
   abuseReports = [],
   permissions,
+  adminCounts = null,
 }) {
-  const openReports = reports.filter((report) => report.status === "open");
-  const reviewedReports = reports.filter((report) => report.status !== "open");
+  const openReports = reports.filter((report) =>
+    ACTIONABLE_REPORT_STATUSES.has(report.status),
+  );
+  const reviewedReports = reports.filter(
+    (report) => !ACTIONABLE_REPORT_STATUSES.has(report.status),
+  );
   const newAbuseReports = abuseReports.filter((report) =>
-    ["new", "reviewing"].includes(report.status),
+    ["new", "reviewing", "pending", "under_review"].includes(report.status),
   );
   const reviewedAbuseReports = abuseReports.filter(
-    (report) => !["new", "reviewing"].includes(report.status),
+    (report) =>
+      !["new", "reviewing", "pending", "under_review"].includes(report.status),
   );
   const canViewAbuseReports = ["admin", "ceo"].includes(permissions?.role);
 
@@ -29,12 +44,26 @@ export default function ReportPanel({
           </p>
         </div>
 
-        <AdminManagementNav activeSection="reports" />
+        <AdminManagementNav activeSection="reports" counts={adminCounts} />
       </header>
 
       <div className="reports-panel__tabs" aria-label="Report sections">
-        <a href="#post-reports">Post Reports</a>
-        {canViewAbuseReports ? <a href="#abuse-reports">Abuse Reports</a> : null}
+        <a href="#post-reports">
+          Post Reports
+          <NavBadge
+            count={adminCounts?.reports}
+            className="reports-panel__tab-badge"
+          />
+        </a>
+        {canViewAbuseReports ? (
+          <a href="#abuse-reports">
+            Abuse Reports
+            <NavBadge
+              count={adminCounts?.abuseReports}
+              className="reports-panel__tab-badge"
+            />
+          </a>
+        ) : null}
       </div>
 
       <div className="reports-panel__section">
