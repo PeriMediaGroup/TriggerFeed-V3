@@ -60,6 +60,7 @@ export const APP_NAV_LINKS = [
     Icon: ShieldAlert,
     auth: "loggedIn",
     roles: ["moderator", "admin", "ceo"],
+    badge: "adminCountsTotal",
     match: (pathname) =>
       pathname === "/admin" || pathname.startsWith("/admin/"),
   },

@@ -384,6 +384,46 @@ export async function dismissReport({ reportId, reason }) {
   );
 }
 
+export async function escalateReport({ reportId, reason }) {
+  if (!reportId) {
+    return failure("Missing report.");
+  }
+
+  if (!cleanString(reason)) {
+    return failure("Escalation reason is required.");
+  }
+
+  return callModerationRpc(
+    "moderation_update_report_status",
+    {
+      p_report_id: reportId,
+      p_status: "escalated",
+      p_reason: nullableString(reason),
+    },
+    "Report escalated.",
+  );
+}
+
+export async function recommendBan({ reportId, reason }) {
+  if (!reportId) {
+    return failure("Missing report.");
+  }
+
+  if (!cleanString(reason)) {
+    return failure("Recommendation reason is required.");
+  }
+
+  return callModerationRpc(
+    "moderation_update_report_status",
+    {
+      p_report_id: reportId,
+      p_status: "ban_recommended",
+      p_reason: nullableString(reason),
+    },
+    "Ban recommendation recorded.",
+  );
+}
+
 export async function reviewReport({ reportId, reason }) {
   if (!reportId) {
     return failure("Missing report.");
@@ -393,10 +433,10 @@ export async function reviewReport({ reportId, reason }) {
     "moderation_update_report_status",
     {
       p_report_id: reportId,
-      p_status: "reviewed",
+      p_status: "under_review",
       p_reason: nullableString(reason),
     },
-    "Report marked reviewed.",
+    "Report marked under review.",
   );
 }
 
@@ -437,8 +477,12 @@ export async function updateUserRole({ targetUserId, newRole, reason }) {
     return failure("Invalid target role.");
   }
 
+  if (!cleanString(reason)) {
+    return failure("Role change reason is required.");
+  }
+
   return callModerationRpc(
-    "moderation_update_user_role",
+    "change_user_role",
     {
       p_target_user_id: targetUserId,
       p_new_role: cleanRole,

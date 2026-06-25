@@ -8,8 +8,10 @@ import {
   addAdminNote,
   banUser,
   dismissReport,
+  escalateReport,
   muteUser,
   removePost,
+  recommendBan,
   restorePost,
   reviewReport,
   unbanUser,
@@ -19,9 +21,17 @@ import {
 
 const STATUS_LABELS = {
   open: "Open",
+  pending: "Pending",
+  under_review: "Under review",
   reviewed: "Reviewed",
   dismissed: "Dismissed",
   actioned: "Actioned",
+  warned: "Warned",
+  post_removed: "Post removed",
+  escalated: "Escalated",
+  muted: "Muted",
+  ban_recommended: "Ban recommended",
+  banned: "Banned",
 };
 
 const ACTION_LABELS = {
@@ -34,10 +44,21 @@ const ACTION_LABELS = {
   restore_post: "Post restored",
   dismiss_report: "Report dismissed",
   review_report: "Report reviewed",
+  escalate_report: "Report escalated",
+  recommend_ban: "Ban recommended",
   admin_note: "Admin note",
   promote_user: "Promoted",
   demote_user: "Demoted",
+  role_changed: "Role changed",
 };
+
+const ACTIONABLE_REPORT_STATUSES = new Set([
+  "open",
+  "pending",
+  "under_review",
+  "escalated",
+  "ban_recommended",
+]);
 
 function getProfileName(profile) {
   if (!profile) {
@@ -143,16 +164,20 @@ export default function ReportCard({ report, permissions }) {
   const actorRole = permissions?.role || "user";
   const canModerate = permissions?.canModerate === true;
   const canBan = permissions?.canBan === true;
+  const canMute = permissions?.canMute === true;
   const canCeoRestore = actorRole === "ceo";
-  const canTargetUser =
-    actorRole === "ceo"
-      ? Boolean(targetUserId && targetRole !== "ceo")
-      : actorRole === "admin" &&
-        Boolean(targetUserId && ["user", "moderator"].includes(targetRole));
+  const canTargetForModerator =
+    actorRole === "moderator" && targetRole === "user";
+  const canTargetForAdmin =
+    actorRole === "admin" && ["user", "moderator"].includes(targetRole);
+  const canTargetForCeo = actorRole === "ceo" && targetRole !== "ceo";
+  const canTargetUser = Boolean(
+    targetUserId &&
+      (canTargetForModerator || canTargetForAdmin || canTargetForCeo),
+  );
   const canRemovePost =
-    actorRole === "ceo" ||
-    (actorRole === "admin" && ["user", "moderator"].includes(targetRole));
-  const isOpenReport = status === "open";
+    canTargetUser && ["moderator", "admin", "ceo"].includes(actorRole);
+  const isActionableReport = ACTIONABLE_REPORT_STATUSES.has(status);
   const historyCount = report.moderation_history?.length || 0;
 
   function runAction(action, options = null) {
@@ -198,7 +223,7 @@ export default function ReportCard({ report, permissions }) {
           reportId: report.id,
           reason,
         }),
-      "reviewed",
+      "under_review",
     );
   }
 
@@ -216,6 +241,63 @@ export default function ReportCard({ report, permissions }) {
           reason,
         }),
       "dismissed",
+    );
+  }
+
+  function handleEscalate() {
+    const reason = getPromptValue("Escalation reason", report.reason || "");
+
+    if (reason === null) {
+      return;
+    }
+
+    runAction(
+      () =>
+        escalateReport({
+          reportId: report.id,
+          reason,
+        }),
+      "escalated",
+    );
+  }
+
+  function handleRecommendMute() {
+    const reason = getPromptValue(
+      "Reason for recommending mute",
+      report.reason || "",
+    );
+
+    if (reason === null) {
+      return;
+    }
+
+    runAction(
+      () =>
+        escalateReport({
+          reportId: report.id,
+          reason: `Mute recommended: ${reason}`,
+        }),
+      "escalated",
+    );
+  }
+
+  function handleRecommendBan() {
+    const reason = getPromptValue(
+      "Reason for recommending ban",
+      report.reason || "",
+    );
+
+    if (reason === null) {
+      return;
+    }
+
+    runAction(
+      () =>
+        recommendBan({
+          reportId: report.id,
+          reason,
+        }),
+      "ban_recommended",
     );
   }
 
@@ -242,7 +324,7 @@ export default function ReportCard({ report, permissions }) {
           relatedReportId: report.id,
         }),
       {
-        optimisticStatus: "actioned",
+        optimisticStatus: "post_removed",
         onSuccess: () => setIsPostRemoved(true),
         pendingLabel: "Removing...",
       },
@@ -440,7 +522,7 @@ export default function ReportCard({ report, permissions }) {
 
         {canModerate ? (
           <div className="report-card__actions">
-            {isOpenReport ? (
+            {isActionableReport ? (
               <>
                 <button
                   type="button"
@@ -448,7 +530,16 @@ export default function ReportCard({ report, permissions }) {
                   onClick={handleReview}
                   disabled={isPending}
                 >
-                  Review
+                  Under review
+                </button>
+
+                <button
+                  type="button"
+                  className="report-card__action"
+                  onClick={handleEscalate}
+                  disabled={isPending}
+                >
+                  Escalate
                 </button>
 
                 <button
@@ -480,23 +571,32 @@ export default function ReportCard({ report, permissions }) {
                   {activeAction === "Sending..." ? "Sending..." : "Warn user"}
                 </button>
 
-                {report.post_author?.is_muted ? (
+                {canMute && report.post_author?.is_muted ? (
                   <button
                     type="button"
                     className="report-card__action"
                     onClick={handleUnmuteUser}
-                    disabled={isPending || !canTargetUser}
+                    disabled={isPending || !canTargetUser || !canMute}
                   >
                     Unmute user
+                  </button>
+                ) : canMute ? (
+                  <button
+                    type="button"
+                    className="report-card__action"
+                    onClick={handleMuteUser}
+                    disabled={isPending || !canTargetUser || !canMute}
+                  >
+                    Mute user
                   </button>
                 ) : (
                   <button
                     type="button"
                     className="report-card__action"
-                    onClick={handleMuteUser}
-                    disabled={isPending || !canTargetUser}
+                    onClick={handleRecommendMute}
+                    disabled={isPending}
                   >
-                    Mute user
+                    Recommend mute
                   </button>
                 )}
 
@@ -520,6 +620,16 @@ export default function ReportCard({ report, permissions }) {
                       Ban user
                     </button>
                   ))}
+                {!canBan ? (
+                  <button
+                    type="button"
+                    className="report-card__action"
+                    onClick={handleRecommendBan}
+                    disabled={isPending}
+                  >
+                    Recommend ban
+                  </button>
+                ) : null}
               </>
             ) : (
               <>

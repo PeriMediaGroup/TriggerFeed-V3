@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import ReportPanel from "@/features/reports/components/ReportPanel";
+import { getAdminNavCounts } from "@/features/admin/data/getAdminNavCounts";
 import { getModerationPermissions } from "@/features/admin/permissions";
 import { getAbuseReports } from "@/features/reports/data/getAbuseReports";
 import { getPostReports } from "@/features/reports/data/getPostReports";
@@ -47,12 +48,17 @@ export default async function AdminReportsPage() {
   const abuseReports = ["admin", "ceo"].includes(permissions.role)
     ? await getAbuseReports()
     : [];
+  const adminCounts = await getAdminNavCounts({
+    supabase,
+    role: permissions.role,
+  });
 
   return (
     <ReportPanel
       reports={reports}
       abuseReports={abuseReports}
       permissions={permissions}
+      adminCounts={adminCounts}
     />
   );
 }

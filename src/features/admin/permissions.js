@@ -10,7 +10,8 @@ export function getModerationPermissions(role) {
   return {
     role: cleanRole || "user",
     canModerate: MODERATION_ROLES.includes(cleanRole),
-    canBan: ["admin", "ceo"].includes(cleanRole),
+    canMute: ["admin", "ceo"].includes(cleanRole),
+    canBan: cleanRole === "ceo",
     canManageRoles: cleanRole === "ceo",
     canCreateStickyPost: cleanRole === "ceo",
   };
