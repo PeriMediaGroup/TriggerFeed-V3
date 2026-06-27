@@ -129,11 +129,13 @@
   }
 
   &__video {
-    background: color-mix(
-      in srgb,
-      var(--color-surface-elevated),
-      black 12%
-    );
+    background: #000;
+  }
+
+  &__item--video {
+    display: grid;
+    place-items: center;
+    background: #000;
   }
 
   &--single &__item,
@@ -150,6 +152,15 @@
     height: auto;
     max-height: min(70vh, 720px);
     object-fit: contain;
+  }
+
+  &--single &__item--video {
+    min-height: 0;
+  }
+
+  &--single &__item--video &__video {
+    width: 100%;
+    max-height: min(70vh, 720px);
   }
 
   &__credit {
@@ -181,6 +192,22 @@
 
 @media (max-width: 36rem) {
   .media-gallery {
+    &__video {
+      width: 100%;
+      height: auto;
+      max-height: min(62vh, 28rem);
+      object-fit: contain;
+      background: #000;
+    }
+
+    &__item--video {
+      background: #000;
+    }
+
+    &--single &__item--video {
+      min-height: 0;
+    }
+
     &--two,
     &--three,
     &--four,

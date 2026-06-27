@@ -18,6 +18,43 @@ import SharePostButton from "./SharePostButton";
 const DEFAULT_AVATAR_URL =
   "https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png";
 
+const FEED_BODY_PREVIEW_MAX_CHARS = 420;
+const FEED_BODY_PREVIEW_MAX_LINES = 6;
+
+function getFeedBodyPreview(body = "") {
+  if (!body) {
+    return {
+      text: "",
+      isTruncated: false,
+    };
+  }
+
+  const normalizedBody = body.replace(/\r\n?/g, "\n");
+  const lines = normalizedBody.split("\n");
+  const exceedsLineLimit = lines.length > FEED_BODY_PREVIEW_MAX_LINES;
+  const exceedsCharLimit = normalizedBody.length > FEED_BODY_PREVIEW_MAX_CHARS;
+
+  if (!exceedsLineLimit && !exceedsCharLimit) {
+    return {
+      text: body,
+      isTruncated: false,
+    };
+  }
+
+  const lineLimitedText = exceedsLineLimit
+    ? lines.slice(0, FEED_BODY_PREVIEW_MAX_LINES).join("\n")
+    : normalizedBody;
+  const charLimitedText =
+    lineLimitedText.length > FEED_BODY_PREVIEW_MAX_CHARS
+      ? lineLimitedText.slice(0, FEED_BODY_PREVIEW_MAX_CHARS)
+      : lineLimitedText;
+
+  return {
+    text: `${charLimitedText.trimEnd()}...`,
+    isTruncated: true,
+  };
+}
+
 export default function PostCard({
   post,
   currentUserId = null,
@@ -53,13 +90,17 @@ export default function PostCard({
     post.media || post.post_media || post.images || post.post_images || [];
   const mentionProfiles = post.mentionProfiles || [];
   const poll = post.polls?.[0] || null;
+  const isFeedCard = variant === "feed";
+  const bodyPreview = isFeedCard
+    ? getFeedBodyPreview(post.body)
+    : { text: post.body, isTruncated: false };
 
   const commentsLabel = showComments
     ? "Hide comments"
     : `${commentCount} ${commentCount === 1 ? "comment" : "comments"}`;
 
   return (
-    <article className="post-card">
+    <article className={`post-card post-card--${variant}`}>
       <header className="post-card__header">
         <Link
           href={authorId ? `/profiles/${authorId}` : "#"}
@@ -129,8 +170,20 @@ export default function PostCard({
 
         {post.body && (
           <div className="post-card__body">
-            <SmartText text={post.body} mentionProfiles={mentionProfiles} />
+            <SmartText
+              text={bodyPreview.text}
+              mentionProfiles={mentionProfiles}
+            />
           </div>
+        )}
+
+        {bodyPreview.isTruncated && (
+          <Link
+            href={`/posts/${post.id}`}
+            className="post-card__full-post-link"
+          >
+            View full post
+          </Link>
         )}
       </div>
 

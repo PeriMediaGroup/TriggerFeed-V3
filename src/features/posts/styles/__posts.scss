@@ -93,6 +93,14 @@
     line-height: 1.15;
   }
 
+  &--feed &__title,
+  &--feed &__title > div {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
   &__body,
   .post-detail__body {
     margin: 0;
@@ -100,6 +108,26 @@
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+  }
+
+  &--feed &__body > div {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+  }
+
+  &__full-post-link {
+    width: fit-content;
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
   }
 
   &__actions {

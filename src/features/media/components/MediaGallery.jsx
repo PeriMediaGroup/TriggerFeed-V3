@@ -309,6 +309,8 @@ function MediaGalleryItem({
   const className = [
     "media-gallery__item",
     isHero ? "media-gallery__item--hero" : "",
+    isSingle ? "media-gallery__item--single" : "",
+    isVideoMedia(media) ? "media-gallery__item--video" : "",
     isGifMedia(media) ? "media-gallery__item--gif" : "",
     overlayCount > 0 ? "media-gallery__item--has-overlay" : "",
   ]
