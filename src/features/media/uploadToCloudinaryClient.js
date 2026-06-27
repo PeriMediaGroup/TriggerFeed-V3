@@ -1,5 +1,26 @@
 import { getMediaTypeFromFile } from "./mediaMetadata";
 
+const NORMALIZED_VIDEO_TRANSFORMATION = "a_auto,q_auto,f_auto";
+
+function getNormalizedVideoUrl(uploadResult) {
+  const eagerUrl = uploadResult?.eager?.[0]?.secure_url;
+
+  if (eagerUrl) {
+    return eagerUrl;
+  }
+
+  const secureUrl = uploadResult?.secure_url || "";
+
+  if (!secureUrl) {
+    return "";
+  }
+
+  return secureUrl.replace(
+    "/video/upload/",
+    `/video/upload/${NORMALIZED_VIDEO_TRANSFORMATION}/`,
+  );
+}
+
 export async function uploadFileToCloudinary({ file, postId }) {
   const mediaType = getMediaTypeFromFile(file);
 
@@ -57,6 +78,10 @@ export async function uploadFileToCloudinary({ file, postId }) {
   cloudinaryFormData.append("overwrite", signaturePayload.overwrite);
   cloudinaryFormData.append("upload_preset", signaturePayload.uploadPreset);
 
+  if (mediaType === "video" && signaturePayload.eager) {
+    cloudinaryFormData.append("eager", signaturePayload.eager);
+  }
+
   const uploadUrl = `https://api.cloudinary.com/v1_1/${signaturePayload.cloudName}/${signaturePayload.resourceType}/upload`;
 
   const uploadResponse = await fetch(uploadUrl, {
@@ -70,18 +95,38 @@ export async function uploadFileToCloudinary({ file, postId }) {
     throw new Error(uploadResult?.error?.message || "Cloudinary upload failed.");
   }
 
+  if (mediaType === "video") {
+    const result = uploadResult;
+
+    console.log("Cloudinary video upload result:", {
+      width: result.width,
+      height: result.height,
+      format: result.format,
+      resource_type: result.resource_type,
+      rotation: result.rotation,
+      duration: result.duration,
+    });
+  }
+
+  const deliveryUrl =
+    mediaType === "video"
+      ? getNormalizedVideoUrl(uploadResult)
+      : uploadResult.secure_url;
+  const normalizedVideoResult =
+    mediaType === "video" ? uploadResult?.eager?.[0] : null;
+
   return {
     media_type: mediaType,
     provider: "cloudinary",
-    cloudinary_url: uploadResult.secure_url,
-    cloudinary_secure_url: uploadResult.secure_url,
+    cloudinary_url: deliveryUrl,
+    cloudinary_secure_url: deliveryUrl,
     cloudinary_public_id: uploadResult.public_id,
     original_filename: file.name,
     mime_type: file.type,
     file_size_bytes: file.size,
-    width: uploadResult.width || null,
-    height: uploadResult.height || null,
-    format: uploadResult.format || null,
+    width: normalizedVideoResult?.width || uploadResult.width || null,
+    height: normalizedVideoResult?.height || uploadResult.height || null,
+    format: normalizedVideoResult?.format || uploadResult.format || null,
     duration: uploadResult.duration || null,
     bytes: uploadResult.bytes || file.size,
     resource_type: uploadResult.resource_type || signaturePayload.resourceType,

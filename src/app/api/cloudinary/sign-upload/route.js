@@ -6,6 +6,8 @@ import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus
 import { getPostMediaFolder } from "@/features/media/mediaPaths";
 import { POST_MEDIA_LIMITS } from "@/features/media/mediaConstants";
 
+const NORMALIZED_VIDEO_TRANSFORMATION = "a_auto,q_auto,f_auto";
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -162,6 +164,10 @@ export async function POST(request) {
     use_filename: "true",
   };
 
+  if (mediaType === "video") {
+    uploadParams.eager = NORMALIZED_VIDEO_TRANSFORMATION;
+  }
+
   const signature = cloudinary.utils.api_sign_request(
     uploadParams,
     process.env.CLOUDINARY_API_SECRET,
@@ -178,5 +184,6 @@ export async function POST(request) {
     uniqueFilename: uploadParams.unique_filename,
     uploadPreset: uploadParams.upload_preset,
     useFilename: uploadParams.use_filename,
+    eager: uploadParams.eager || null,
   });
 }

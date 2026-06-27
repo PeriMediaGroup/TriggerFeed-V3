@@ -206,8 +206,66 @@
     cursor: pointer;
   }
 
+  &__media-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  &__media-label--desktop {
+    display: none;
+  }
+
+  &__media-action {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.75rem;
+    background: color-mix(
+      in srgb,
+      var(--color-surface-elevated),
+      transparent 8%
+    );
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  &__media-action:hover,
+  &__media-action:focus-within {
+    border-color: color-mix(
+      in srgb,
+      var(--color-accent),
+      var(--color-border) 45%
+    );
+    background: color-mix(
+      in srgb,
+      var(--color-accent),
+      var(--color-surface-elevated) 88%
+    );
+  }
+
   &__media-input {
     cursor: pointer;
+  }
+
+  &__media-action &__media-input {
+    position: absolute;
+    width: 1px;
+    min-height: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    padding: 0;
+    border: 0;
+    white-space: nowrap;
   }
 
   &__emoji-picker {
@@ -405,6 +463,14 @@
 
 @media (min-width: 48rem) {
   .create-post {
+    &__media-label--desktop {
+      display: grid;
+    }
+
+    &__media-actions {
+      display: none;
+    }
+
     &__gif-grid {
       grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
     }
