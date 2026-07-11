@@ -1,4 +1,5 @@
 import {
+  Activity,
   AtSign,
   Bell,
   BellCheck,
@@ -8,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleAlert,
+  Clock3,
   Crosshair,
   Flag,
   Handshake,
@@ -40,12 +42,14 @@ import {
 } from "lucide-react";
 
 export const icons = {
+  activity: Activity,
   announcement: Megaphone,
   atsign: AtSign,
   back: ChevronLeft,
   camera: Camera,
   check: Check,
   close: X,
+  clock: Clock3,
   comment: MessageCircle,
   create: SquarePlus,
   crosshair: Crosshair,

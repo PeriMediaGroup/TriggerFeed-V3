@@ -97,15 +97,6 @@ export async function uploadFileToCloudinary({ file, postId }) {
 
   if (mediaType === "video") {
     const result = uploadResult;
-
-    console.log("Cloudinary video upload result:", {
-      width: result.width,
-      height: result.height,
-      format: result.format,
-      resource_type: result.resource_type,
-      rotation: result.rotation,
-      duration: result.duration,
-    });
   }
 
   const deliveryUrl =

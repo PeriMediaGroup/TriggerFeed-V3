@@ -7,6 +7,7 @@ import AppRightRail from "./AppRightRail";
 import AppFooter from "./AppFooter";
 import BottomNav from "../navigation/BottomNav";
 import LoggedOutShell from "./LoggedOutShell";
+import UserActivityTracker from "@/features/activity/UserActivityTracker";
 
 export default function AppShell({ children, user, unreadNotifications = 0 }) {
   if (!user) {
@@ -43,6 +44,7 @@ export default function AppShell({ children, user, unreadNotifications = 0 }) {
 
       <AppFooter />
       <BottomNav unreadNotifications={unreadNotifications} />
+      <UserActivityTracker userId={user.id} />
       <ToastProvider />
     </>
   );

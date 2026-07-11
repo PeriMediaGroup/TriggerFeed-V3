@@ -1,4 +1,4 @@
-import AdminManagementNav from "@/features/admin/components/AdminManagementNav";
+import AdminPageShell from "@/features/admin/components/AdminPageShell";
 import NavBadge from "@/components/navigation/NavBadge";
 
 import AbuseReportCard from "./AbuseReportCard";
@@ -34,18 +34,14 @@ export default function ReportPanel({
   const canViewAbuseReports = ["admin", "ceo"].includes(permissions?.role);
 
   return (
-    <section className="reports-panel">
-      <header className="reports-panel__header">
-        <div>
-          <p className="reports-panel__eyebrow">Moderation</p>
-          <h1 className="reports-panel__title">Post Reports</h1>
-          <p className="reports-panel__summary">
-            {openReports.length} open report{openReports.length === 1 ? "" : "s"}
-          </p>
-        </div>
-
-        <AdminManagementNav activeSection="reports" counts={adminCounts} />
-      </header>
+    <AdminPageShell
+      activeSection="reports"
+      counts={adminCounts}
+      eyebrow="Moderation"
+      title="Post Reports"
+      summary={`${openReports.length} open report${openReports.length === 1 ? "" : "s"}`}
+    >
+      <section className="reports-panel">
 
       <div className="reports-panel__tabs" aria-label="Report sections">
         <a href="#post-reports">
@@ -135,6 +131,7 @@ export default function ReportPanel({
           </div>
         </>
       ) : null}
-    </section>
+      </section>
+    </AdminPageShell>
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 const tabs = [
   {
     key: "main",
-    label: "Main Feed",
+    label: "Main",
     href: "/?feed=main",
   },
   {
