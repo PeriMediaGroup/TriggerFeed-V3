@@ -27,7 +27,7 @@ export default async function AppRightRail({ user = null }) {
         didFetch={didFetch}
       />
       <section className="app-right-rail__module">
-        <AdSlot slot="right-sidebar-small" />
+        <AdSlot slot="right-sidebar-small" eagerImage />
       </section>
     </div>
   );

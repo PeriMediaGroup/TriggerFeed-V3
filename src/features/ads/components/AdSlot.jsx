@@ -10,7 +10,7 @@ function pickAd(slot, deterministic = false) {
   return ads[index];
 }
 
-function AdContent({ ad }) {
+function AdContent({ ad, eagerImage = false }) {
   return (
     <>
       {ad.image ? (
@@ -21,6 +21,8 @@ function AdContent({ ad }) {
           width={220}
           height={220}
           sizes="(min-width: 78.125rem) 200px, 100vw"
+          loading={eagerImage ? "eager" : undefined}
+          fetchPriority={eagerImage ? "high" : undefined}
         />
       ) : null}
 
@@ -36,6 +38,7 @@ function AdContent({ ad }) {
 export default function AdSlot({
   slot = "right-sidebar-small",
   deterministic = false,
+  eagerImage = false,
 }) {
   const ad = pickAd(slot, deterministic);
 
@@ -59,11 +62,11 @@ export default function AdSlot({
           target="_blank"
           rel="noopener noreferrer"
         >
-          <AdContent ad={ad} />
+          <AdContent ad={ad} eagerImage={eagerImage} />
         </a>
       ) : (
         <Link className="ad-card__link" href={ad.href}>
-          <AdContent ad={ad} />
+          <AdContent ad={ad} eagerImage={eagerImage} />
         </Link>
       )}
     </aside>

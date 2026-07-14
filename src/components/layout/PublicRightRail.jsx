@@ -4,7 +4,7 @@ export default function PublicRightRail() {
   return (
     <div className="public-right-rail">
       <section className="app-right-rail__module">
-        <AdSlot slot="right-sidebar-small" deterministic />
+        <AdSlot slot="right-sidebar-small" deterministic eagerImage />
       </section>
     </div>
   );

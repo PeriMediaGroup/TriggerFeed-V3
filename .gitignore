@@ -4,6 +4,10 @@ migration-dumps/
 *.dump
 old-auth-data.sql
 old-profiles.csv
+*.ps1
+*.zip
+/migration-dumps
+/migration-review
 
 # dependencies
 /node_modules
