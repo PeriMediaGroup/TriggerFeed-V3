@@ -1,0 +1,58 @@
+{
+  "auth_users": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": "expected imported count = retained legacy count - approved exclusions - documented invalid records"
+  },
+  "profiles": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": ""
+  },
+  "posts": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": ""
+  },
+  "post_media": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": ""
+  },
+  "comments": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": ""
+  },
+  "friends": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": ""
+  },
+  "votes": {
+    "retained_legacy_count": null,
+    "approved_exclusions": 0,
+    "documented_invalid_records": 0,
+    "expected_imported_count": null,
+    "accepted_variance": 0,
+    "notes": ""
+  }
+}

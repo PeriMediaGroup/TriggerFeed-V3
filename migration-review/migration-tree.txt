@@ -1,0 +1,74 @@
+TriggerFeed V3 web migration review tree
+
+supabase/
+  config.toml
+  migrations/
+    010_auth_profiles.sql
+    020_posts_comments.sql
+    030_post_media.sql
+    040_post_votes.sql
+    050_friends.sql
+    060_notifications.sql
+    070_profile_showcase.sql
+    080_polls.sql
+    090_create_post_reports.sql
+    100_auto_friend_ceo.sql
+    110_feed_post_ranks.sql
+    111_ceo_sticky_posts.sql
+    112_restore_ceo_sticky_posts_trigger.sql
+    120_moderation_actions.sql
+    130_moderation_warning_notifications.sql
+    140_admin_user_search.sql
+    150_fix_moderation_account_status_guards.sql
+    151_fix_moderation_profile_permission_guards.sql
+    160_friend_suggestions.sql
+    161_cleanup_sticky_post_trigger.sql
+    162_exclude_ceo_from_friend_suggestion_mutuals.sql
+    163_rank_system.sql
+    164_lock_down_user_rank_thresholds.sql
+    165_beta_hardening.sql
+    166_privacy_rls_audit.sql
+    167_soft_delete_my_account.sql
+    168_moderation_events_account_notices.sql
+    169_warning_notification_context.sql
+    170_warning_notification_post_link_metadata.sql
+    171_warning_notification_derive_report_post.sql
+    172_moderation_report_permissions_restore.sql
+    173_allow_hyphenated_usernames.sql
+    174_abuse_reports.sql
+    175_public_birthday_display.sql
+    176_restrict_admin_user_search.sql
+    177_harden_post_vote_counts_access.sql
+    178_allow_post_visibility_levels.sql
+    179_search_friend_candidates.sql
+    180_top_gun_images.sql
+    181_admin_nav_counts.sql
+    182_tiered_moderation_role_changes.sql
+    183_user_activity_overview.sql
+    20260625140955_harden_helper_function_execute_grants.sql
+    20260625141224_revoke_public_execute_on_helper_functions.sql
+    README.md
+  functions/
+    supabase\functions\report-abuse\.npmrc
+    supabase\functions\report-abuse\deno.json
+    supabase\functions\report-abuse\index.ts
+  seed.sql (not present)
+
+scripts/
+  migration/
+    import-current-comments-local.ps1
+    import-current-comments-remote.ps1
+    import-current-friends-local.ps1
+    import-current-friends-remote.ps1
+    import-current-posts-local.ps1
+    import-current-posts-remote.ps1
+    import-current-users-local.ps1
+    import-current-users-remote.ps1
+    import-current-votes-local.ps1
+    import-current-votes-remote.ps1
+    run-local-migration.private.ps1
+
+Root review inputs
+  package.json
+  README.md
+  .env.example

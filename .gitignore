@@ -5,9 +5,19 @@ migration-dumps/
 old-auth-data.sql
 old-profiles.csv
 *.ps1
+!scripts/migration/*.ps1
+scripts/migration/*.private.ps1
 *.zip
 /migration-dumps
 /migration-review
+!/migration-review/
+!/migration-review/codex-remediation-report.md
+
+# Migration review artifacts
+review-evidence/
+migration-review/production-verification-*.csv
+migration-review/test-account-candidates-*.csv
+triggerfeed-migration-remediation-review.zip
 
 # dependencies
 /node_modules
@@ -39,6 +49,7 @@ yarn-error.log*
 .env
 .env.local
 .env.local.backup
+.env*.backup
 .env.*.local
 
 # vercel
