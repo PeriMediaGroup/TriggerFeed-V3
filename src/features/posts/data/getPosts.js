@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 import { getCommentsByPostId } from "@/features/comments/queries";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
+import { sortTrendingPosts } from "@/features/posts/data/trendingPosts";
 
 function getDeletedAuthor(userId) {
   return {
@@ -135,13 +136,6 @@ export async function getPosts({ feedType = "main" } = {}) {
 
   if (feedType === "friends" && allowedUserIds?.length) {
     query = query.in("user_id", allowedUserIds);
-  }
-
-  if (feedType === "trending") {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    query = query.gte("created_at", sevenDaysAgo.toISOString());
   }
 
   if (feedType === "main" || feedType === "friends") {
@@ -444,6 +438,7 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
         upvote_count: voteCountsForPost?.upvote_count || 0,
         downvote_count: voteCountsForPost?.downvote_count || 0,
         vote_count: voteCountsForPost?.vote_count || 0,
+        total_votes: voteCountsForPost?.vote_count || 0,
         interaction_count: voteCountsForPost?.interaction_count || 0,
         score: voteCountsForPost?.score || 0,
         current_user_vote: currentUserVoteMap.get(post.id) || null,
@@ -508,25 +503,9 @@ async function getAcceptedFriendIds(supabase, currentUserId) {
   };
 }
 
-async function sortPostsForFeed({ supabase, posts, feedType }) {
+async function sortPostsForFeed({ posts, feedType }) {
   if (feedType === "trending") {
-    return [...posts]
-      .filter((post) => getPostTotalVotes(post) >= 5)
-      .sort((a, b) => {
-        const scoreDifference = (b.score || 0) - (a.score || 0);
-
-        if (scoreDifference !== 0) {
-          return scoreDifference;
-        }
-
-        const voteDifference = getPostTotalVotes(b) - getPostTotalVotes(a);
-
-        if (voteDifference !== 0) {
-          return voteDifference;
-        }
-
-        return compareCreatedAtDesc(a, b);
-      });
+    return sortTrendingPosts(posts);
   }
 
   if (feedType === "friends") {
@@ -554,10 +533,6 @@ return [...posts].sort((a, b) => {
 
   return compareCreatedAtDesc(a, b);
 });
-}
-
-function getPostTotalVotes(post) {
-  return post.vote_count || (post.upvote_count || 0) + (post.downvote_count || 0);
 }
 
 function compareCreatedAtDesc(a, b) {
