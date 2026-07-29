@@ -57,6 +57,27 @@
   font-size: 1.1rem;
 }
 
+.install-page__store-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  &--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+}
+
 .install-page__steps {
   display: grid;
   gap: var(--space-sm);
