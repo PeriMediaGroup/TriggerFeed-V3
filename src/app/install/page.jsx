@@ -11,9 +11,7 @@ export default function InstallPage() {
     <main className="tf-page__content public-page install-page">
       <section className="public-page-hero" aria-labelledby="install-title">
         <div className="public-page-hero__content">
-          <p className="public-page-hero__eyebrow">
-            Train. Carry. Stay ready.
-          </p>
+          <p className="public-page-hero__eyebrow">Train. Carry. Stay ready.</p>
           <h1 className="public-page-hero__title" id="install-title">
             Install TriggerFeed
           </h1>
@@ -28,22 +26,25 @@ export default function InstallPage() {
         <section className="install-page__panel tf-page__content--ghost">
           <h2>Android</h2>
 
-          <p className="install-page__label">Get TriggerFeed on Android.</p>
-          <a
-            href={GOOGLE_PLAY_URL}
-            target="_blank"
-            rel="noreferrer"
-            className=""
+          <p className="install-page__label">
+            TriggerFeed for Android is in development and coming soon.
+          </p>
+
+          <div
+            className="install-page__store-badge install-page__store-badge--disabled"
+            aria-label="Google Play app coming soon"
           >
             <Image
               src={GOOGLE_PLAY_TILE}
-              alt="Google Play Store"
-              className=""
+              alt=""
               width={180}
               height={54}
               sizes="180px"
+              aria-hidden="true"
             />
-          </a>
+
+            <span>Coming soon</span>
+          </div>
         </section>
 
         <section className="install-page__panel tf-page__content--ghost">

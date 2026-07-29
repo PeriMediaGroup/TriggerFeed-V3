@@ -6,6 +6,9 @@ import { getCommentsByPostId } from "@/features/comments/queries";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 import { sortTrendingPosts } from "@/features/posts/data/trendingPosts";
 
+const FEED_POST_LIMIT = 50;
+const TRENDING_CANDIDATE_LIMIT = 1000;
+
 function getDeletedAuthor(userId) {
   return {
     id: userId,
@@ -144,10 +147,13 @@ export async function getPosts({ feedType = "main" } = {}) {
       .order("sticky_at", { ascending: false, nullsFirst: false });
   }
 
+  const postLimit =
+    feedType === "trending" ? TRENDING_CANDIDATE_LIMIT : FEED_POST_LIMIT;
+
   query = query.order("created_at", { ascending: false }).order("sort_order", {
     referencedTable: "post_media",
     ascending: true,
-  }).limit(50);
+  }).limit(postLimit);
 
   const { data: posts, error: postsError } = await query;
 
@@ -505,7 +511,7 @@ async function getAcceptedFriendIds(supabase, currentUserId) {
 
 async function sortPostsForFeed({ posts, feedType }) {
   if (feedType === "trending") {
-    return sortTrendingPosts(posts);
+    return sortTrendingPosts(posts).slice(0, FEED_POST_LIMIT);
   }
 
   if (feedType === "friends") {
