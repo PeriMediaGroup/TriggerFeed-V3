@@ -58,7 +58,14 @@ export default async function ProfilePage() {
     mentions_enabled,
     comments_enabled,
     friend_requests_enabled,
-    friend_accepts_enabled
+    friend_accepts_enabled,
+    email_enabled,
+    email_comments,
+    email_mentions,
+    email_friend_requests,
+    email_friend_accepted,
+    email_announcements,
+    email_marketing
   `,
   )
   .eq("user_id", user.id)

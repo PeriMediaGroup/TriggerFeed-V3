@@ -76,10 +76,17 @@ begin
   select count(*)
   into v_count
   from public.notification_settings
-  where user_id in (v_actor_id, v_recipient_id, v_other_id);
+  where user_id in (v_actor_id, v_recipient_id, v_other_id)
+    and email_enabled = true
+    and email_comments = true
+    and email_mentions = true
+    and email_friend_requests = true
+    and email_friend_accepted = true
+    and email_announcements = true
+    and email_marketing = false;
 
   if v_count <> 3 then
-    raise exception 'Expected profile trigger to create 3 notification_settings rows, got %', v_count;
+    raise exception 'Expected profile trigger to create 3 notification_settings rows with email defaults, got %', v_count;
   end if;
 
   delete from public.notification_settings
@@ -275,7 +282,9 @@ begin
   end if;
 
   update public.notification_settings
-  set mentions_enabled = true
+  set
+    mentions_enabled = true,
+    email_marketing = true
   where user_id = '00000000-0000-0000-0000-000000001002'::uuid;
 
   get diagnostics v_count = row_count;

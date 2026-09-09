@@ -9,6 +9,13 @@ const DEFAULT_NOTIFICATION_SETTINGS = {
   comments_enabled: true,
   friend_requests_enabled: true,
   friend_accepts_enabled: true,
+  email_enabled: true,
+  email_comments: true,
+  email_mentions: true,
+  email_friend_requests: true,
+  email_friend_accepted: true,
+  email_announcements: true,
+  email_marketing: false,
 };
 
 const NOTIFICATION_OPTIONS = [
@@ -31,6 +38,42 @@ const NOTIFICATION_OPTIONS = [
     key: "friend_accepts_enabled",
     label: "Friend accepts",
     description: "Alerts when someone accepts your friend request.",
+  },
+];
+
+const EMAIL_CORE_OPTIONS = [
+  {
+    key: "email_comments",
+    label: "Comments on my posts",
+    description: "Email me when someone comments on one of my posts.",
+  },
+  {
+    key: "email_mentions",
+    label: "Mentions",
+    description: "Email me when someone mentions me in a post or comment.",
+  },
+  {
+    key: "email_friend_requests",
+    label: "Friend requests",
+    description: "Email me when someone sends me a friend request.",
+  },
+  {
+    key: "email_friend_accepted",
+    label: "Friend request accepted",
+    description: "Email me when someone accepts my friend request.",
+  },
+];
+
+const EMAIL_UPDATE_OPTIONS = [
+  {
+    key: "email_announcements",
+    label: "TriggerFeed announcements & updates",
+    description: "Product news, feature updates, and service announcements.",
+  },
+  {
+    key: "email_marketing",
+    label: "Promotions & newsletters",
+    description: "Occasional promotional email and newsletter updates.",
   },
 ];
 
@@ -98,6 +141,50 @@ export default function NotificationSettings({ initialSettings }) {
             onChange={() => handleToggle(option.key)}
           />
         ))}
+      </div>
+
+      <div className="notification-settings__section">
+        <div className="notification-settings__section-header">
+          <h4>Email Preferences</h4>
+          <p>Choose which optional emails you want to receive.</p>
+        </div>
+
+        <div className="settings-toggle-list">
+          <SettingsToggle
+            label="Email notifications"
+            description="Master control for optional TriggerFeed emails."
+            checked={settings.email_enabled}
+            disabled={isPending}
+            onChange={() => handleToggle("email_enabled")}
+          />
+
+          {EMAIL_CORE_OPTIONS.map((option) => (
+            <SettingsToggle
+              key={option.key}
+              label={option.label}
+              description={option.description}
+              checked={settings[option.key]}
+              disabled={isPending || !settings.email_enabled}
+              onChange={() => handleToggle(option.key)}
+            />
+          ))}
+
+          {EMAIL_UPDATE_OPTIONS.map((option) => (
+            <SettingsToggle
+              key={option.key}
+              label={option.label}
+              description={option.description}
+              checked={settings[option.key]}
+              disabled={isPending || !settings.email_enabled}
+              onChange={() => handleToggle(option.key)}
+            />
+          ))}
+        </div>
+
+        <div className="notification-settings__required-email">
+          <span>Account, security, and moderation emails</span>
+          <strong>Always enabled</strong>
+        </div>
       </div>
     </section>
   );
