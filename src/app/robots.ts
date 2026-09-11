@@ -1,14 +1,17 @@
+import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 
-export default function robots() {
+const sitemapUrl = new URL("/sitemap.xml", SITE_URL).toString();
+
+export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/posts"],
+      allow: ["/", "/posts/"],
       disallow: [
-        "/admin",
-        "/api",
-        "/auth",
+        "/admin/",
+        "/api/",
+        "/auth/",
         "/delete-account",
         "/forgot-password",
         "/login",
@@ -19,6 +22,6 @@ export default function robots() {
         "/signup",
       ],
     },
-    sitemap: new URL("/sitemap.xml", SITE_URL).toString(),
+    sitemap: sitemapUrl,
   };
 }

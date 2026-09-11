@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 
 const PUBLIC_PATHS = new Set([
+  "/",
   "/about",
   "/account-deleted",
   "/contact",
@@ -13,7 +14,9 @@ const PUBLIC_PATHS = new Set([
   "/legal",
   "/login",
   "/merch",
+  "/robots.txt",
   "/reset-password",
+  "/sitemap.xml",
   "/signup",
   "/welcome",
 ]);
@@ -26,6 +29,11 @@ function isPublicPage(pathname) {
   return (
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/legal/") ||
+    (
+      pathname.startsWith("/posts/") &&
+      pathname !== "/posts/new" &&
+      !pathname.endsWith("/edit")
+    ) ||
     pathname.startsWith("/signup/")
   );
 }
