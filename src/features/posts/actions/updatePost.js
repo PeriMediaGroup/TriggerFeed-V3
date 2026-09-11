@@ -5,6 +5,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 import { validatePostInput } from "../utils/validatePost";
 
 function isTrustedGiphyMediaUrl(value) {
@@ -424,8 +425,15 @@ export async function updatePost(postId, formData) {
     },
   });
 
+  const { data: updatedPost } = await supabase
+    .from("posts")
+    .select("id, slug")
+    .eq("id", postId)
+    .maybeSingle();
+
   revalidatePath("/");
   revalidatePath(`/posts/${postId}`);
+  revalidatePath(getPostPath(updatedPost || postId));
 
   return {
     success: true,

@@ -18,7 +18,7 @@ export async function getNotificationPostsById(supabase, notifications = []) {
 
   const { data, error } = await supabase
     .from("posts")
-    .select("id,title,body")
+    .select("id,slug,title,body")
     .in("id", postIds)
     .eq("is_deleted", false)
     .eq("visibility", "public");

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import toast from "react-hot-toast";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 
 import {
   addAdminNote,
@@ -154,6 +155,7 @@ export default function ReportCard({ report, permissions }) {
   const authorName = getProfileName(report.post_author);
   const postTitle = report.post?.title || "Untitled post";
   const reportedPostId = report.post?.id || report.post_id || null;
+  const reportedPostPath = report.post ? getPostPath(report.post) : null;
   const targetUserId = report.post?.user_id || null;
   const targetRole =
     typeof report.post_author?.role === "string"
@@ -636,7 +638,7 @@ export default function ReportCard({ report, permissions }) {
                 {report.post?.id ? (
                   <Link
                     className="report-card__action"
-                    href={`/posts/${report.post.id}`}
+                    href={reportedPostPath}
                   >
                     View Post
                   </Link>
@@ -735,7 +737,7 @@ export default function ReportCard({ report, permissions }) {
               <div className="report-card__detail">
                 <dt>Post</dt>
                 <dd>
-                  <Link href={`/posts/${report.post.id}`}>
+                  <Link href={reportedPostPath}>
                     View reported post
                   </Link>
                   {postRemoved ? (

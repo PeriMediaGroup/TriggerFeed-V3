@@ -11,6 +11,7 @@ import MediaGallery from "@/features/media/components/MediaGallery";
 import PollDisplay from "@/features/polls/components/PollDisplay";
 import ReportPostButton from "@/features/reports/components/ReportPostButton";
 import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
+import { getPostPath, getPostEditPath } from "@/features/posts/lib/postUrls";
 
 import DeletePostButton from "./DeletePostButton";
 import SharePostButton from "./SharePostButton";
@@ -91,6 +92,8 @@ export default function PostCard({
   const mentionProfiles = post.mentionProfiles || [];
   const poll = post.polls?.[0] || null;
   const isFeedCard = variant === "feed";
+  const postPath = getPostPath(post);
+  const postEditPath = getPostEditPath(post);
   const bodyPreview = isFeedCard
     ? getFeedBodyPreview(post.body)
     : { text: post.body, isTruncated: false };
@@ -153,7 +156,7 @@ export default function PostCard({
         </div>
 
         <div className="post-card__header-tools" aria-label="Post actions">
-          <SharePostButton postId={post.id} variant="icon" />
+          <SharePostButton post={post} variant="icon" />
 
           <ReportPostButton
             postId={post.id}
@@ -179,7 +182,7 @@ export default function PostCard({
 
         {bodyPreview.isTruncated && (
           <Link
-            href={`/posts/${post.id}`}
+            href={postPath}
             className="post-card__full-post-link"
           >
             View full post
@@ -231,7 +234,7 @@ export default function PostCard({
         {canManagePost && (
           <div className="post-card__manage-actions" aria-label="Manage post">
             <Link
-              href={`/posts/${post.id}/edit`}
+              href={postEditPath}
               className="post-card__icon-action"
               aria-label="Edit post"
               title="Edit post"
@@ -250,7 +253,7 @@ export default function PostCard({
 
       {variant === "feed" && (
         <footer className="post-card__footer">
-          <Link href={`/posts/${post.id}`} className="post-card__detail-link">
+          <Link href={postPath} className="post-card__detail-link">
             View post
           </Link>
         </footer>

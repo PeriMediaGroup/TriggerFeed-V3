@@ -26,6 +26,7 @@ function getDeletedAuthor(userId) {
 
 const POST_SELECT = `
   id,
+  slug,
   user_id,
   title,
   body,

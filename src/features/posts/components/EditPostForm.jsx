@@ -9,6 +9,7 @@ import { savePostMedia } from "../actions/savePostMedia";
 import EditPostMediaManager from "./EditPostMediaManager";
 import PostComposer from "@/features/posts/components/PostComposer";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 
 function getMediaUrl(item) {
   return (
@@ -337,7 +338,7 @@ export default function EditPostForm({ post, canCreateStickyPost = false }) {
           setStatus("Post updated.");
 
           setTimeout(() => {
-            window.location.assign(`/posts/${post.id}`);
+            window.location.assign(getPostPath(post));
           }, 150);
 
           resolve(false);

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
+import { isUuid } from "@/features/posts/lib/postUrls";
 
 function getDeletedAuthor(userId) {
   return {
@@ -20,17 +21,33 @@ function getDeletedAuthor(userId) {
 }
 
 export async function getPostById(postId) {
+  return getPostByIdentifier(postId);
+}
+
+export async function getPostByIdentifier(identifier) {
   const supabase = await createClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const cleanIdentifier = `${identifier || ""}`.trim();
+  const lookupColumn = isUuid(cleanIdentifier) ? "id" : "slug";
+
+  if (!cleanIdentifier) {
+    return {
+      post: null,
+      currentUserRole: null,
+      error: new Error("Missing post identifier"),
+    };
+  }
+
   const { data: post, error: postError } = await supabase
     .from("posts")
     .select(
       `
       id,
+      slug,
       user_id,
       title,
       body,
@@ -74,8 +91,9 @@ export async function getPostById(postId) {
       )
     `
     )
-    .eq("id", postId)
+    .eq(lookupColumn, cleanIdentifier)
     .eq("is_deleted", false)
+    .eq("visibility", "public")
     .single();
 
   if (postError || !post) {
@@ -126,8 +144,8 @@ export async function getPostById(postId) {
   const { data: voteCountRows, error: voteCountsError } = await supabase.rpc(
     "get_post_vote_counts",
     {
-      p_post_ids: [postId],
-    }
+      p_post_ids: [post.id],
+    },
   );
 
   const voteCounts = voteCountRows?.[0] ?? null;
@@ -147,8 +165,8 @@ export async function getPostById(postId) {
     const { data: userVotes, error: userVoteError } = await supabase.rpc(
       "get_my_post_votes",
       {
-        p_post_ids: [postId],
-      }
+        p_post_ids: [post.id],
+      },
     );
 
     if (userVoteError) {

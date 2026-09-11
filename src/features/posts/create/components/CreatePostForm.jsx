@@ -80,7 +80,7 @@ export default function CreatePostForm({ canCreateStickyPost = false }) {
           toast.success("Post created.");
 
           setTimeout(() => {
-            window.location.assign(`/posts/${result.postId}`);
+            window.location.assign(result.postUrl || `/posts/${result.postId}`);
           }, 150);
 
           router.refresh();

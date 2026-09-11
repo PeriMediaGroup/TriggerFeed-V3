@@ -2,6 +2,7 @@ import Link from "next/link";
 import DismissNotificationButton from "@/features/notifications/components/DismissNotificationButton";
 import NotificationTargetLink from "@/features/notifications/components/NotificationTargetLink";
 import { icons } from "@/lib/icons";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 
 const notificationIconMap = {
   comment: icons.comment,
@@ -77,7 +78,11 @@ function ModerationWarningContent({ notification }) {
     warningPostId || data.report_id,
   );
   const relatedPostLabel = getWarningPostLabel(notification);
-  const targetHref = warningPostId ? `/posts/${warningPostId}` : null;
+  const targetHref = notification.relatedPost
+    ? getPostPath(notification.relatedPost)
+    : warningPostId
+      ? getPostPath(warningPostId)
+      : null;
 
   const hasNewWarningContext = Boolean(
     warningMessage || reportReason || hasRelatedPostReference,
@@ -218,9 +223,12 @@ export default function NotificationsPanel({ notifications = [] }) {
           ["mention", "comment", "reply"].includes(notification.type) &&
           notification.post_id
         ) {
-          targetHref = notification.comment_id
-            ? `/posts/${notification.post_id}#comment-${notification.comment_id}`
-            : `/posts/${notification.post_id}`;
+          targetHref = getPostPath(
+            notification.relatedPost || notification.post_id,
+            notification.comment_id
+              ? { hash: `comment-${notification.comment_id}` }
+              : {},
+          );
 
           targetLabel = notification.comment_id ? "View comment" : "View post";
         }

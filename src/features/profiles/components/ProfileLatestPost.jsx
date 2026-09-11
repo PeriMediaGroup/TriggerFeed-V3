@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 
 export default function ProfileLatestPost({ latestPost }) {
   if (!latestPost) {
@@ -27,6 +28,7 @@ export default function ProfileLatestPost({ latestPost }) {
     latestPost.body?.length > 180
       ? `${latestPost.body.slice(0, 180)}...`
       : latestPost.body;
+  const postPath = getPostPath(latestPost);
 
   return (
     <section className="profile-latest-post">
@@ -42,7 +44,7 @@ export default function ProfileLatestPost({ latestPost }) {
 
       <article className="profile-latest-post__card">
         <Link
-          href={`/posts/${latestPost.id}`}
+          href={postPath}
           className="profile-latest-post__link"
         >
           <h3 className="profile-latest-post__post-title">
@@ -64,7 +66,7 @@ export default function ProfileLatestPost({ latestPost }) {
           )}
 
           <Link
-            href={`/posts/${latestPost.id}`}
+            href={postPath}
             className="profile-latest-post__view"
           >
             View Post

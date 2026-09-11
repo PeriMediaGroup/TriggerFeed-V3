@@ -3,17 +3,20 @@
 import { useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Share, X } from "lucide-react";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 
-export default function SharePostButton({ postId, variant = "default" }) {
+export default function SharePostButton({ post, postId, variant = "default" }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const isIcon = variant === "icon";
+  const postPath = getPostPath(post || postId);
+  const shareInputId = `share-url-${post?.id || postId || "post"}`;
 
   const shareUrl = useMemo(() => {
-    if (typeof window === "undefined") return `/posts/${postId}`;
+    if (typeof window === "undefined") return postPath;
 
-    return `${window.location.origin}/posts/${postId}`;
-  }, [postId]);
+    return `${window.location.origin}${postPath}`;
+  }, [postPath]);
 
   function openShareModal() {
     setCopied(false);
@@ -96,13 +99,13 @@ export default function SharePostButton({ postId, variant = "default" }) {
 
             <label
               className="share-modal__label"
-              htmlFor={`share-url-${postId}`}
+              htmlFor={shareInputId}
             >
               Post link
             </label>
 
             <input
-              id={`share-url-${postId}`}
+              id={shareInputId}
               className="share-modal__input"
               type="text"
               value={shareUrl}

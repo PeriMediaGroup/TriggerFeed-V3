@@ -8,6 +8,7 @@ export async function getLatestPost(userId) {
     .select(
       `
       id,
+      slug,
       title,
       body,
       visibility,

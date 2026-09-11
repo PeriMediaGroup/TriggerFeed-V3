@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
+import { getPostPath } from "@/features/posts/lib/postUrls";
 import {
   getFirstPostError,
   validatePostInput,
@@ -355,12 +356,21 @@ export async function createPost(formData) {
     console.error("CREATE POST MENTION NOTIFICATION ERROR:", mentionResult.error);
   }
 
+  const { data: createdPost } = await supabase
+    .from("posts")
+    .select("id, slug")
+    .eq("id", postId)
+    .maybeSingle();
+
+  const postUrl = getPostPath(createdPost || postId);
+
   revalidatePath("/");
-  revalidatePath("/");
+  revalidatePath(postUrl);
 
   return {
     success: true,
     postId,
+    postUrl,
     errors: {},
   };
 }
