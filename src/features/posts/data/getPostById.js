@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 import { isUuid } from "@/features/posts/lib/postUrls";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 function isMissingSlugColumnError(error) {
   return (
@@ -209,7 +210,7 @@ export async function getPostByIdentifier(identifier) {
   }
 
   const mentionProfiles = await getMentionProfilesForText(
-    `${post.title || ""} ${post.body || ""}`
+    `${post.title || ""} ${richPostHtmlToPlainText(post.body || "")}`
   );
 
   const pollIds = (post.polls || []).map((poll) => poll.id).filter(Boolean);

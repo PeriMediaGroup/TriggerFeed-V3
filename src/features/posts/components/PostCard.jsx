@@ -12,6 +12,8 @@ import PollDisplay from "@/features/polls/components/PollDisplay";
 import ReportPostButton from "@/features/reports/components/ReportPostButton";
 import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
 import { getPostPath, getPostEditPath } from "@/features/posts/lib/postUrls";
+import RichPostContent from "@/features/posts/components/RichPostContent";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 import DeletePostButton from "./DeletePostButton";
 import SharePostButton from "./SharePostButton";
@@ -30,14 +32,14 @@ function getFeedBodyPreview(body = "") {
     };
   }
 
-  const normalizedBody = body.replace(/\r\n?/g, "\n");
+  const normalizedBody = richPostHtmlToPlainText(body).replace(/\r\n?/g, "\n");
   const lines = normalizedBody.split("\n");
   const exceedsLineLimit = lines.length > FEED_BODY_PREVIEW_MAX_LINES;
   const exceedsCharLimit = normalizedBody.length > FEED_BODY_PREVIEW_MAX_CHARS;
 
   if (!exceedsLineLimit && !exceedsCharLimit) {
     return {
-      text: body,
+      text: normalizedBody,
       isTruncated: false,
     };
   }
@@ -173,8 +175,8 @@ export default function PostCard({
 
         {post.body && (
           <div className="post-card__body">
-            <SmartText
-              text={bodyPreview.text}
+            <RichPostContent
+              content={bodyPreview.isTruncated ? bodyPreview.text : post.body}
               mentionProfiles={mentionProfiles}
             />
           </div>

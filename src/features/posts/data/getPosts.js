@@ -5,6 +5,7 @@ import { getMentionProfilesForText } from "@/features/mentions/data/getMentionPr
 import { getCommentsByPostId } from "@/features/comments/queries";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 import { sortTrendingPosts } from "@/features/posts/data/trendingPosts";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 const FEED_POST_LIMIT = 50;
 const TRENDING_CANDIDATE_LIMIT = 1000;
@@ -494,7 +495,7 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
       const voteCountsForPost = voteCountMap.get(post.id);
 
       const mentionProfiles = await getMentionProfilesForText(
-        `${post.title || ""} ${post.body || ""}`
+        `${post.title || ""} ${richPostHtmlToPlainText(post.body || "")}`
       );
 
       return {
@@ -662,7 +663,7 @@ function compareStickyPosts(a, b) {
 
 function getSearchRank(post, query) {
   const title = `${post.title || ""}`.toLowerCase();
-  const body = `${post.body || ""}`.toLowerCase();
+  const body = richPostHtmlToPlainText(post.body || "").toLowerCase();
 
   if (title === query) {
     return 40;

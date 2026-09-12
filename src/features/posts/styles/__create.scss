@@ -118,6 +118,7 @@
 
   .post-form__error,
   .post-form__status,
+  .post-form__help,
   &__media-errors,
   &__submit-step,
   &__gif-status {
@@ -132,6 +133,7 @@
   }
 
   .post-form__status,
+  .post-form__help,
   &__submit-step,
   &__gif-status {
     color: var(--color-text-muted);
@@ -459,6 +461,155 @@
       align-items: center;
     }
   }
+}
+
+.rich-text-editor {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-transparent);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+
+  &:focus-within {
+    border-color: color-mix(
+      in srgb,
+      var(--color-accent),
+      var(--color-border) 40%
+    );
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--color-accent), transparent 82%);
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.15rem;
+    overflow-x: auto;
+    padding: 0.35rem 0.45rem 0.25rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border), transparent 45%);
+    scrollbar-width: none;
+  }
+
+  &__toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  &__button {
+    flex: 0 0 auto;
+    min-width: 2rem;
+    min-height: 2rem;
+    border: 0;
+    border-radius: calc(var(--radius-md) - 0.2rem);
+    padding: 0.25rem 0.45rem;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1;
+    transform: none;
+  }
+
+  &__button--active,
+  &__button[aria-pressed="true"] {
+    border-color: transparent;
+    background: color-mix(
+      in srgb,
+      var(--color-accent),
+      transparent 86%
+    );
+    color: var(--color-accent);
+  }
+
+  &__button:hover:not(:disabled),
+  &__button:focus-visible {
+    background: color-mix(
+      in srgb,
+      var(--color-surface-elevated),
+      transparent 25%
+    );
+    color: var(--color-text);
+    transform: none;
+  }
+
+  &__content {
+    width: 100%;
+    min-height: 10rem;
+    max-width: 44rem;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-text);
+    padding: 0.75rem 0.85rem 0.85rem;
+    outline: none;
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+    }
+
+    p {
+      margin: 0 0 0.75rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    ul,
+    ol {
+      margin: 0.5rem 0 0.75rem;
+      padding-inline-start: 1.35rem;
+    }
+
+    li {
+      margin-block: 0.2rem;
+      padding-inline-start: 0.15rem;
+    }
+
+    a {
+      color: var(--color-accent);
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+.create-post .rich-text-editor__button,
+.post-composer.edit-post .rich-text-editor__button {
+  min-height: 2rem;
+  min-width: 2rem;
+  border: 0;
+  padding: 0.25rem 0.45rem;
+  background: transparent;
+  color: var(--color-text-muted);
+  transform: none;
+}
+
+.create-post .rich-text-editor__button--active,
+.create-post .rich-text-editor__button[aria-pressed="true"],
+.post-composer.edit-post .rich-text-editor__button--active,
+.post-composer.edit-post .rich-text-editor__button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--color-accent), transparent 86%);
+  color: var(--color-accent);
+}
+
+.create-post .rich-text-editor__button:hover:not(:disabled),
+.create-post .rich-text-editor__button:focus-visible,
+.post-composer.edit-post .rich-text-editor__button:hover:not(:disabled),
+.post-composer.edit-post .rich-text-editor__button:focus-visible {
+  background: color-mix(
+    in srgb,
+    var(--color-surface-elevated),
+    transparent 25%
+  );
+  color: var(--color-text);
+  transform: none;
 }
 
 @media (min-width: 48rem) {
