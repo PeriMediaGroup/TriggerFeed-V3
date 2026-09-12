@@ -176,7 +176,7 @@ export default function PostCard({
         {post.body && (
           <div className="post-card__body">
             <RichPostContent
-              content={bodyPreview.isTruncated ? bodyPreview.text : post.body}
+              content={post.body}
               mentionProfiles={mentionProfiles}
             />
           </div>
