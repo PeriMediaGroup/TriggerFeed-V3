@@ -200,6 +200,7 @@ export default async function ProfilePage() {
                 acceptedFriends={acceptedFriends}
                 topFriends={topFriends}
                 viewerId={user.id}
+                referralCode={profile.referral_code}
                 friendSuggestions={friendSuggestions}
                 friendSuggestionsHasError={Boolean(
                   friendSuggestionsResult?.error,
