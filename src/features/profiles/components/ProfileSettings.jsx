@@ -1,5 +1,6 @@
 import ProfilePrivacySettings from "./ProfilePrivacySettings";
 import DeleteAccountDangerZone from "./DeleteAccountDangerZone";
+import InviteFriends from "@/features/invites/components/InviteFriends";
 import NotificationSettings from "@/features/notifications/components/NotificationSettings";
 
 export default function ProfileSettings({ profile, notificationSettings }) {
@@ -11,6 +12,8 @@ export default function ProfileSettings({ profile, notificationSettings }) {
       </header>
 
       <div className="profile-settings__sections">
+        <InviteFriends referralCode={profile?.referral_code} />
+
         <ProfilePrivacySettings profile={profile} />
 
         <NotificationSettings initialSettings={notificationSettings} />

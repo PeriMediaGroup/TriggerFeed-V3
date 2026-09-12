@@ -1,0 +1,141 @@
+.invite-friends {
+  display: grid;
+  gap: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  background: color-mix(in srgb, var(--color-surface-elevated), transparent 18%);
+  box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-md);
+
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h3 {
+      color: var(--color-text);
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    p {
+      margin-top: 0.25rem;
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+  }
+
+  &__status {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-success, #22c55e), transparent 55%);
+    border-radius: 999px;
+    padding: 0.25rem 0.55rem;
+    background: color-mix(in srgb, var(--color-success, #22c55e), transparent 88%);
+    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  &__link-field {
+    display: grid;
+    gap: 0.35rem;
+
+    span {
+      color: var(--color-text-muted);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem;
+      background: var(--color-surface);
+      color: var(--color-text);
+      font: inherit;
+      font-size: 0.875rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  &__action {
+    display: inline-flex;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      transform 140ms ease;
+
+    &:hover,
+    &:focus-visible {
+      border-color: color-mix(in srgb, var(--color-accent), var(--color-border) 40%);
+      background: color-mix(in srgb, var(--color-accent), var(--color-surface) 88%);
+      transform: translateY(-1px);
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 640px) {
+  .invite-friends {
+    &__header {
+      display: grid;
+    }
+
+    &__status {
+      width: fit-content;
+    }
+
+    &__actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__action {
+      width: 100%;
+    }
+  }
+}

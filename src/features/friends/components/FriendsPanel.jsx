@@ -6,6 +6,7 @@ import FriendRequests from "@/features/friends/components/FriendRequests";
 import FriendSuggestions from "@/features/friends/components/FriendSuggestions";
 import FriendsList from "@/features/friends/components/FriendsList";
 import EditTopFriends from "@/features/friends/components/EditTopFriends";
+import InviteFriends from "@/features/invites/components/InviteFriends";
 import { updateTopFriends } from "@/features/profiles/actions/updateTopFriends";
 
 const saveInitialState = {
@@ -37,6 +38,7 @@ export default function FriendsPanel({
   acceptedFriends = [],
   topFriends = [],
   viewerId = null,
+  referralCode = "",
   friendSuggestions = [],
   friendSuggestionsHasError = false,
   friendSuggestionsDidFetch = false,
@@ -133,6 +135,8 @@ export default function FriendsPanel({
   return (
     <>
       <section className="friends-panel">
+        <InviteFriends referralCode={referralCode} />
+
         <div className="friends-panel__grid">
           <FriendRequests
             incomingRequests={incomingRequests}

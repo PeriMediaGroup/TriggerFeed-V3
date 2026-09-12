@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
@@ -11,6 +11,60 @@ import {
   isValidDobString,
 } from "@/features/auth/ageGate";
 
+const REFERRAL_STORAGE_KEY = "triggerfeed.signupReferralCode";
+
+function normalizeReferralCode(value = "") {
+  const code = `${value || ""}`.trim();
+
+  if (!/^[A-Za-z0-9_-]{8,64}$/.test(code)) {
+    return "";
+  }
+
+  return code;
+}
+
+function getStoredReferralCode() {
+  try {
+    return normalizeReferralCode(
+      window.localStorage.getItem(REFERRAL_STORAGE_KEY),
+    );
+  } catch {
+    return "";
+  }
+}
+
+function setStoredReferralCode(referralCode) {
+  try {
+    window.localStorage.setItem(REFERRAL_STORAGE_KEY, referralCode);
+  } catch {
+    // Referral metadata is still carried on the signup request.
+  }
+}
+
+function clearStoredReferralCode() {
+  try {
+    window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
+  } catch {
+    // Nothing else to clear.
+  }
+}
+
+function getInitialReferralCode() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const url = new URL(window.location.href);
+  const rawCodeFromUrl = url.searchParams.get("ref");
+  const codeFromUrl = normalizeReferralCode(rawCodeFromUrl);
+
+  if (rawCodeFromUrl !== null) {
+    return codeFromUrl;
+  }
+
+  return getStoredReferralCode();
+}
+
 export default function SignupPage() {
   const supabase = createClient();
   const router = useRouter();
@@ -20,8 +74,17 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [referralCode] = useState(getInitialReferralCode);
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!referralCode) {
+      return;
+    }
+
+    setStoredReferralCode(referralCode);
+  }, [referralCode]);
 
   async function handleSignup(event) {
     event.preventDefault();
@@ -64,19 +127,26 @@ export default function SignupPage() {
       metadata: {
         source: "signup_page",
         age_gate_version: AGE_GATE_VERSION,
+        has_referral_code: Boolean(referralCode),
       },
     });
+
+    const userMetadata = {
+      dob: cleanDob,
+      age_gate_version: AGE_GATE_VERSION,
+      birthday_messages_enabled: true,
+    };
+
+    if (referralCode) {
+      userMetadata.referral_code = referralCode;
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: {
-          dob: cleanDob,
-          age_gate_version: AGE_GATE_VERSION,
-          birthday_messages_enabled: true,
-        },
+        data: userMetadata,
       },
     });
 
@@ -90,6 +160,7 @@ export default function SignupPage() {
         metadata: {
           source: "signup_page",
           age_gate_version: AGE_GATE_VERSION,
+          has_referral_code: Boolean(referralCode),
         },
       });
 
@@ -110,9 +181,11 @@ export default function SignupPage() {
         needs_email_confirmation: !data.session,
         auth_user_id: data.user?.id || null,
         age_gate_version: AGE_GATE_VERSION,
+        has_referral_code: Boolean(referralCode),
       },
     });
 
+    clearStoredReferralCode();
     router.push(`/signup/check-email?email=${encodeURIComponent(cleanEmail)}`);
   }
 
