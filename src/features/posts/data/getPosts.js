@@ -5,9 +5,17 @@ import { getMentionProfilesForText } from "@/features/mentions/data/getMentionPr
 import { getCommentsByPostId } from "@/features/comments/queries";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 import { sortTrendingPosts } from "@/features/posts/data/trendingPosts";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 const FEED_POST_LIMIT = 50;
 const TRENDING_CANDIDATE_LIMIT = 1000;
+
+function isMissingSlugColumnError(error) {
+  return (
+    error?.code === "42703" &&
+    `${error?.message || ""}`.includes("posts.slug")
+  );
+}
 
 function getDeletedAuthor(userId) {
   return {
@@ -24,9 +32,8 @@ function getDeletedAuthor(userId) {
   };
 }
 
-const POST_SELECT = `
+const BASE_POST_SELECT = `
   id,
-  slug,
   user_id,
   title,
   body,
@@ -69,6 +76,12 @@ const POST_SELECT = `
   )
 `;
 
+const POST_SELECT = `
+  id,
+  slug,
+  ${BASE_POST_SELECT.replace(/^\s*id,\s*/m, "")}
+`;
+
 function logSupabaseError(label, error) {
   console.error(label, {
     raw: error,
@@ -78,6 +91,84 @@ function logSupabaseError(label, error) {
     details: error?.details,
     hint: error?.hint,
     status: error?.status,
+  });
+}
+
+function buildPostsQuery({
+  supabase,
+  feedType,
+  allowedUserIds,
+  postLimit,
+  selectColumns = POST_SELECT,
+}) {
+  let query = supabase
+    .from("posts")
+    .select(selectColumns)
+    .eq("is_deleted", false)
+    .eq("visibility", "public");
+
+  if (feedType === "friends" && allowedUserIds?.length) {
+    query = query.in("user_id", allowedUserIds);
+  }
+
+  if (feedType === "main" || feedType === "friends") {
+    query = query
+      .order("is_sticky", { ascending: false })
+      .order("sticky_at", { ascending: false, nullsFirst: false });
+  }
+
+  return query
+    .order("created_at", { ascending: false })
+    .order("sort_order", {
+      referencedTable: "post_media",
+      ascending: true,
+    })
+    .limit(postLimit);
+}
+
+async function fetchPostsWithOptionalSlug(queryOptions) {
+  const result = await buildPostsQuery(queryOptions);
+
+  if (!isMissingSlugColumnError(result.error)) {
+    return result;
+  }
+
+  console.warn("POST SLUG COLUMN MISSING: retrying post feed without slug.");
+
+  return buildPostsQuery({
+    ...queryOptions,
+    selectColumns: BASE_POST_SELECT,
+  });
+}
+
+async function searchPostsWithOptionalSlug({
+  supabase,
+  searchPattern,
+  selectColumns = POST_SELECT,
+}) {
+  const result = await supabase
+    .from("posts")
+    .select(selectColumns)
+    .eq("is_deleted", false)
+    .eq("visibility", "public")
+    .or(`title.ilike.${searchPattern},body.ilike.${searchPattern}`)
+    .order("created_at", { ascending: false })
+    .order("sort_order", {
+      referencedTable: "post_media",
+      ascending: true,
+    })
+    .limit(50);
+
+  if (!isMissingSlugColumnError(result.error)) {
+    return result;
+  }
+
+  console.warn("POST SLUG COLUMN MISSING: retrying post search without slug.");
+
+  return searchPostsWithOptionalSlug({
+    supabase,
+    searchPattern,
+    selectColumns: BASE_POST_SELECT,
   });
 }
 
@@ -132,31 +223,15 @@ export async function getPosts({ feedType = "main" } = {}) {
     }
   }
 
-  let query = supabase
-    .from("posts")
-    .select(POST_SELECT)
-    .eq("is_deleted", false)
-    .eq("visibility", "public");
-
-  if (feedType === "friends" && allowedUserIds?.length) {
-    query = query.in("user_id", allowedUserIds);
-  }
-
-  if (feedType === "main" || feedType === "friends") {
-    query = query
-      .order("is_sticky", { ascending: false })
-      .order("sticky_at", { ascending: false, nullsFirst: false });
-  }
-
   const postLimit =
     feedType === "trending" ? TRENDING_CANDIDATE_LIMIT : FEED_POST_LIMIT;
 
-  query = query.order("created_at", { ascending: false }).order("sort_order", {
-    referencedTable: "post_media",
-    ascending: true,
-  }).limit(postLimit);
-
-  const { data: posts, error: postsError } = await query;
+  const { data: posts, error: postsError } = await fetchPostsWithOptionalSlug({
+    supabase,
+    feedType,
+    allowedUserIds,
+    postLimit,
+  });
 
   if (postsError) {
     logSupabaseError("GET POSTS ERROR:", postsError);
@@ -229,18 +304,10 @@ export async function searchPosts({ query: rawQuery = "" } = {}) {
 
   const searchPattern = `%${escapeIlikePattern(query)}%`;
 
-  const { data: posts, error } = await supabase
-    .from("posts")
-    .select(POST_SELECT)
-    .eq("is_deleted", false)
-    .eq("visibility", "public")
-    .or(`title.ilike.${searchPattern},body.ilike.${searchPattern}`)
-    .order("created_at", { ascending: false })
-    .order("sort_order", {
-      referencedTable: "post_media",
-      ascending: true,
-    })
-    .limit(50);
+  const { data: posts, error } = await searchPostsWithOptionalSlug({
+    supabase,
+    searchPattern,
+  });
 
   if (error) {
     logSupabaseError("SEARCH POSTS ERROR:", error);
@@ -428,7 +495,7 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
       const voteCountsForPost = voteCountMap.get(post.id);
 
       const mentionProfiles = await getMentionProfilesForText(
-        `${post.title || ""} ${post.body || ""}`
+        `${post.title || ""} ${richPostHtmlToPlainText(post.body || "")}`
       );
 
       return {
@@ -596,7 +663,7 @@ function compareStickyPosts(a, b) {
 
 function getSearchRank(post, query) {
   const title = `${post.title || ""}`.toLowerCase();
-  const body = `${post.body || ""}`.toLowerCase();
+  const body = richPostHtmlToPlainText(post.body || "").toLowerCase();
 
   if (title === query) {
     return 40;

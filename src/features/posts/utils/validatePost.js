@@ -1,16 +1,22 @@
 // src/features/posts/utils/validatePost.js
 
+import {
+  getRichPostVisibleTextLength,
+  normalizePostBodyForStorage,
+} from "@/features/posts/lib/richText";
+
 const VALID_VISIBILITIES = ["public"];
 
 export function validatePostInput({ title, body, visibility }) {
   const errors = {};
 
   const cleanTitle = title?.trim() || "";
-  const cleanBody = body?.trim() || "";
+  const cleanBody = normalizePostBodyForStorage(body);
   const cleanVisibility = visibility || "public";
 
   const hasTitle = cleanTitle.length > 0;
-  const hasBody = cleanBody.length > 0;
+  const bodyTextLength = getRichPostVisibleTextLength(cleanBody);
+  const hasBody = bodyTextLength > 0;
 
   if (!hasTitle && !hasBody) {
     errors.content = "Add a headline or content before posting.";
@@ -20,7 +26,7 @@ export function validatePostInput({ title, body, visibility }) {
     errors.title = "Post title must be 120 characters or less.";
   }
 
-  if (cleanBody.length > 5000) {
+  if (bodyTextLength > 5000) {
     errors.body = "Post content must be 5000 characters or less.";
   }
 

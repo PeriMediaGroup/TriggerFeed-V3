@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import toast from "react-hot-toast";
 import { getPostPath } from "@/features/posts/lib/postUrls";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 import {
   addAdminNote,
@@ -97,7 +98,7 @@ function getTextPreview(value, maxLength = 120) {
     return "No text provided.";
   }
 
-  const text = value.trim();
+  const text = richPostHtmlToPlainText(value);
 
   if (text.length <= maxLength) {
     return text;

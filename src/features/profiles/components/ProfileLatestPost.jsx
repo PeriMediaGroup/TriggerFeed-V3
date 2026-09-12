@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPostPath } from "@/features/posts/lib/postUrls";
+import { getPlainPostPreview } from "@/features/posts/lib/richText";
 
 export default function ProfileLatestPost({ latestPost }) {
   if (!latestPost) {
@@ -24,10 +25,7 @@ export default function ProfileLatestPost({ latestPost }) {
       })
     : "Unknown date";
 
-  const bodyPreview =
-    latestPost.body?.length > 180
-      ? `${latestPost.body.slice(0, 180)}...`
-      : latestPost.body;
+  const bodyPreview = getPlainPostPreview(latestPost.body, 180);
   const postPath = getPostPath(latestPost);
 
   return (

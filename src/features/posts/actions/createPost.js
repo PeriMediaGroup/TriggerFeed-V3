@@ -6,6 +6,7 @@ import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { getCurrentUserModerationBlock } from "@/features/admin/moderationStatus";
 import { createMentionNotifications } from "@/features/mentions/actions/createMentionNotifications";
 import { getPostPath } from "@/features/posts/lib/postUrls";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 import {
   getFirstPostError,
   validatePostInput,
@@ -343,8 +344,9 @@ export async function createPost(formData) {
   // -----------------------------
   // Mentions
   // -----------------------------
-  const mentionText = `${validation.values.title || ""} ${validation.values.body || ""
-    }`;
+  const mentionText = `${validation.values.title || ""} ${richPostHtmlToPlainText(
+    validation.values.body || "",
+  )}`;
 
   const mentionResult = await createMentionNotifications({
     text: mentionText,

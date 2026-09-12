@@ -5,7 +5,6 @@ import Image from "next/image";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 
 import MentionInput from "@/features/mentions/components/MentionInputs";
-import MentionTextarea from "@/features/mentions/components/MentionTextarea";
 
 import CreatePostToolbar from "@/features/posts/create/components/CreatePostToolbar";
 import MediaPicker from "@/features/posts/create/components/MediaPicker";
@@ -13,6 +12,8 @@ import MediaPreviewGrid from "@/features/posts/create/components/MediaPreviewGri
 import CreatePostEmojiPicker from "@/features/posts/create/components/CreatePostEmojiPicker";
 import CreatePostPollBuilder from "@/features/posts/create/components/CreatePostPollBuilder";
 import CreatePostGifPicker from "@/features/posts/create/components/CreatePostGifPicker";
+import RichTextEditor from "@/features/posts/components/RichTextEditor";
+import { getRichPostVisibleTextLength } from "@/features/posts/lib/richText";
 
 import {
   createMediaItemsFromFiles,
@@ -263,6 +264,7 @@ export default function PostComposer({
 
   const [title, setTitle] = useState(() => initialTitle || "");
   const [body, setBody] = useState(() => initialBody || "");
+  const [bodyInsertion, setBodyInsertion] = useState(null);
   const [isSticky, setIsSticky] = useState(() => Boolean(initialIsSticky));
   const [poll, setPoll] = useState(() => normalizedInitialPoll);
   const [selectedGif, setSelectedGif] = useState(() => normalizedInitialGif);
@@ -340,7 +342,10 @@ export default function PostComposer({
   }
 
   function handleInsertEmoji(emoji) {
-    setBody((currentBody) => `${currentBody}${emoji}`);
+    setBodyInsertion({
+      id: Date.now(),
+      text: emoji,
+    });
   }
 
   function handleAddMedia(files) {
@@ -456,6 +461,7 @@ export default function PostComposer({
 
     setTitle("");
     setBody("");
+    setBodyInsertion(null);
     setMediaItems([]);
     setActiveTool(null);
     setLocalErrors({});
@@ -572,6 +578,7 @@ export default function PostComposer({
 
   const shouldShowCustomMediaManager =
     renderMediaManager && (mode === "edit" || activeTool === "media");
+  const bodyTextLength = getRichPostVisibleTextLength(body);
 
   return (
     <form className={formClassName} onSubmit={handleSubmit}>
@@ -592,15 +599,16 @@ export default function PostComposer({
       </div>
 
       <div className="post-form__field post-composer__field">
-        <MentionTextarea
+        <input type="hidden" name="body" value={body} />
+        <RichTextEditor
           id="body"
-          name="body"
           value={body}
-          onChange={(event) => setBody(event.target.value)}
+          onChange={setBody}
           placeholder={bodyPlaceholder}
-          rows={5}
-          maxLength={5000}
+          disabled={isPending}
+          insertion={bodyInsertion}
         />
+        <p className="post-form__help">{bodyTextLength}/5000 characters</p>
 
         {mergedErrors.body && (
           <p className="post-form__error">{mergedErrors.body}</p>

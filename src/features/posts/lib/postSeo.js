@@ -1,25 +1,15 @@
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { getAbsolutePostUrl } from "@/features/posts/lib/postUrls";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 const DESCRIPTION_MAX_LENGTH = 158;
 
 export function stripMarkup(value = "") {
-  return `${value}`
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ");
+  return richPostHtmlToPlainText(value);
 }
 
 export function normalizeSeoText(value = "") {
-  return stripMarkup(value)
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
+  return stripMarkup(value);
 }
 
 export function truncateDescription(value, maxLength = DESCRIPTION_MAX_LENGTH) {

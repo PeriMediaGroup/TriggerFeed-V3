@@ -4,6 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 import { isUuid } from "@/features/posts/lib/postUrls";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
+
+function isMissingSlugColumnError(error) {
+  return (
+    error?.code === "42703" &&
+    `${error?.message || ""}`.includes("posts.slug")
+  );
+}
 
 function getDeletedAuthor(userId) {
   return {
@@ -19,6 +27,57 @@ function getDeletedAuthor(userId) {
     is_deleted: true,
   };
 }
+
+const BASE_POST_SELECT = `
+  id,
+  user_id,
+  title,
+  body,
+  visibility,
+  is_deleted,
+  is_sticky,
+  sticky_at,
+  sticky_by,
+  created_at,
+  updated_at,
+  post_media (
+    id,
+    post_id,
+    user_id,
+    media_type,
+    provider,
+    source,
+    cloudinary_url,
+    cloudinary_secure_url,
+    cloudinary_public_id,
+    external_id,
+    external_url,
+    thumbnail_url,
+    title,
+    width,
+    height,
+    alt_text,
+    sort_order,
+    display_order,
+    created_at
+  ),
+  polls (
+    id,
+    question,
+    allows_multiple,
+    poll_options (
+      id,
+      option_text,
+      display_order
+    )
+  )
+`;
+
+const POST_SELECT = `
+  id,
+  slug,
+  ${BASE_POST_SELECT.replace(/^\s*id,\s*/m, "")}
+`;
 
 export async function getPostById(postId) {
   return getPostByIdentifier(postId);
@@ -42,59 +101,28 @@ export async function getPostByIdentifier(identifier) {
     };
   }
 
-  const { data: post, error: postError } = await supabase
+  let { data: post, error: postError } = await supabase
     .from("posts")
-    .select(
-      `
-      id,
-      slug,
-      user_id,
-      title,
-      body,
-      visibility,
-      is_deleted,
-      is_sticky,
-      sticky_at,
-      sticky_by,
-      created_at,
-      updated_at,
-      post_media (
-        id,
-        post_id,
-        user_id,
-        media_type,
-        provider,
-        source,
-        cloudinary_url,
-        cloudinary_secure_url,
-        cloudinary_public_id,
-        external_id,
-        external_url,
-        thumbnail_url,
-        title,
-        width,
-        height,
-        alt_text,
-        sort_order,
-        display_order,
-        created_at
-      ),
-      polls (
-        id,
-        question,
-        allows_multiple,
-        poll_options (
-          id,
-          option_text,
-          display_order
-        )
-      )
-    `
-    )
+    .select(POST_SELECT)
     .eq(lookupColumn, cleanIdentifier)
     .eq("is_deleted", false)
     .eq("visibility", "public")
     .single();
+
+  if (isMissingSlugColumnError(postError) && lookupColumn === "id") {
+    console.warn("POST SLUG COLUMN MISSING: retrying post lookup without slug.");
+
+    const fallbackResult = await supabase
+      .from("posts")
+      .select(BASE_POST_SELECT)
+      .eq("id", cleanIdentifier)
+      .eq("is_deleted", false)
+      .eq("visibility", "public")
+      .single();
+
+    post = fallbackResult.data;
+    postError = fallbackResult.error;
+  }
 
   if (postError || !post) {
     return {
@@ -182,7 +210,7 @@ export async function getPostByIdentifier(identifier) {
   }
 
   const mentionProfiles = await getMentionProfilesForText(
-    `${post.title || ""} ${post.body || ""}`
+    `${post.title || ""} ${richPostHtmlToPlainText(post.body || "")}`
   );
 
   const pollIds = (post.polls || []).map((poll) => poll.id).filter(Boolean);

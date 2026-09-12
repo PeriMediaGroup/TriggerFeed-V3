@@ -3,6 +3,7 @@ import DismissNotificationButton from "@/features/notifications/components/Dismi
 import NotificationTargetLink from "@/features/notifications/components/NotificationTargetLink";
 import { icons } from "@/lib/icons";
 import { getPostPath } from "@/features/posts/lib/postUrls";
+import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
 
 const notificationIconMap = {
   comment: icons.comment,
@@ -30,7 +31,7 @@ function getTrimmedText(value, maxLength = 140) {
     return "";
   }
 
-  const text = value.trim();
+  const text = richPostHtmlToPlainText(value);
 
   if (text.length <= maxLength) {
     return text;
