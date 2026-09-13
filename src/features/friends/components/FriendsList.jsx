@@ -50,6 +50,11 @@ export default function FriendsList({
                   <span className="friends-list__link">{displayName}</span>
                 )}
 
+                <FoundingMemberBadge
+                  number={user?.founding_member_number}
+                  className="friends-list__founding-badge"
+                />
+
                 <button
                   type="button"
                   className="friends-list__top-button"

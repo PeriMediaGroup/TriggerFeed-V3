@@ -1,0 +1,201 @@
+.founding-500 {
+  gap: var(--space-lg, 1.5rem);
+}
+
+.founding-500__intro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-md, 1rem);
+  align-items: start;
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-lg, 1rem);
+  background: color-mix(
+    in srgb,
+    var(--color-surface, #2a3439) 70%,
+    transparent
+  );
+}
+
+.founding-500__intro-mark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-accent, #b22222) 48%, var(--color-border));
+  border-radius: var(--radius-md, 0.75rem);
+  background: color-mix(in srgb, var(--color-accent, #b22222) 12%, transparent);
+  color: var(--color-accent, #b22222);
+}
+
+.founding-500__intro-copy {
+  display: grid;
+  gap: var(--space-sm, 0.5rem);
+  min-width: 0;
+}
+
+.founding-500__eyebrow {
+  margin: 0;
+  color: var(--color-accent, #b22222);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.founding-500 h1 {
+  color: var(--color-text, #fff);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1;
+}
+
+.founding-500__intro-copy p:not(.founding-500__eyebrow) {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--color-text-muted, #a9a9a9);
+  line-height: 1.65;
+}
+
+.founding-500__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm, 0.5rem);
+}
+
+.founding-500__summary div {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.9rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-md, 0.75rem);
+  background: color-mix(in srgb, var(--color-surface, #2a3439) 56%, transparent);
+}
+
+.founding-500__summary strong {
+  color: var(--color-text, #fff);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.founding-500__summary span {
+  color: var(--color-text-muted, #a9a9a9);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.founding-500__notice {
+  margin: 0;
+  padding: var(--space-md, 1rem);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-md, 0.75rem);
+  color: var(--color-text-muted, #a9a9a9);
+}
+
+.founding-500__registry {
+  display: grid;
+  gap: var(--space-xs, 0.25rem);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.founding-500__member {
+  display: grid;
+  grid-template-columns: 4.35rem auto minmax(0, 1fr) auto;
+  gap: var(--space-sm, 0.5rem);
+  align-items: center;
+  padding: 0.72rem 0.85rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-md, 0.75rem);
+  background: color-mix(in srgb, var(--color-surface, #2a3439) 52%, transparent);
+}
+
+.founding-500__member--retired {
+  opacity: 0.72;
+}
+
+.founding-500__number {
+  color: var(--color-accent, #b22222);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.founding-500__avatar-link {
+  display: inline-flex;
+  width: 3rem;
+  height: 3rem;
+  line-height: 0;
+}
+
+.founding-500__avatar {
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.founding-500__member--retired .founding-500__avatar {
+  filter: grayscale(1);
+}
+
+.founding-500__identity {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.founding-500__name {
+  color: var(--color-text, #fff);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+a.founding-500__name:hover,
+a.founding-500__name:focus-visible {
+  color: var(--color-accent, #b22222);
+}
+
+.founding-500__username {
+  color: var(--color-text-muted, #a9a9a9);
+  font-size: 0.85rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.founding-500__retired-label {
+  width: fit-content;
+  justify-self: end;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  color: var(--color-text-muted, #a9a9a9);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+@media (max-width: 42rem) {
+  .founding-500__intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .founding-500__summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .founding-500__member {
+    grid-template-columns: 3.6rem auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .founding-500__badge,
+  .founding-500__retired-label {
+    grid-column: 3;
+    justify-self: start;
+  }
+}
