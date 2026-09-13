@@ -41,10 +41,6 @@ export default function FriendsList({
                   >
                     <span>{displayName}</span>
                     {user.username && <small>@{user.username}</small>}
-                    <FoundingMemberBadge
-                      number={user.founding_member_number}
-                      className="friends-list__founding-badge"
-                    />
                   </Link>
                 ) : (
                   <span className="friends-list__link">{displayName}</span>
