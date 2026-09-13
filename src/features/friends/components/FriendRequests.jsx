@@ -77,7 +77,6 @@ export default function FriendRequests({ incomingRequests = [], outgoingRequests
               return (
                 <li key={request.id}>
                   <Link href={`/profiles/${user?.id}`}>{displayName}</Link>
-                  <FoundingMemberBadge number={user?.founding_member_number} />
                   <span className="friend-requests__pending">Pending</span>
                 </li>
               );
