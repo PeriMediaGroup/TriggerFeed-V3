@@ -6,6 +6,7 @@ function normalizeSuggestion(suggestion) {
     username: suggestion.username || "",
     displayName: suggestion.display_name || suggestion.username || "TriggerFeed user",
     avatarUrl: suggestion.avatar_cloudinary_url || "",
+    founding_member_number: suggestion.founding_member_number || null,
     reason: suggestion.suggestion_reason || "Active recently",
     mutualFriendCount: suggestion.mutual_friend_count ?? 0,
     rankScore: suggestion.rank_score ?? 0,

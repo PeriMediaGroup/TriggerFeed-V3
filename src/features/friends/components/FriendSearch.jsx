@@ -8,6 +8,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { sendFriendRequest } from "@/features/friends/actions/sendFriendRequest";
 import { DEFAULT_PROFILE_AVATAR_URL } from "@/features/profiles/constants/profileImages";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 import { createClient } from "@/lib/supabase/client";
 
 function getDisplayName(user) {
@@ -138,6 +139,10 @@ export default function FriendSearch() {
                   <span className="friends-search__identity">
                     <strong>{displayName}</strong>
                     {user.username && <span>@{user.username}</span>}
+                    <FoundingMemberBadge
+                      number={user.founding_member_number}
+                      className="friends-search__founding-badge"
+                    />
                     {location && (
                       <span className="friends-search__location">
                         {location}

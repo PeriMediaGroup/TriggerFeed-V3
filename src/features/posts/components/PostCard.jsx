@@ -14,6 +14,7 @@ import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
 import { getPostPath, getPostEditPath } from "@/features/posts/lib/postUrls";
 import RichPostContent from "@/features/posts/components/RichPostContent";
 import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 import DeletePostButton from "./DeletePostButton";
 import SharePostButton from "./SharePostButton";
@@ -155,6 +156,8 @@ export default function PostCard({
           {post.is_sticky ? (
             <span className="post-card__official-badge">Official</span>
           ) : null}
+
+          <FoundingMemberBadge number={post.author?.founding_member_number} />
         </div>
 
         <div className="post-card__header-tools" aria-label="Post actions">

@@ -5,6 +5,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { respondToFriendRequest } from "@/features/friends/actions/respondToFriendRequest";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 function getDisplayName(user) {
   return (
@@ -40,6 +41,7 @@ export default function FriendRequests({ incomingRequests = [], outgoingRequests
               return (
                 <li key={request.id}>
                   <Link href={`/profiles/${user?.id}`}>{displayName}</Link>
+                  <FoundingMemberBadge number={user?.founding_member_number} />
 
                   <button
                     type="button"
@@ -77,7 +79,8 @@ export default function FriendRequests({ incomingRequests = [], outgoingRequests
               return (
                 <li key={request.id}>
                   <Link href={`/profiles/${user?.id}`}>{displayName}</Link>
-                  <span>Pending</span>
+                  <FoundingMemberBadge number={user?.founding_member_number} />
+                  <span className="friend-requests__pending">Pending</span>
                 </li>
               );
             })}

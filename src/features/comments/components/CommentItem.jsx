@@ -10,6 +10,7 @@ import { MessageSquareReply, Pencil, Trash2 } from "lucide-react";
 import { formatShortDate, formatEditedDate } from "@/lib/formatDate";
 import SmartText from "@/components/ui/SmartText";
 import MentionTextarea from "@/features/mentions/components/MentionTextarea";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 import {
   createComment,
@@ -182,6 +183,11 @@ export default function CommentItem({
                 {authorUsername}
               </Link>
             )}
+
+            <FoundingMemberBadge
+              number={comment.author?.founding_member_number}
+              className="comment-item__founding-badge"
+            />
 
             <time dateTime={comment.created_at} className="comment-item__date">
               {formatShortDate(comment.created_at)}
