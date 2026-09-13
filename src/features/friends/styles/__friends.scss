@@ -365,7 +365,7 @@
     }
   }
 
-  span {
+  &__pending {
     display: inline-flex;
     align-items: center;
     border-radius: 999px;
@@ -454,14 +454,14 @@
     gap: 0.1rem;
     margin-left: 0;
 
-    strong,
-    span {
+    > strong,
+    > span:not(.founding-member-badge) {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    span {
+    > span:not(.founding-member-badge) {
       margin-left: 0;
       display: block;
     }

@@ -30,3 +30,54 @@
     display: block;
   }
 }
+
+.founding-member-badge {
+  --founding-badge-border: color-mix(in srgb, #d4af37, var(--color-border) 32%);
+  --founding-badge-bg: color-mix(in srgb, #d4af37, transparent 84%);
+  --founding-badge-text: color-mix(in srgb, #f9e7a4, var(--color-text) 35%);
+
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--founding-badge-border);
+  border-radius: 999px;
+  background: var(--founding-badge-bg);
+  color: var(--founding-badge-text);
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+
+  svg {
+    flex: 0 0 auto;
+  }
+
+  &--compact {
+    gap: 0.25rem;
+    padding: 0.18rem 0.45rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+  }
+
+  &--profile {
+    display: grid;
+    gap: 0.25rem;
+    border-radius: var(--radius-md, 0.75rem);
+    padding: 0.55rem 0.7rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+  }
+
+  &__detail {
+    color: var(--color-text-muted, #9ca3af);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+}

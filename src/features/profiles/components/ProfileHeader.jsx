@@ -9,6 +9,7 @@ import {
   DEFAULT_PROFILE_AVATAR_URL,
   DEFAULT_PROFILE_BANNER_LABEL,
 } from "@/features/profiles/constants/profileImages";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 function formatBirthdayMonthDay(dob) {
   if (!dob) return "";
@@ -184,6 +185,11 @@ export default function ProfileHeader({
             {displayBadge && (
               <span className="profile-header__badge">{displayBadge}</span>
             )}
+
+            <FoundingMemberBadge
+              number={profile?.founding_member_number}
+              variant="profile"
+            />
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Crosshair } from "lucide-react";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
   return (
@@ -56,7 +57,13 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
                       )}
                     </div>
 
-                    <div className="profile-showcase__name">{displayName}</div>
+                    <div className="profile-showcase__identity">
+                      <div className="profile-showcase__name">{displayName}</div>
+                      <FoundingMemberBadge
+                        number={friend?.founding_member_number}
+                        className="profile-showcase__founding-badge"
+                      />
+                    </div>
                   </Link>
                 </li>
               );

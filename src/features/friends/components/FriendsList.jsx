@@ -1,6 +1,7 @@
 // src/features/friends/components/FriendsList.jsx
 
 import Link from "next/link";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 function getDisplayName(user) {
   return (
@@ -40,6 +41,10 @@ export default function FriendsList({
                   >
                     <span>{displayName}</span>
                     {user.username && <small>@{user.username}</small>}
+                    <FoundingMemberBadge
+                      number={user.founding_member_number}
+                      className="friends-list__founding-badge"
+                    />
                   </Link>
                 ) : (
                   <span className="friends-list__link">{displayName}</span>
