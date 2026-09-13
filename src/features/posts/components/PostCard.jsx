@@ -136,7 +136,12 @@ export default function PostCard({
                     title="Founding Member"
                     aria-label="Founding Member"
                   >
-                    <Medal size={16} strokeWidth={2.1} aria-hidden="true" />
+                    <Medal
+                      className="post-card__founding-medal"
+                      size={16}
+                      strokeWidth={2.1}
+                      aria-hidden="true"
+                    />
                   </Link>
                 ) : null}
 

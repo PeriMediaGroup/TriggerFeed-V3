@@ -6,6 +6,12 @@
   border-bottom: 5px solid var(--color-border);
   // overflow: hidden;
 
+  &__founding-medal {
+    color: color-mix(in srgb, #d4af37, var(--color-border) 32%);
+
+    margin-right: 4px;
+  }
+
   &__media {
     margin: 0 auto;
   }
@@ -81,7 +87,8 @@
     display: inline-flex;
     width: fit-content;
     align-items: center;
-    border: 1px solid color-mix(in srgb, var(--color-accent), var(--color-border) 35%);
+    border: 1px solid
+      color-mix(in srgb, var(--color-accent), var(--color-border) 35%);
     border-radius: 999px;
     padding: 0.2rem 0.55rem;
     background: color-mix(in srgb, var(--color-accent), transparent 86%);
@@ -184,7 +191,11 @@
     border: 1px solid var(--color-border);
     border-radius: 999px;
     padding: 0.45rem 0.75rem;
-    background: color-mix(in srgb, var(--color-surface-elevated), transparent 16%);
+    background: color-mix(
+      in srgb,
+      var(--color-surface-elevated),
+      transparent 16%
+    );
     color: var(--color-text);
     font: inherit;
     font-size: 0.875rem;
@@ -203,8 +214,16 @@
   &__comments:focus-visible,
   &__icon-action:hover,
   &__icon-action:focus-visible {
-    border-color: color-mix(in srgb, var(--color-accent), var(--color-border) 45%);
-    background: color-mix(in srgb, var(--color-accent), var(--color-surface-elevated) 88%);
+    border-color: color-mix(
+      in srgb,
+      var(--color-accent),
+      var(--color-border) 45%
+    );
+    background: color-mix(
+      in srgb,
+      var(--color-accent),
+      var(--color-surface-elevated) 88%
+    );
     transform: translateY(-1px);
   }
 
