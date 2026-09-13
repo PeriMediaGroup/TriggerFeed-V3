@@ -11,10 +11,10 @@ import MediaGallery from "@/features/media/components/MediaGallery";
 import PollDisplay from "@/features/polls/components/PollDisplay";
 import ReportPostButton from "@/features/reports/components/ReportPostButton";
 import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 import { getPostPath, getPostEditPath } from "@/features/posts/lib/postUrls";
 import RichPostContent from "@/features/posts/components/RichPostContent";
 import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
-import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 import DeletePostButton from "./DeletePostButton";
 import SharePostButton from "./SharePostButton";

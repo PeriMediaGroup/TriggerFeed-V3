@@ -224,6 +224,10 @@
   &__empty {
     margin-bottom: 0;
   }
+
+  &__founding-badge {
+    margin-left: auto;
+  }
 }
 
 
@@ -309,6 +313,19 @@
     &:disabled {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+  }
+
+  .founding-member-badge {
+    flex: 0 0 auto;
+    color: var(--color-text, #fff);
+    font-size: 0.72rem;
+    font-weight: 850;
+
+    span {
+      margin-left: 0;
+      color: inherit;
+      font-weight: inherit;
     }
   }
 }

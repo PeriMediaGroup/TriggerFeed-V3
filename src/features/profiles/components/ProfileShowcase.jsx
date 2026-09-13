@@ -65,6 +65,10 @@ export default function ProfileShowcase({ topFriends = [], topGuns = [] }) {
                       />
                     </div>
                   </Link>
+                  <FoundingMemberBadge
+                    number={friend?.founding_member_number}
+                    className="profile-showcase__founding-badge"
+                  />
                 </li>
               );
             })}

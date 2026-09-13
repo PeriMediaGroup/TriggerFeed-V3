@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
 import { Pencil, CalendarDays, MapPin, Mail, IdCard, User } from "lucide-react";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 import {
   DEFAULT_PROFILE_AVATAR_URL,
   DEFAULT_PROFILE_BANNER_LABEL,
 } from "@/features/profiles/constants/profileImages";
-import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 function formatBirthdayMonthDay(dob) {
   if (!dob) return "";
@@ -78,6 +78,7 @@ export default function ProfileHeader({
   const avatarUrl =
     profile?.avatar_cloudinary_url?.trim() || DEFAULT_PROFILE_AVATAR_URL;
   const displayBadge = profile?.profile_badge || "";
+  const displayBadgeIsFounding = /founding\s+member/i.test(displayBadge);
   const joinedDate = formatShortDate(profile?.created_at);
 
   return (
@@ -182,7 +183,7 @@ export default function ProfileHeader({
               </div>
             )}
 
-            {displayBadge && (
+            {displayBadge && !displayBadgeIsFounding && (
               <span className="profile-header__badge">{displayBadge}</span>
             )}
 
