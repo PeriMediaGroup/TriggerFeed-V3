@@ -61,7 +61,7 @@ export default function FoundingMemberBadge({
 
   const compactContent = (
     <>
-      <Medal size={13} strokeWidth={2.1} aria-hidden="true" />
+      <Medal size={11} strokeWidth={2.1} aria-hidden="true" />
       <span>Founding Member</span>
     </>
   );

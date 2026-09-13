@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Edit3, MessageSquare } from "lucide-react";
+import { Edit3, MessageSquare, Medal } from "lucide-react";
 
 import SmartText from "@/components/ui/SmartText";
 import { formatRelativeTime } from "@/lib/formatDate";
@@ -11,7 +11,6 @@ import MediaGallery from "@/features/media/components/MediaGallery";
 import PollDisplay from "@/features/polls/components/PollDisplay";
 import ReportPostButton from "@/features/reports/components/ReportPostButton";
 import PostVoteButtons from "@/features/votes/components/PostVoteButtons";
-import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 import { getPostPath, getPostEditPath } from "@/features/posts/lib/postUrls";
 import RichPostContent from "@/features/posts/components/RichPostContent";
 import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
@@ -130,6 +129,17 @@ export default function PostCard({
                 href={`/profiles/${authorId}`}
                 className="post-card__author-display-name"
               >
+                {post.author?.founding_member_number ? (
+                  <Link
+                    href="/founding-500"
+                    className="post-card__founding-icon"
+                    title="Founding Member"
+                    aria-label="Founding Member"
+                  >
+                    <Medal size={16} strokeWidth={2.1} aria-hidden="true" />
+                  </Link>
+                ) : null}
+
                 {displayName}
               </Link>
 
@@ -143,8 +153,20 @@ export default function PostCard({
           ) : (
             <>
               <strong className="post-card__author-display-name">
+                {post.author?.founding_member_number ? (
+                  <Link
+                    href="/founding-500"
+                    className="post-card__founding-icon"
+                    title="Founding Member"
+                    aria-label="Founding Member"
+                  >
+                    🏅
+                  </Link>
+                ) : null}
+
                 {displayName}
               </strong>
+
               <span className="post-card__author-username">{authorName}</span>
             </>
           )}
@@ -156,8 +178,6 @@ export default function PostCard({
           {post.is_sticky ? (
             <span className="post-card__official-badge">Official</span>
           ) : null}
-
-          <FoundingMemberBadge number={post.author?.founding_member_number} />
         </div>
 
         <div className="post-card__header-tools" aria-label="Post actions">
@@ -186,10 +206,7 @@ export default function PostCard({
         )}
 
         {bodyPreview.isTruncated && (
-          <Link
-            href={postPath}
-            className="post-card__full-post-link"
-          >
+          <Link href={postPath} className="post-card__full-post-link">
             View full post
           </Link>
         )}
