@@ -10,6 +10,7 @@ const STATIC_PUBLIC_PATHS = [
   "/install",
   "/legal",
   "/merch",
+  "/founding-500",
 ];
 
 type SitemapPost = {

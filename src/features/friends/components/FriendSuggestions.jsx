@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { sendFriendRequest } from "@/features/friends/actions/sendFriendRequest";
-import { DEFAULT_PROFILE_AVATAR_URL } from "@/features/profiles/constants/profileImages";
 import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
+import { DEFAULT_PROFILE_AVATAR_URL } from "@/features/profiles/constants/profileImages";
 
 export default function FriendSuggestions({
   viewerId = null,
@@ -110,6 +110,10 @@ export default function FriendSuggestions({
                     <span className="friend-suggestions__reason">
                       {suggestion.reason}
                     </span>
+                    <FoundingMemberBadge
+                      number={suggestion.foundingMemberNumber}
+                      className="friend-suggestions__founding-badge"
+                    />
                   </div>
 
                   <button

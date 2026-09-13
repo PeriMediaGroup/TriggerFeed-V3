@@ -4,8 +4,8 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
-import { respondToFriendRequest } from "@/features/friends/actions/respondToFriendRequest";
 import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
+import { respondToFriendRequest } from "@/features/friends/actions/respondToFriendRequest";
 
 function getDisplayName(user) {
   return (
