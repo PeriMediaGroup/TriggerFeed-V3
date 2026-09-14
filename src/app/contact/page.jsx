@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const BROKEN_LINK_TOPIC = "broken-link";
+const BROKEN_LINK_LABEL = "Broken link / missing page";
 
 function getSupabasePublicConfig() {
   return {
@@ -14,6 +17,23 @@ function getSupabasePublicConfig() {
 export default function ContactPage() {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [isSending, setIsSending] = useState(false);
+  const messageRef = useRef(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("topic") !== BROKEN_LINK_TOPIC) {
+      return;
+    }
+
+    const rawPath = params.get("path") || "/";
+    const safePath = rawPath.startsWith("/") ? rawPath : "/";
+
+    if (messageRef.current && !messageRef.current.value) {
+      messageRef.current.value =
+        `Issue type: ${BROKEN_LINK_LABEL}\nMissing page: ${safePath}\n\nWhat happened?`;
+    }
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -134,7 +154,12 @@ export default function ContactPage() {
 
           <label className="contact-form__field">
             <span>Message</span>
-            <textarea name="message" rows="6" required />
+            <textarea
+              ref={messageRef}
+              name="message"
+              rows="6"
+              required
+            />
           </label>
 
           <button

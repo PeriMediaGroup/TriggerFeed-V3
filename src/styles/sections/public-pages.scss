@@ -130,6 +130,20 @@
   );
 }
 
+.public-page-hero__action--secondary {
+  border-color: var(--color-border);
+  background: color-mix(
+    in srgb,
+    var(--color-surface-raised, rgba(255, 255, 255, 0.08)) 70%,
+    transparent
+  );
+  color: var(--color-text-muted);
+}
+
+.public-page-hero__action--secondary:hover {
+  color: var(--color-text);
+}
+
 .public-page-hero__action--status {
   cursor: default;
   pointer-events: none;
