@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import { getProfileBadges } from "@/features/profiles/data/getProfileBadges";
 
-function normalizeProfile(profile) {
+function normalizeProfile(profile, badges = []) {
   if (!profile) {
     return null;
   }
 
   return {
     ...profile,
+    badges,
     profile_image_url: profile.avatar_cloudinary_url,
   };
 }
@@ -41,8 +43,10 @@ export async function getProfileById(userId) {
     };
   }
 
+  const { badgesByProfileId } = await getProfileBadges(supabase, [data?.id]);
+
   return {
-    profile: normalizeProfile(data),
+    profile: normalizeProfile(data, badgesByProfileId.get(data?.id) || []),
     error: null,
   };
 }

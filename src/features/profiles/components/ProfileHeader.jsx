@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
 import { Pencil, CalendarDays, MapPin, Mail, IdCard, User } from "lucide-react";
-import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
+import ProfileBadgesSection from "@/features/profiles/components/ProfileBadgesSection";
 
 import {
   DEFAULT_PROFILE_AVATAR_URL,
@@ -77,8 +77,6 @@ export default function ProfileHeader({
   const bannerUrl = profile?.banner_cloudinary_url?.trim();
   const avatarUrl =
     profile?.avatar_cloudinary_url?.trim() || DEFAULT_PROFILE_AVATAR_URL;
-  const displayBadge = profile?.profile_badge || "";
-  const displayBadgeIsFounding = /founding\s+member/i.test(displayBadge);
   const joinedDate = formatShortDate(profile?.created_at);
 
   return (
@@ -183,14 +181,6 @@ export default function ProfileHeader({
               </div>
             )}
 
-            {displayBadge && !displayBadgeIsFounding && (
-              <span className="profile-header__badge">{displayBadge}</span>
-            )}
-
-            <FoundingMemberBadge
-              number={profile?.founding_member_number}
-              variant="profile"
-            />
           </div>
         </div>
 
@@ -200,6 +190,8 @@ export default function ProfileHeader({
             <p className="profile-header__notes-text">{profile.bio}</p>
           </div>
         )}
+
+        <ProfileBadgesSection profile={profile} />
 
         <div className="profile-header__stats" aria-label="Profile stats">
           <div className="profile-header__stat">

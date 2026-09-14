@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getProfileBadges } from "@/features/profiles/data/getProfileBadges";
 
 export async function getCurrentProfile() {
   const supabase = await createClient();
@@ -52,9 +53,12 @@ export async function getCurrentProfile() {
     };
   }
 
+  const { badgesByProfileId } = await getProfileBadges(supabase, [profile?.id]);
+
   return {
     profile: {
       ...profile,
+      badges: badgesByProfileId.get(profile.id) || [],
       role: authStatus?.role || "user",
       is_banned: authStatus?.is_banned || false,
       is_muted: authStatus?.is_muted || false,

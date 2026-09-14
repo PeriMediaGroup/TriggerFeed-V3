@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Medal } from "lucide-react";
 
 import { DEFAULT_PROFILE_AVATAR_URL } from "@/features/profiles/constants/profileImages";
+import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 import { getFounding500Registry } from "@/features/profiles/data/getFounding500Registry";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
@@ -98,7 +99,11 @@ function RegistryMember({ entry }) {
       </div>
 
       {isActive ? (
-        <span className="founding-500__retired-label">Active</span>
+        <FoundingMemberBadge
+          number={entry.founding_member_number}
+          variant="registry"
+          linked={false}
+        />
       ) : (
         <span className="founding-500__retired-label">Retired</span>
       )}

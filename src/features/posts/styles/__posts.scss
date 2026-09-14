@@ -13,7 +13,14 @@
   }
 
   &__media {
+    width: 100%;
+    max-width: min(100%, 42rem);
     margin: 0 auto;
+
+    .media-gallery {
+      width: 100%;
+      margin-top: 0;
+    }
   }
 
   &__header {
@@ -109,6 +116,10 @@
   &--feed &__content {
     display: grid;
     gap: 0.45rem;
+  }
+
+  &--feed &__media {
+    max-width: min(100%, 38rem);
   }
 
   &__title {

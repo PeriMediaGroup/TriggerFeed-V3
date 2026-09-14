@@ -91,6 +91,9 @@ export default function PostCard({
   const canManagePost = currentUserId === post.user_id;
   const postMedia =
     post.media || post.post_media || post.images || post.post_images || [];
+  const hasTitle = Boolean(`${post.title || ""}`.trim());
+  const hasMedia = postMedia.length > 0;
+  const shouldShowMediaBeforeBody = hasTitle && hasMedia;
   const mentionProfiles = post.mentionProfiles || [];
   const poll = post.polls?.[0] || null;
   const isFeedCard = variant === "feed";
@@ -103,6 +106,14 @@ export default function PostCard({
   const commentsLabel = showComments
     ? "Hide comments"
     : `${commentCount} ${commentCount === 1 ? "comment" : "comments"}`;
+  const mediaGallery = hasMedia ? (
+    <div className="post-card__media">
+      <MediaGallery
+        images={postMedia}
+        fallbackAlt={post.title || "Post media"}
+      />
+    </div>
+  ) : null;
 
   return (
     <article className={`post-card post-card--${variant}`}>
@@ -197,9 +208,13 @@ export default function PostCard({
       </header>
 
       <div className="post-card__content">
-        <h2 className="post-card__title">
-          <SmartText text={post.title} mentionProfiles={mentionProfiles} />
-        </h2>
+        {hasTitle ? (
+          <h2 className="post-card__title">
+            <SmartText text={post.title} mentionProfiles={mentionProfiles} />
+          </h2>
+        ) : null}
+
+        {shouldShowMediaBeforeBody ? mediaGallery : null}
 
         {post.body && (
           <div className="post-card__body">
@@ -217,14 +232,7 @@ export default function PostCard({
         )}
       </div>
 
-      {postMedia.length > 0 && (
-        <div className="post-card__media">
-          <MediaGallery
-            images={postMedia}
-            fallbackAlt={post.title || "Post media"}
-          />
-        </div>
-      )}
+      {!shouldShowMediaBeforeBody ? mediaGallery : null}
 
       {poll && (
         <div className="post-card__poll">
