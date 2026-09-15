@@ -141,6 +141,25 @@
     font-weight: 700;
   }
 
+  &__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent, #b22222) 70%, var(--color-border));
+    border-radius: 999px;
+    padding: 0.2rem 0.48rem;
+    background: color-mix(in srgb, var(--color-accent, #b22222) 16%, transparent);
+    color: var(--color-text, #fff);
+    font-size: 0.76rem;
+    font-weight: 850;
+    line-height: 1;
+
+    svg {
+      flex: 0 0 auto;
+      color: var(--color-accent, #b22222);
+    }
+  }
+
   &__edit,
   &__email {
     display: inline-flex;
@@ -195,6 +214,61 @@
     max-width: none;
     border-left: 3px solid var(--color-accent, #b22222);
     padding-left: var(--space-md, 0.75rem);
+  }
+
+  &__type-details {
+    display: grid;
+    gap: var(--space-sm, 0.5rem);
+    padding: 0 var(--space-lg, 1rem);
+  }
+
+  &__type-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.7rem;
+  }
+
+  &__type-label {
+    color: var(--color-text, #fff);
+    font-size: 0.88rem;
+    font-weight: 850;
+  }
+
+  &__type-category {
+    color: var(--color-text-muted, #9ca3af);
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+
+  &__type-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.75rem;
+
+    a,
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--color-text-muted, #9ca3af);
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus-visible {
+      color: var(--color-text, #fff);
+      text-decoration: underline;
+    }
+
+    svg {
+      flex: 0 0 auto;
+      color: var(--color-accent, #b22222);
+    }
   }
 
   &__notes-title {

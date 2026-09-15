@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   AGE_GATE_VERSION,
   isAtLeastMinimumAge,
@@ -290,6 +291,10 @@ export default function SignupPage() {
             {isLoading ? "Creating account..." : "Create account"}
           </button>
         </form>
+
+        <p className="signup__signin">
+          Already have an account? <Link href="/login">Sign in here</Link>
+        </p>
 
         {status ? (
           <p className="signup-form__status" role="status">

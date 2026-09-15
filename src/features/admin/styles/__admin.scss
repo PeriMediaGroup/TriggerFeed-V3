@@ -53,7 +53,8 @@
 .admin-management-nav,
 .admin-users__search-row,
 .admin-user-card__actions,
-.admin-user-card__role-actions {
+.admin-user-card__role-actions,
+.admin-user-card__profile-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm);
@@ -397,6 +398,11 @@
   background: var(--color-surface-soft);
 }
 
+.admin-user-card__badge--verified {
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+  color: var(--color-text);
+}
+
 .admin-user-card__details {
   display: grid;
   gap: var(--space-sm);
@@ -446,6 +452,11 @@
 
 .admin-user-card__role-actions {
   gap: 0.35rem;
+}
+
+.admin-user-card__profile-actions {
+  gap: 0.35rem;
+  width: 100%;
 }
 
 .admin-user-card__history {
@@ -527,7 +538,8 @@
   }
 
   .admin-user-card__meta,
-  .admin-user-card__actions {
+  .admin-user-card__actions,
+  .admin-user-card__profile-actions {
     grid-column: 1 / -1;
   }
 }

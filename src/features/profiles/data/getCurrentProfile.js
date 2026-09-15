@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfileBadges } from "@/features/profiles/data/getProfileBadges";
+import { getProfileMetadata } from "@/features/profiles/data/getProfileMetadata";
 
 export async function getCurrentProfile() {
   const supabase = await createClient();
@@ -53,11 +54,17 @@ export async function getCurrentProfile() {
     };
   }
 
-  const { badgesByProfileId } = await getProfileBadges(supabase, [profile?.id]);
+  const [{ badgesByProfileId }, { metadataByProfileId }] = await Promise.all([
+    getProfileBadges(supabase, [profile?.id]),
+    getProfileMetadata(supabase, [profile?.id]),
+  ]);
+  const profileMetadata = metadataByProfileId.get(profile.id) || {};
 
   return {
     profile: {
       ...profile,
+      ...profileMetadata,
+      profile_metadata: profileMetadata,
       badges: badgesByProfileId.get(profile.id) || [],
       role: authStatus?.role || "user",
       is_banned: authStatus?.is_banned || false,

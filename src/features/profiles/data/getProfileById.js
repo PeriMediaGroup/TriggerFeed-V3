@@ -1,13 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfileBadges } from "@/features/profiles/data/getProfileBadges";
+import { getProfileMetadata } from "@/features/profiles/data/getProfileMetadata";
 
-function normalizeProfile(profile, badges = []) {
+function normalizeProfile(profile, badges = [], metadata = {}) {
   if (!profile) {
     return null;
   }
 
   return {
     ...profile,
+    ...metadata,
+    profile_metadata: metadata,
     badges,
     profile_image_url: profile.avatar_cloudinary_url,
   };
@@ -43,10 +46,17 @@ export async function getProfileById(userId) {
     };
   }
 
-  const { badgesByProfileId } = await getProfileBadges(supabase, [data?.id]);
+  const [{ badgesByProfileId }, { metadataByProfileId }] = await Promise.all([
+    getProfileBadges(supabase, [data?.id]),
+    getProfileMetadata(supabase, [data?.id]),
+  ]);
 
   return {
-    profile: normalizeProfile(data, badgesByProfileId.get(data?.id) || []),
+    profile: normalizeProfile(
+      data,
+      badgesByProfileId.get(data?.id) || [],
+      metadataByProfileId.get(data?.id) || {},
+    ),
     error: null,
   };
 }

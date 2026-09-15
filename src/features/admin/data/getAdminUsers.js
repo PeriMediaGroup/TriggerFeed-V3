@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getProfileBadges } from "@/features/profiles/data/getProfileBadges";
+import { getProfileMetadata } from "@/features/profiles/data/getProfileMetadata";
 
 function logSupabaseError(label, error) {
   console.error(label, {
@@ -31,14 +33,25 @@ export async function getAdminUsers({ query = "" } = {}) {
 
   const safeUsers = users || [];
   const userIds = safeUsers.map((user) => user.id).filter(Boolean);
-  const historyByUserId = await getModerationHistoryByUserId({
-    supabase,
-    userIds,
-  });
+  const [
+    historyByUserId,
+    { badgesByProfileId },
+    { metadataByProfileId },
+  ] = await Promise.all([
+    getModerationHistoryByUserId({
+      supabase,
+      userIds,
+    }),
+    getProfileBadges(supabase, userIds),
+    getProfileMetadata(supabase, userIds),
+  ]);
 
   return {
     users: safeUsers.map((user) => ({
       ...user,
+      ...(metadataByProfileId.get(user.id) || {}),
+      badges: badgesByProfileId.get(user.id) || [],
+      profile_metadata: metadataByProfileId.get(user.id) || null,
       moderation_history: historyByUserId.get(user.id) || [],
     })),
     error: null,

@@ -127,6 +127,11 @@ a.founding-member-badge:focus-visible {
     font-size: 0.78rem;
     font-weight: 700;
   }
+
+  &--verified {
+    border-color: color-mix(in srgb, var(--color-accent, #b22222) 70%, var(--color-border));
+    background: color-mix(in srgb, var(--color-accent, #b22222) 16%, transparent);
+  }
 }
 
 a.profile-badge:hover,

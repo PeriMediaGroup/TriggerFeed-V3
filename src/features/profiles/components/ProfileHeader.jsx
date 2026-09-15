@@ -5,6 +5,10 @@ import Image from "next/image";
 import { formatShortDate } from "@/lib/formatDate";
 import { Pencil, CalendarDays, MapPin, Mail, IdCard, User } from "lucide-react";
 import ProfileBadgesSection from "@/features/profiles/components/ProfileBadgesSection";
+import ProfileTypeDetails, {
+  VerifiedIdentityBadge,
+  hasVerifiedBadge,
+} from "@/features/profiles/components/ProfileTypeDetails";
 
 import {
   DEFAULT_PROFILE_AVATAR_URL,
@@ -78,6 +82,7 @@ export default function ProfileHeader({
   const avatarUrl =
     profile?.avatar_cloudinary_url?.trim() || DEFAULT_PROFILE_AVATAR_URL;
   const joinedDate = formatShortDate(profile?.created_at);
+  const verified = hasVerifiedBadge(profile);
 
   return (
     <section className="profile-header">
@@ -116,6 +121,7 @@ export default function ProfileHeader({
             <div className="profile-header__row profile-header__row--identity">
               <div className="profile-header__title-group">
                 <h1 className="profile-header__display-name">{displayName}</h1>
+                {verified ? <VerifiedIdentityBadge /> : null}
                 <span className="profile-header__username">@{username}</span>
               </div>
 
@@ -183,6 +189,8 @@ export default function ProfileHeader({
 
           </div>
         </div>
+
+        <ProfileTypeDetails profile={profile} />
 
         {profile?.bio && (
           <div className="profile-header__notes">

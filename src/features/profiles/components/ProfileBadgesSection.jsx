@@ -9,7 +9,12 @@ function isLegacyFoundingBadge(label) {
 }
 
 function getDisplayBadges(profile) {
-  const badges = Array.isArray(profile?.badges) ? [...profile.badges] : [];
+  const foundingEligible = ["member", "creator"].includes(
+    profile?.profile_type || "member",
+  );
+  const badges = Array.isArray(profile?.badges)
+    ? profile.badges.filter((badge) => foundingEligible || !isFoundingBadge(badge))
+    : [];
 
   if (profile?.profile_badge && !isLegacyFoundingBadge(profile.profile_badge)) {
     badges.push({

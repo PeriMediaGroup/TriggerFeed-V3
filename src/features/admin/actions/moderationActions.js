@@ -7,6 +7,12 @@ import { sendModerationEmail } from "@/lib/email/sendModerationEmail";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
 
 const ROLE_VALUES = new Set(["user", "moderator", "admin"]);
+const PROFILE_TYPE_VALUES = new Set([
+  "member",
+  "creator",
+  "organization",
+  "system",
+]);
 
 function cleanString(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -489,5 +495,75 @@ export async function updateUserRole({ targetUserId, newRole, reason }) {
       p_reason: nullableString(reason),
     },
     "User role updated.",
+  );
+}
+
+export async function updateUserProfileTypeAndMetadata({
+  targetUserId,
+  profileType,
+  metadata = {},
+}) {
+  const cleanProfileType = cleanString(profileType).toLowerCase();
+
+  if (!targetUserId) {
+    return failure("Missing target user.");
+  }
+
+  if (!PROFILE_TYPE_VALUES.has(cleanProfileType)) {
+    return failure("Invalid profile type.");
+  }
+
+  return callModerationRpc(
+    "update_profile_type_and_metadata",
+    {
+      p_user_id: targetUserId,
+      p_profile_type: cleanProfileType,
+      p_category: nullableString(metadata.category),
+      p_subtype: nullableString(metadata.subtype),
+      p_website_url: nullableString(metadata.website_url),
+      p_primary_link_url: nullableString(metadata.primary_link_url),
+      p_primary_link_label: nullableString(metadata.primary_link_label),
+      p_social_links: Array.isArray(metadata.social_links)
+        ? metadata.social_links
+        : [],
+      p_public_contact_email: nullableString(metadata.public_contact_email),
+      p_public_contact_phone: nullableString(metadata.public_contact_phone),
+      p_public_location: nullableString(metadata.public_location),
+    },
+    "Profile type updated.",
+    "Could not update profile type.",
+  );
+}
+
+export async function awardVerifiedBadge({ targetUserId }) {
+  if (!targetUserId) {
+    return failure("Missing target user.");
+  }
+
+  return callModerationRpc(
+    "award_user_badge",
+    {
+      p_user_id: targetUserId,
+      p_badge_slug: "verified",
+      p_metadata: {},
+    },
+    "Verified badge awarded.",
+    "Could not award Verified.",
+  );
+}
+
+export async function revokeVerifiedBadge({ targetUserId }) {
+  if (!targetUserId) {
+    return failure("Missing target user.");
+  }
+
+  return callModerationRpc(
+    "revoke_user_badge",
+    {
+      p_user_id: targetUserId,
+      p_badge_slug: "verified",
+    },
+    "Verified badge revoked.",
+    "Could not revoke Verified.",
   );
 }

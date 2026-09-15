@@ -8,10 +8,13 @@ import toast from "react-hot-toast";
 
 import {
   addAdminNote,
+  awardVerifiedBadge,
   banUser,
   muteUser,
+  revokeVerifiedBadge,
   unbanUser,
   unmuteUser,
+  updateUserProfileTypeAndMetadata,
   updateUserRole,
 } from "@/features/admin/actions/moderationActions";
 
@@ -32,6 +35,13 @@ const ACTION_LABELS = {
   promote_user: "Promoted",
   demote_user: "Demoted",
   role_changed: "Role changed",
+};
+
+const PROFILE_TYPE_LABELS = {
+  member: "Member",
+  creator: "Creator",
+  organization: "Organization",
+  system: "System",
 };
 
 function getProfileName(profile) {
@@ -91,6 +101,14 @@ function getRoleLabel(role) {
   return typeof role === "string" && role.trim() ? role : "Unknown";
 }
 
+function getProfileTypeLabel(type) {
+  return PROFILE_TYPE_LABELS[type] || "Member";
+}
+
+function hasVerifiedBadge(user) {
+  return (user.badges || []).some((badge) => badge?.badge_slug === "verified");
+}
+
 export default function AdminUserCard({ user, currentUserId, permissions }) {
   const router = useRouter();
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -103,6 +121,8 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
   const isSelf = user.id === currentUserId;
   const statusLabels = getStatusLabels(user);
   const historyCount = user.moderation_history?.length || 0;
+  const verified = hasVerifiedBadge(user);
+  const profileType = user.profile_type || "member";
 
   function runAction(action) {
     startTransition(async () => {
@@ -246,6 +266,101 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
     );
   }
 
+  function handleProfileTypeChange(newProfileType) {
+    const existing = user.profile_metadata || {};
+    const metadata = {};
+
+    if (newProfileType === "creator" || newProfileType === "organization") {
+      const category = getPromptValue("Profile category", existing.category || "");
+
+      if (category === null) {
+        return;
+      }
+
+      const subtype = getPromptValue("Profile subtype", existing.subtype || "");
+
+      if (subtype === null) {
+        return;
+      }
+
+      const websiteUrl = getPromptValue("Website URL", existing.website_url || "");
+
+      if (websiteUrl === null) {
+        return;
+      }
+
+      const primaryLinkUrl = getPromptValue(
+        "Primary external link URL",
+        existing.primary_link_url || "",
+      );
+
+      if (primaryLinkUrl === null) {
+        return;
+      }
+
+      const primaryLinkLabel = getPromptValue(
+        "Primary external link label",
+        existing.primary_link_label || "",
+      );
+
+      if (primaryLinkLabel === null) {
+        return;
+      }
+
+      const publicLocation = getPromptValue(
+        "Public location",
+        existing.public_location || "",
+      );
+
+      if (publicLocation === null) {
+        return;
+      }
+
+      const publicContactEmail = getPromptValue(
+        "Public contact email",
+        existing.public_contact_email || "",
+      );
+
+      if (publicContactEmail === null) {
+        return;
+      }
+
+      metadata.category = category;
+      metadata.subtype = subtype;
+      metadata.website_url = websiteUrl;
+      metadata.primary_link_url = primaryLinkUrl;
+      metadata.primary_link_label = primaryLinkLabel;
+      metadata.public_location = publicLocation;
+      metadata.public_contact_email = publicContactEmail;
+      metadata.public_contact_phone = existing.public_contact_phone || "";
+      metadata.social_links = existing.social_links || [];
+    }
+
+    if (
+      !window.confirm(
+        `Change ${displayName}'s profile type to ${getProfileTypeLabel(newProfileType)}?`,
+      )
+    ) {
+      return;
+    }
+
+    runAction(() =>
+      updateUserProfileTypeAndMetadata({
+        targetUserId: user.id,
+        profileType: newProfileType,
+        metadata,
+      }),
+    );
+  }
+
+  function handleVerifiedToggle() {
+    runAction(() =>
+      verified
+        ? revokeVerifiedBadge({ targetUserId: user.id })
+        : awardVerifiedBadge({ targetUserId: user.id }),
+    );
+  }
+
   return (
     <article className="admin-user-card">
       <div className="admin-user-card__summary">
@@ -271,6 +386,14 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
           <span className="admin-user-card__badge">
             {getRoleLabel(user.role)}
           </span>
+          <span className="admin-user-card__badge">
+            {getProfileTypeLabel(profileType)}
+          </span>
+          {verified ? (
+            <span className="admin-user-card__badge admin-user-card__badge--verified">
+              Verified
+            </span>
+          ) : null}
           {statusLabels.map((label) => (
             <span
               key={label}
@@ -402,6 +525,36 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
                     Make User
                   </button>
                 ) : null}
+              </div>
+            ) : null}
+
+            {canManageRoles && !isSelf ? (
+              <div
+                className="admin-user-card__profile-actions"
+                aria-label="Profile type actions"
+              >
+                {Object.keys(PROFILE_TYPE_LABELS).map((type) => (
+                  <button
+                    type="button"
+                    className="admin-user-card__action"
+                    disabled={isPending || profileType === type}
+                    key={type}
+                    onClick={() => handleProfileTypeChange(type)}
+                  >
+                    {getProfileTypeLabel(type)}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="admin-user-card__action"
+                  onClick={handleVerifiedToggle}
+                  disabled={
+                    isPending ||
+                    (!verified && !["creator", "organization"].includes(profileType))
+                  }
+                >
+                  {verified ? "Revoke Verified" : "Award Verified"}
+                </button>
               </div>
             ) : null}
           </div>
