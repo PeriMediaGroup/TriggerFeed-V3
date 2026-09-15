@@ -4,6 +4,32 @@ export const ATTRIBUTION_VISITOR_KEY = "triggerfeed.marketingVisitorId";
 const TOKEN_MAX_LENGTH = 80;
 const ATTRIBUTION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 90;
 
+function createRandomVisitorId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  const randomValues = new Uint8Array(16);
+  globalThis.crypto?.getRandomValues?.(randomValues);
+
+  if (randomValues.some(Boolean)) {
+    randomValues[6] = (randomValues[6] & 0x0f) | 0x40;
+    randomValues[8] = (randomValues[8] & 0x3f) | 0x80;
+
+    return [...randomValues]
+      .map((value) => value.toString(16).padStart(2, "0"))
+      .join("")
+      .replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
+  }
+
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (value) =>
+    (
+      Number(value) ^
+      (Math.random() * 16) >> (Number(value) / 4)
+    ).toString(16),
+  );
+}
+
 export function normalizeAttributionToken(value) {
   if (typeof value !== "string") {
     return "";
@@ -68,11 +94,11 @@ export function getOrCreateVisitorId() {
       return stored;
     }
 
-    const visitorId = crypto.randomUUID();
+    const visitorId = createRandomVisitorId();
     window.localStorage.setItem(ATTRIBUTION_VISITOR_KEY, visitorId);
     return visitorId;
   } catch {
-    return crypto.randomUUID();
+    return createRandomVisitorId();
   }
 }
 

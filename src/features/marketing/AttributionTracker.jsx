@@ -11,6 +11,14 @@ import {
   storeFirstTouchAttribution,
 } from "@/features/marketing/attribution";
 
+function logAttributionWarning(message, details = {}) {
+  if (process.env.NODE_ENV !== "development") {
+    return;
+  }
+
+  console.warn(`[marketing-attribution] ${message}`, details);
+}
+
 function getReferrerHost() {
   if (!document.referrer) {
     return "";
@@ -34,15 +42,20 @@ export default function AttributionTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const parsed = parseAttributionParams(searchParams);
+    const currentUrl = new URL(window.location.href);
+    const currentSearchParams =
+      currentUrl.searchParams?.toString() ? currentUrl.searchParams : searchParams;
+    const parsed = parseAttributionParams(currentSearchParams);
 
     if (!parsed?.source) {
       return;
     }
 
     const visitorId = getOrCreateVisitorId();
-    const landingPath = `${pathname || "/"}${
-      searchParams?.toString() ? `?${searchParams.toString()}` : ""
+    const queryString =
+      currentSearchParams?.toString?.() || currentUrl.searchParams.toString();
+    const landingPath = `${pathname || currentUrl.pathname || "/"}${
+      queryString ? `?${queryString}` : ""
     }`;
 
     storeFirstTouchAttribution({
@@ -54,15 +67,29 @@ export default function AttributionTracker() {
 
     const supabase = createClient();
 
-    void supabase.rpc("record_marketing_attribution_visit", {
-      p_visitor_id: visitorId,
-      p_source: parsed.source,
-      p_campaign: parsed.campaign || null,
-      p_landing_path: landingPath,
-      p_referrer_host: getReferrerHost(),
-      p_device_category: getDeviceCategory(navigator.userAgent),
-      p_platform: "web",
-    });
+    void (async () => {
+      const { error } = await supabase.rpc("record_marketing_attribution_visit", {
+        p_visitor_id: visitorId,
+        p_source: parsed.source,
+        p_campaign: parsed.campaign || null,
+        p_landing_path: landingPath,
+        p_referrer_host: getReferrerHost(),
+        p_device_category: getDeviceCategory(navigator.userAgent),
+        p_platform: "web",
+      });
+
+      if (error) {
+        logAttributionWarning("record_marketing_attribution_visit failed", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          landingPath,
+          source: parsed.source,
+          campaign: parsed.campaign || null,
+        });
+      }
+    })();
   }, [pathname, searchParams]);
 
   return null;
