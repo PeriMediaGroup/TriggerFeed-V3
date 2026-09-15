@@ -11,6 +11,11 @@ import {
   isAtLeastMinimumAge,
   isValidDobString,
 } from "@/features/auth/ageGate";
+import {
+  clearStoredAttribution,
+  readStoredAttribution,
+} from "@/features/marketing/attribution";
+import { getInitialSignupMessaging } from "@/features/marketing/signupMessaging";
 
 const REFERRAL_STORAGE_KEY = "triggerfeed.signupReferralCode";
 
@@ -76,6 +81,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [referralCode] = useState(getInitialReferralCode);
+  const [signupMessaging] = useState(getInitialSignupMessaging);
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -120,6 +126,7 @@ export default function SignupPage() {
     }
 
     setIsLoading(true);
+    const attribution = readStoredAttribution();
 
     await logAuthEvent({
       email: cleanEmail,
@@ -129,6 +136,7 @@ export default function SignupPage() {
         source: "signup_page",
         age_gate_version: AGE_GATE_VERSION,
         has_referral_code: Boolean(referralCode),
+        has_marketing_attribution: Boolean(attribution?.visitorId),
       },
     });
 
@@ -140,6 +148,12 @@ export default function SignupPage() {
 
     if (referralCode) {
       userMetadata.referral_code = referralCode;
+    }
+
+    if (attribution?.visitorId) {
+      userMetadata.marketing_visitor_id = attribution.visitorId;
+      userMetadata.marketing_source = attribution.source || null;
+      userMetadata.marketing_campaign = attribution.campaign || null;
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -162,6 +176,7 @@ export default function SignupPage() {
           source: "signup_page",
           age_gate_version: AGE_GATE_VERSION,
           has_referral_code: Boolean(referralCode),
+          has_marketing_attribution: Boolean(attribution?.visitorId),
         },
       });
 
@@ -183,10 +198,28 @@ export default function SignupPage() {
         auth_user_id: data.user?.id || null,
         age_gate_version: AGE_GATE_VERSION,
         has_referral_code: Boolean(referralCode),
+        has_marketing_attribution: Boolean(attribution?.visitorId),
       },
     });
 
+    if (data.session && data.user?.id && attribution?.visitorId) {
+      const { error: attributionError } = await supabase.rpc(
+        "associate_my_marketing_attribution",
+        {
+          p_visitor_id: attribution.visitorId,
+        },
+      );
+
+      if (attributionError) {
+        console.warn("MARKETING ATTRIBUTION SIGNUP ASSOCIATION WARNING:", {
+          code: attributionError.code,
+          message: attributionError.message,
+        });
+      }
+    }
+
     clearStoredReferralCode();
+    clearStoredAttribution();
     router.push(`/signup/check-email?email=${encodeURIComponent(cleanEmail)}`);
   }
 
@@ -194,13 +227,12 @@ export default function SignupPage() {
     <main className="signup-page">
       <section className="signup-form" aria-labelledby="signup-title">
         <div className="signup-form__header">
-          <p className="signup-form__eyebrow">18+ community</p>
+          <p className="signup-form__eyebrow">{signupMessaging.eyebrow}</p>
           <h1 id="signup-title" className="signup-form__title">
-            Start your TriggerFeed account
+            {signupMessaging.title}
           </h1>
           <p className="signup-form__intro">
-            Your date of birth is required for age verification and is hidden
-            from your public profile by default.
+            {signupMessaging.intro}
           </p>
         </div>
 

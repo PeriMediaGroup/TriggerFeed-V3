@@ -248,6 +248,136 @@
   gap: 0.35rem;
 }
 
+.admin-marketing {
+  display: grid;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+.admin-marketing__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.admin-marketing__filters a {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-marketing__filters a[aria-current="page"],
+.admin-marketing__filters a:hover,
+.admin-marketing__filters a:focus-visible {
+  border-color: color-mix(in srgb, var(--color-accent), var(--color-border) 45%);
+  background: var(--color-surface-soft);
+}
+
+.admin-marketing__section {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.admin-marketing__table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-transparent);
+}
+
+.admin-marketing__table {
+  width: 100%;
+  min-width: 44rem;
+  border-collapse: collapse;
+}
+
+.admin-marketing__table th,
+.admin-marketing__table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-marketing__table th {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.admin-marketing__table td {
+  color: var(--color-text);
+  font-size: 0.88rem;
+}
+
+.admin-marketing__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-marketing__table td code {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 0.76rem;
+}
+
+.admin-marketing__device-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.admin-marketing__device-card {
+  display: grid;
+  gap: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  background: var(--color-surface-transparent);
+}
+
+.admin-marketing__device-card h3,
+.admin-marketing__device-card dl,
+.admin-marketing__device-card dd {
+  margin: 0;
+}
+
+.admin-marketing__device-card h3 {
+  font-size: 0.95rem;
+}
+
+.admin-marketing__device-card dl {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-marketing__device-card div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.admin-marketing__device-card dt {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.admin-marketing__device-card dd {
+  color: var(--color-text);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
 .admin-overview__recent-time {
   display: grid;
   gap: 0.2rem;
@@ -525,7 +655,8 @@
 
   .admin-overview__metrics,
   .admin-overview__nav-cards,
-  .admin-overview__recent-row {
+  .admin-overview__recent-row,
+  .admin-marketing__device-list {
     grid-template-columns: 1fr;
   }
 
@@ -546,6 +677,10 @@
 
 @media (min-width: 42.001rem) and (max-width: 74rem) {
   .admin-overview__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-marketing__device-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

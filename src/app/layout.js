@@ -1,6 +1,8 @@
 import { Black_Ops_One, Tomorrow } from "next/font/google";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/layout/AppShell";
+import AttributionTracker from "@/features/marketing/AttributionTracker";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "@/styles/globals.scss";
 
@@ -59,6 +61,9 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${blackOpsOne.variable} ${tomorrow.variable}`}>
       <body>
+        <Suspense fallback={null}>
+          <AttributionTracker />
+        </Suspense>
         <AppShell user={user} unreadNotifications={unreadNotifications}>
           {children}
         </AppShell>
