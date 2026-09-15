@@ -192,15 +192,11 @@
 @media (max-width: 36rem) {
   .media-gallery {
     &__video {
-      width: 100%;
+      width: auto;
+      max-width: 100%;
       height: auto;
       max-height: min(62vh, 28rem);
       object-fit: contain;
-      background: #000;
-    }
-
-    &__item--video {
-      background: #000;
     }
 
     &--single &__item--video {
