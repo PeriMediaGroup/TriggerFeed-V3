@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Medal } from "lucide-react";
 
 import { DEFAULT_PROFILE_AVATAR_URL } from "@/features/profiles/constants/profileImages";
-import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 import { getFounding500Registry } from "@/features/profiles/data/getFounding500Registry";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
@@ -31,7 +30,7 @@ export const metadata = {
 };
 
 function formatFoundingNumber(number) {
-  return `#${String(number).padStart(3, "0")}`;
+  return String(number).padStart(3, "0");
 }
 
 function getDisplayName(entry) {
@@ -46,7 +45,8 @@ function getDisplayName(entry) {
 function RegistryMember({ entry }) {
   const isActive = entry.status === "active" && entry.profile_id;
   const displayName = isActive ? getDisplayName(entry) : "Retired member";
-  const username = isActive && entry.username ? `@${entry.username}` : "Number preserved";
+  const username =
+    isActive && entry.username ? `@${entry.username}` : "Number preserved";
   const avatarUrl =
     isActive && entry.avatar_cloudinary_url
       ? entry.avatar_cloudinary_url
@@ -61,7 +61,10 @@ function RegistryMember({ entry }) {
           : "founding-500__member founding-500__member--retired"
       }
     >
-      <div className="founding-500__number">
+      <div
+        className="founding-500__number"
+        aria-label={`Founding member number ${entry.founding_member_number}`}
+      >
         {formatFoundingNumber(entry.founding_member_number)}
       </div>
 
@@ -95,34 +98,30 @@ function RegistryMember({ entry }) {
         ) : (
           <span className="founding-500__name">{displayName}</span>
         )}
-        <span className="founding-500__username">{username}</span>
-      </div>
 
-      {isActive ? (
-        <FoundingMemberBadge
-          number={entry.founding_member_number}
-          variant="registry"
-          linked={false}
-        />
-      ) : (
-        <span className="founding-500__retired-label">Retired</span>
-      )}
+        <span className="founding-500__username">{username}</span>
+
+        {!isActive ? (
+          <span className="founding-500__retired-label">Retired</span>
+        ) : null}
+      </div>
     </li>
   );
 }
 
 export default async function Founding500Page() {
   const { entries, error } = await getFounding500Registry();
-  const activeCount = entries.filter((entry) => entry.status === "active").length;
-  const retiredCount = entries.filter((entry) => entry.status === "retired").length;
-  const assignedCount = entries.length;
 
   return (
     <main className="public-page founding-500">
-      <section className="founding-500__intro" aria-labelledby="founding-500-title">
+      <section
+        className="founding-500__intro"
+        aria-labelledby="founding-500-title"
+      >
         <div className="founding-500__intro-mark" aria-hidden="true">
           <Medal size={26} strokeWidth={1.8} />
         </div>
+
         <div className="founding-500__intro-copy">
           <p className="founding-500__eyebrow">TriggerFeed registry</p>
           <h1 id="founding-500-title">Founding 500</h1>
@@ -131,21 +130,6 @@ export default async function Founding500Page() {
             TriggerFeed founding number. Numbers are stored by the backend and
             remain reserved once assigned.
           </p>
-        </div>
-      </section>
-
-      <section className="founding-500__summary" aria-label="Registry summary">
-        <div>
-          <strong>{assignedCount}</strong>
-          <span>Numbers assigned</span>
-        </div>
-        <div>
-          <strong>{activeCount}</strong>
-          <span>Active profiles</span>
-        </div>
-        <div>
-          <strong>{retiredCount}</strong>
-          <span>Preserved gaps</span>
         </div>
       </section>
 

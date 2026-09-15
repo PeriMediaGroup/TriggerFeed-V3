@@ -22,9 +22,18 @@
   width: 3rem;
   height: 3rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--color-accent, #b22222) 48%, var(--color-border));
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--color-accent, #b22222) 48%,
+      var(--color-border)
+    );
   border-radius: var(--radius-md, 0.75rem);
-  background: color-mix(in srgb, var(--color-accent, #b22222) 12%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-accent, #b22222) 12%,
+    transparent
+  );
   color: var(--color-accent, #b22222);
 }
 
@@ -56,34 +65,6 @@
   line-height: 1.65;
 }
 
-.founding-500__summary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-sm, 0.5rem);
-}
-
-.founding-500__summary div {
-  display: grid;
-  gap: 0.12rem;
-  padding: 0.9rem;
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  border-radius: var(--radius-md, 0.75rem);
-  background: color-mix(in srgb, var(--color-surface, #2a3439) 56%, transparent);
-}
-
-.founding-500__summary strong {
-  color: var(--color-text, #fff);
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-.founding-500__summary span {
-  color: var(--color-text-muted, #a9a9a9);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 .founding-500__notice {
   margin: 0;
   padding: var(--space-md, 1rem);
@@ -94,7 +75,8 @@
 
 .founding-500__registry {
   display: grid;
-  gap: var(--space-xs, 0.25rem);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -102,13 +84,36 @@
 
 .founding-500__member {
   display: grid;
-  grid-template-columns: 4.35rem auto minmax(0, 1fr) auto;
-  gap: var(--space-sm, 0.5rem);
+  grid-template-columns: 3.5rem 3rem minmax(0, 1fr);
+  gap: 0.75rem;
   align-items: center;
-  padding: 0.72rem 0.85rem;
+  min-width: 0;
+  padding: 0.75rem;
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
   border-radius: var(--radius-md, 0.75rem);
-  background: color-mix(in srgb, var(--color-surface, #2a3439) 52%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-surface, #2a3439) 52%,
+    transparent
+  );
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    transform 140ms ease;
+}
+
+.founding-500__member:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--color-accent, #b22222) 34%,
+    var(--color-border, rgba(255, 255, 255, 0.12))
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-surface, #2a3439) 62%,
+    transparent
+  );
+  transform: translateY(-1px);
 }
 
 .founding-500__member--retired {
@@ -116,9 +121,24 @@
 }
 
 .founding-500__number {
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border: 2px solid var(--color-accent, #b22222);
+  border-radius: 999px;
+  background: color-mix(
+    in srgb,
+    var(--color-accent, #b22222) 9%,
+    transparent
+  );
   color: var(--color-accent, #b22222);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
 }
 
 .founding-500__avatar-link {
@@ -147,6 +167,7 @@
 }
 
 .founding-500__name {
+  min-width: 0;
   color: var(--color-text, #fff);
   font-weight: 800;
   line-height: 1.2;
@@ -160,6 +181,7 @@ a.founding-500__name:focus-visible {
 }
 
 .founding-500__username {
+  min-width: 0;
   color: var(--color-text-muted, #a9a9a9);
   font-size: 0.85rem;
   line-height: 1.25;
@@ -168,15 +190,21 @@ a.founding-500__name:focus-visible {
 
 .founding-500__retired-label {
   width: fit-content;
-  justify-self: end;
+  margin-top: 0.3rem;
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
   border-radius: 999px;
-  padding: 0.28rem 0.62rem;
+  padding: 0.25rem 0.5rem;
   color: var(--color-text-muted, #a9a9a9);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
+}
+
+@media (max-width: 75rem) {
+  .founding-500__registry {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 42rem) {
@@ -184,18 +212,18 @@ a.founding-500__name:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .founding-500__summary {
+  .founding-500__registry {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .founding-500__member {
-    grid-template-columns: 3.6rem auto minmax(0, 1fr);
-    align-items: start;
+    grid-template-columns: 3.25rem 3rem minmax(0, 1fr);
+    gap: 0.65rem;
   }
 
-  .founding-500__badge,
-  .founding-500__retired-label {
-    grid-column: 3;
-    justify-self: start;
+  .founding-500__number {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 0.86rem;
   }
 }
