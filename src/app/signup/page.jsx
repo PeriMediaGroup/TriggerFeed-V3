@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { logAuthEvent } from "@/lib/authEvents";
 import { getUserSafeErrorMessage } from "@/lib/userSafeErrorMessage";
@@ -15,7 +15,10 @@ import {
   clearStoredAttribution,
   readStoredAttribution,
 } from "@/features/marketing/attribution";
-import { getInitialSignupMessaging } from "@/features/marketing/signupMessaging";
+import {
+  DEFAULT_SIGNUP_MESSAGING,
+  getInitialSignupMessaging,
+} from "@/features/marketing/signupMessaging";
 
 const REFERRAL_STORAGE_KEY = "triggerfeed.signupReferralCode";
 
@@ -71,6 +74,10 @@ function getInitialReferralCode() {
   return getStoredReferralCode();
 }
 
+function subscribeToSignupMessagingStore() {
+  return () => {};
+}
+
 export default function SignupPage() {
   const supabase = createClient();
   const router = useRouter();
@@ -81,7 +88,11 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [referralCode] = useState(getInitialReferralCode);
-  const [signupMessaging] = useState(getInitialSignupMessaging);
+  const signupMessaging = useSyncExternalStore(
+    subscribeToSignupMessagingStore,
+    getInitialSignupMessaging,
+    () => DEFAULT_SIGNUP_MESSAGING,
+  );
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 

@@ -11,6 +11,7 @@ const PUBLIC_PATHS = new Set([
   "/delete-account",
   "/forgot-password",
   "/install",
+  "/join",
   "/legal",
   "/login",
   "/merch",
