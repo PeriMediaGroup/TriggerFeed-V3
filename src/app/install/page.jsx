@@ -27,37 +27,98 @@ export default function InstallPage() {
           <h2>Android</h2>
 
           <p className="install-page__label">
-            TriggerFeed for Android is in development and coming soon.
+            Get TriggerFeed from Google Play, or add the website directly to
+            your Home screen.
           </p>
 
-          <div
-            className="install-page__store-badge install-page__store-badge--disabled"
-            aria-label="Google Play app coming soon"
+          <a
+            href={GOOGLE_PLAY_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="install-page__store-badge"
+            aria-label="Get TriggerFeed on Google Play"
           >
             <Image
               src={GOOGLE_PLAY_TILE}
-              alt=""
+              alt="Get TriggerFeed on Google Play"
               width={180}
               height={54}
               sizes="180px"
-              aria-hidden="true"
             />
+          </a>
 
-            <span>Coming soon</span>
+          <div className="install-page__instructions">
+            <h3>Add TriggerFeed to your Android Home screen</h3>
+
+            <ol>
+              <li>
+                Open{" "}
+                <a href={APP_URL} target="_blank" rel="noreferrer">
+                  TriggerFeed.com
+                </a>{" "}
+                in Chrome.
+              </li>
+              <li>
+                Tap the <strong>three-dot menu</strong> in the upper-right
+                corner.
+              </li>
+              <li>
+                Tap <strong>Add to Home screen</strong> or{" "}
+                <strong>Install app</strong>.
+              </li>
+              <li>Confirm the installation.</li>
+            </ol>
+
+            <p>
+              TriggerFeed will appear on your Home screen and can be opened like
+              a regular app.
+            </p>
           </div>
         </section>
 
         <section className="install-page__panel tf-page__content--ghost">
-          <h2>iPhone & iPad (iOS)</h2>
+          <h2>iPhone &amp; iPad (iOS)</h2>
+
           <Image
             src={IOS_TILE}
-            alt="TriggerFeed for iOS coming soon"
-            className=""
+            alt="TriggerFeed for iOS"
             width={180}
             height={54}
             sizes="180px"
           />
-          <p className="install-page__soon">iOS App Store version someday.</p>
+
+          <p className="install-page__soon">
+            The native iOS app is still coming later, but you can install
+            TriggerFeed on your Home screen today.
+          </p>
+
+          <div className="install-page__instructions">
+            <h3>Add TriggerFeed to your iPhone or iPad</h3>
+
+            <ol>
+              <li>
+                Open{" "}
+                <a href={APP_URL} target="_blank" rel="noreferrer">
+                  TriggerFeed.com
+                </a>{" "}
+                in <strong>Safari</strong>.
+              </li>
+              <li>
+                Tap the <strong>Share</strong> button.
+              </li>
+              <li>
+                Scroll down and tap <strong>Add to Home Screen</strong>.
+              </li>
+              <li>
+                Tap <strong>Add</strong>.
+              </li>
+            </ol>
+
+            <p>
+              TriggerFeed will appear on your Home screen and launch like an
+              app.
+            </p>
+          </div>
         </section>
       </div>
 
