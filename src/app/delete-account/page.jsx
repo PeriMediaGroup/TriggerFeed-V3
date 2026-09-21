@@ -1,5 +1,12 @@
 import Link from "next/link";
 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 export default function DeleteAccountPage() {
   return (
     <main className="tf-page__content account-delete-page">
