@@ -1,0 +1,17 @@
+.feed-ad {
+  border: 1px solid var(--color-border); border-radius: 1rem; overflow: hidden; margin: 1rem 0; background: var(--color-surface);
+  &__disclosure { padding: .75rem 1rem; margin: 0; color: var(--color-text-muted); font-size: .8rem; font-weight: 700; }
+  &__image { display: block; width: 100%; max-height: 350px; object-fit: contain; }
+  &__content { padding: 1rem; h2 { font-size: 1.25rem; } p { white-space: pre-wrap; } }
+  &__cta { display: inline-block; border: 1px solid var(--color-accent); border-radius: .5rem; padding: .7rem 1rem; color: var(--color-text); text-decoration: none; font-weight: 700; }
+}
+.admin-ads {
+  &__summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  &__metric, &__campaign, &__editor { padding: 1rem; border: 1px solid var(--color-border); border-radius: .75rem; margin-bottom: 1rem; }
+  &__metric strong { display: block; font-size: 1.5rem; }
+  &__grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1rem; }
+  label { display: grid; gap: .35rem; } input, select, textarea { width: 100%; padding: .6rem; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: .4rem; }
+  &__actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  button { padding: .6rem 1rem; border: 1px solid var(--color-border); border-radius: .4rem; color: var(--color-text); background: var(--color-surface); cursor: pointer; }
+  button:disabled { opacity: .5; cursor: wait; }
+}

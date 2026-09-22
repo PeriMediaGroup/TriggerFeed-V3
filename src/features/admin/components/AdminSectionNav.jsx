@@ -11,6 +11,7 @@ const ADMIN_SECTION_LINKS = [
     badge: "reports",
   },
   { href: "/admin/users", label: "Users", section: "users" },
+  { href: "/admin/ads", label: "Ads", section: "ads" },
   { href: "/admin/marketing", label: "Marketing", section: "marketing" },
 ];
 

@@ -1,3 +1,4 @@
+import { FeedAdsProvider } from "@/features/ads/FeedAds";
 import FeedTabs from "./FeedTabs";
 import { getPosts } from "@/features/posts/data/getPosts";
 import PostFeed from "@/features/posts/components/PostFeed";
@@ -88,11 +89,14 @@ export default async function FeedPage({ feedType = "main" }) {
         </div>
       ) : null}
 
+      <FeedAdsProvider key={activeFeed} postCount={posts.length}>
       <PostFeed
+        showAds
         posts={posts}
         commentsByPostId={commentsByPostId}
         currentUserId={currentUserId}
       />
+      </FeedAdsProvider>
     </section>
   );
 }

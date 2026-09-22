@@ -1,3 +1,5 @@
+import { Fragment } from "react";
+import { FeedAdSlot } from "@/features/ads/FeedAds";
 // src/features/posts/components/PostFeed.jsx
 
 import PostCard from "./PostCard";
@@ -6,6 +8,7 @@ import CommentForm from "@/features/comments/components/CommentForm";
 
 export default function PostFeed({
   posts,
+  showAds = false,
   commentsByPostId = {},
   currentUserId = null,
 }) {
@@ -15,12 +18,12 @@ export default function PostFeed({
 
   return (
     <div className="post-feed">
-      {posts.map((post) => {
+      {posts.map((post, index) => {
         const comments = commentsByPostId[post.id] || [];
 
         return (
+          <Fragment key={post.id}>
           <PostCard
-            key={post.id}
             post={post}
             currentUserId={currentUserId}
           >
@@ -35,6 +38,8 @@ export default function PostFeed({
               isLoggedIn={Boolean(currentUserId)}
             />
           </PostCard>
+          {showAds ? <FeedAdSlot after={index + 1} /> : null}
+          </Fragment>
         );
       })}
     </div>
