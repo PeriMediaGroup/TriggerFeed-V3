@@ -396,3 +396,15 @@
     }
   }
 }
+
+.profile-header--organization .profile-header__avatar { border-radius: 1rem; }
+.profile-header--creator .profile-header__type-summary,
+.profile-header--organization .profile-header__type-summary { border-left: 3px solid var(--color-accent); padding-left: 1rem; }
+.profile-follows {
+  margin: 1rem 0;
+  &__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+  button, a { padding: .65rem 1rem; border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-surface); color: var(--color-text); cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  button[aria-pressed="true"] { border-color: var(--color-accent); }
+  &__list { margin-top: 1rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: .5rem; }
+}

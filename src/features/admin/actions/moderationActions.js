@@ -541,11 +541,10 @@ export async function awardVerifiedBadge({ targetUserId }) {
   }
 
   return callModerationRpc(
-    "award_user_badge",
+    "set_profile_verification",
     {
       p_user_id: targetUserId,
-      p_badge_slug: "verified",
-      p_metadata: {},
+      p_verified: true,
     },
     "Verified badge awarded.",
     "Could not award Verified.",
@@ -558,10 +557,10 @@ export async function revokeVerifiedBadge({ targetUserId }) {
   }
 
   return callModerationRpc(
-    "revoke_user_badge",
+    "set_profile_verification",
     {
       p_user_id: targetUserId,
-      p_badge_slug: "verified",
+      p_verified: false,
     },
     "Verified badge revoked.",
     "Could not revoke Verified.",

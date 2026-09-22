@@ -13,6 +13,8 @@ function getDisplayName(user) {
 }
 
 export default function FriendsList({
+  title = "My Friends",
+  emptyMessage = "No friends yet.",
   friends = [],
   selectedTopFriendIds = [],
   onAddTopFriend,
@@ -21,7 +23,7 @@ export default function FriendsList({
 
   return (
     <section className="friends-list">
-      <h2>My Friends</h2>
+      <h2>{title}</h2>
 
       {friends.length ? (
         <ul className="friends-list__items">
@@ -41,6 +43,7 @@ export default function FriendsList({
                   >
                     <span>{displayName}</span>
                     {user.username && <small>@{user.username}</small>}
+                    {["creator", "organization"].includes(user.profile_type) && <small>{user.profile_type === "creator" ? "Creator" : "Organization"}</small>}
                   </Link>
                 ) : (
                   <span className="friends-list__link">{displayName}</span>
@@ -51,20 +54,20 @@ export default function FriendsList({
                   className="friends-list__founding-badge"
                 />
 
-                <button
+                {onAddTopFriend && <button
                   type="button"
                   className="friends-list__top-button"
                   disabled={!user?.id || isSelected || topFriendsFull}
                   onClick={() => onAddTopFriend?.(user.id)}
                 >
                   {isSelected ? "Top" : topFriendsFull ? "Full" : "+ Top"}
-                </button>
+                </button>}
               </li>
             );
           })}
         </ul>
       ) : (
-        <p className="friends-list__empty">No friends yet.</p>
+        <p className="friends-list__empty">{emptyMessage}</p>
       )}
     </section>
   );

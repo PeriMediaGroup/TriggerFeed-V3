@@ -11,7 +11,7 @@ import {
 } from "@/features/ranks/data/getUserRank";
 import { acknowledgeRankMilestone } from "@/features/ranks/actions/acknowledgeRankMilestone";
 
-const VALID_FEEDS = ["main", "friends", "trending"];
+const VALID_FEEDS = ["main", "friends", "following", "trending"];
 
 function getTodayKey() {
   return new Date().toISOString().slice(0, 10);

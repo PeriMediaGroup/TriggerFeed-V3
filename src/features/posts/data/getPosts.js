@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getMentionProfilesForText } from "@/features/mentions/data/getMentionProfilesForText";
-import { getCommentsByPostId } from "@/features/comments/queries";
+import { getCommentsByPostIds } from "@/features/comments/queries";
 import { normalizePostMedia } from "@/features/media/normalizePostMedia";
 import { sortTrendingPosts } from "@/features/posts/data/trendingPosts";
 import { richPostHtmlToPlainText } from "@/features/posts/lib/richText";
@@ -98,6 +98,8 @@ function buildPostsQuery({
   supabase,
   feedType,
   allowedUserIds,
+  followingPostIds,
+  profileId,
   postLimit,
   selectColumns = POST_SELECT,
 }) {
@@ -107,11 +109,14 @@ function buildPostsQuery({
     .eq("is_deleted", false)
     .eq("visibility", "public");
 
+  if (profileId) query = query.eq("user_id", profileId);
+  if (feedType === "following") query = query.in("id", followingPostIds);
+
   if (feedType === "friends" && allowedUserIds?.length) {
     query = query.in("user_id", allowedUserIds);
   }
 
-  if (feedType === "main" || feedType === "friends") {
+  if (feedType === "main" || feedType === "friends" || feedType === "following") {
     query = query
       .order("is_sticky", { ascending: false })
       .order("sticky_at", { ascending: false, nullsFirst: false });
@@ -172,7 +177,7 @@ async function searchPostsWithOptionalSlug({
   });
 }
 
-export async function getPosts({ feedType = "main" } = {}) {
+export async function getPosts({ feedType = "main", profileId = null } = {}) {
   const supabase = await createClient();
 
   const {
@@ -181,14 +186,19 @@ export async function getPosts({ feedType = "main" } = {}) {
 
   const currentUserId = user?.id ?? null;
 
-  if (feedType === "friends" && !currentUserId) {
+  if (["friends", "following"].includes(feedType) && !currentUserId) {
     return {
       posts: [],
       commentsByPostId: {},
       currentUserId,
-      message: "Log in to see posts from friends.",
+      message: "Log in to see posts from your connections.",
       error: null,
     };
+  }
+
+  if (profileId) {
+    const { data, error } = await supabase.rpc("is_follow_profile_available", { p_profile_id: profileId });
+    if (error || !data) return { posts: [], commentsByPostId: {}, currentUserId, message: error ? "Could not load profile content." : "Profile content unavailable.", error };
   }
 
   let message = "";
@@ -223,13 +233,25 @@ export async function getPosts({ feedType = "main" } = {}) {
     }
   }
 
+  let followingPostIds = null;
+  if (feedType === "following") {
+    const { data, error } = await supabase.rpc("get_following_post_ids", { p_limit: FEED_POST_LIMIT });
+    followingPostIds = (data || []).map((row) => row.id);
+    if (error || !followingPostIds.length) return {
+      posts: [], commentsByPostId: {}, currentUserId, error,
+      message: error ? "Could not load your Following feed." : "Follow creators and organizations to see their posts here.",
+    };
+  }
+
   const postLimit =
-    feedType === "trending" ? TRENDING_CANDIDATE_LIMIT : FEED_POST_LIMIT;
+    profileId ? 20 : feedType === "trending" ? TRENDING_CANDIDATE_LIMIT : FEED_POST_LIMIT;
 
   const { data: posts, error: postsError } = await fetchPostsWithOptionalSlug({
     supabase,
     feedType,
     allowedUserIds,
+    followingPostIds,
+    profileId,
     postLimit,
   });
 
@@ -490,13 +512,14 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
     myPollResponses.map((response) => [response.poll_id, response.option_id])
   );
 
+  const mentionProfiles = await getMentionProfilesForText(
+    safePosts.map((post) => `${post.title || ""} ${richPostHtmlToPlainText(post.body || "")}`).join("\n")
+  );
+
   const postsWithAuthors = await Promise.all(
     safePosts.map(async (post) => {
       const voteCountsForPost = voteCountMap.get(post.id);
 
-      const mentionProfiles = await getMentionProfilesForText(
-        `${post.title || ""} ${richPostHtmlToPlainText(post.body || "")}`
-      );
 
       return {
         ...post,
@@ -523,21 +546,11 @@ async function hydratePosts({ supabase, posts, currentUserId }) {
   // -----------------------------
   // Inline comments for feed toggle
   // -----------------------------
-  const commentResults = await Promise.all(
-    postsWithAuthors.map(async (post) => {
-      const { comments: postComments } = await getCommentsByPostId(post.id);
-
-      return {
-        postId: post.id,
-        comments: postComments || [],
-      };
-    })
-  );
-
-  const commentsByPostId = commentResults.reduce((grouped, result) => {
-    grouped[result.postId] = result.comments;
-    return grouped;
-  }, {});
+  const { comments: feedComments } = await getCommentsByPostIds(postIds);
+  const commentsByPostId = {};
+  for (const comment of feedComments) {
+    (commentsByPostId[comment.post_id] ||= []).push(comment);
+  }
 
   return {
     posts: postsWithAuthors,

@@ -2,7 +2,7 @@ import FeedPage from "@/features/feed/components/FeedPage";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-const VALID_FEEDS = ["main", "friends", "trending"];
+const VALID_FEEDS = ["main", "friends", "following", "trending"];
 
 export default async function FeedRoute({ searchParams }) {
   const supabase = await createClient();

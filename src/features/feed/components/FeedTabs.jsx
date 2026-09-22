@@ -11,6 +11,7 @@ const tabs = [
     label: "Friends",
     href: "/?feed=friends",
   },
+  { key: "following", label: "Following", href: "/?feed=following" },
   {
     key: "trending",
     label: "Trending",

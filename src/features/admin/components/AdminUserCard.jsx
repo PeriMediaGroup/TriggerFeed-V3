@@ -106,7 +106,7 @@ function getProfileTypeLabel(type) {
 }
 
 function hasVerifiedBadge(user) {
-  return (user.badges || []).some((badge) => badge?.badge_slug === "verified");
+  return (user.badges || []).some((badge) => badge?.badge_slug === `verified-${user.profile_type}`);
 }
 
 export default function AdminUserCard({ user, currentUserId, permissions }) {
@@ -553,7 +553,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
                     (!verified && !["creator", "organization"].includes(profileType))
                   }
                 >
-                  {verified ? "Revoke Verified" : "Award Verified"}
+                  {verified ? "Revoke Verification" : `Verify ${profileType === "organization" ? "Organization" : "Creator"}`}
                 </button>
               </div>
             ) : null}

@@ -1,3 +1,4 @@
+import ProfileFollows from "@/features/profiles/components/ProfileFollows";
 // src/features/profiles/components/ProfileHeader.jsx
 
 import Link from "next/link";
@@ -85,7 +86,7 @@ export default function ProfileHeader({
   const verified = hasVerifiedBadge(profile);
 
   return (
-    <section className="profile-header">
+    <section className={`profile-header${["creator", "organization"].includes(profile?.profile_type) ? ` profile-header--${profile.profile_type}` : ""}`}>
       <div className="profile-header__banner">
         {bannerUrl ? (
           <Image
@@ -121,7 +122,7 @@ export default function ProfileHeader({
             <div className="profile-header__row profile-header__row--identity">
               <div className="profile-header__title-group">
                 <h1 className="profile-header__display-name">{displayName}</h1>
-                {verified ? <VerifiedIdentityBadge /> : null}
+                {verified ? <VerifiedIdentityBadge profileType={profile?.profile_type} /> : null}
                 <span className="profile-header__username">@{username}</span>
               </div>
 
@@ -191,10 +192,11 @@ export default function ProfileHeader({
         </div>
 
         <ProfileTypeDetails profile={profile} />
+        {["creator", "organization"].includes(profile?.profile_type) && <ProfileFollows key={profile.id} profileId={profile.id} />}
 
         {profile?.bio && (
           <div className="profile-header__notes">
-            <h2 className="profile-header__notes-title">Field Notes</h2>
+            <h2 className="profile-header__notes-title">{profile?.profile_type === "organization" ? "About the organization" : profile?.profile_type === "creator" ? "About the creator" : "Field Notes"}</h2>
             <p className="profile-header__notes-text">{profile.bio}</p>
           </div>
         )}
