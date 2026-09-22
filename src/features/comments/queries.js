@@ -37,7 +37,11 @@ function logSupabaseError(label, error) {
 }
 
 export async function getCommentsByPostId(postId) {
-  if (!postId) {
+  return getCommentsByPostIds(postId ? [postId] : []);
+}
+
+export async function getCommentsByPostIds(postIds) {
+  if (!postIds?.length) {
     return {
       comments: [],
       error: "Missing post id",
@@ -46,7 +50,10 @@ export async function getCommentsByPostId(postId) {
 
   const supabase = await createClient();
 
-  const { data: comments, error: commentsError } = await supabase
+  const comments = [];
+  let commentsError = null;
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await supabase
     .from("comments")
     .select(
       `
@@ -61,9 +68,16 @@ export async function getCommentsByPostId(postId) {
     updated_at
     `,
     )
-    .eq("post_id", postId)
+    .in("post_id", postIds)
     .eq("is_deleted", false)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true })
+    .range(offset, offset + 999);
+
+    if (error) { commentsError = error; break; }
+    comments.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
 
   if (commentsError) {
     logSupabaseError("Error fetching comments:", commentsError);
@@ -83,12 +97,15 @@ export async function getCommentsByPostId(postId) {
 
   const userIds = [...new Set(comments.map((comment) => comment.user_id))];
 
-  const { data: profiles, error: profilesError } = await supabase.rpc(
-    "get_public_profile_cards",
-    {
-      p_profile_ids: userIds,
-    },
+  const authorResults = await Promise.all(
+    Array.from({ length: Math.ceil(userIds.length / 500) }, (_, index) =>
+      supabase.rpc("get_public_profile_cards", {
+        p_profile_ids: userIds.slice(index * 500, (index + 1) * 500),
+      })
+    )
   );
+  const profilesError = authorResults.find((result) => result.error)?.error;
+  const profiles = authorResults.flatMap((result) => result.data || []);
 
   if (profilesError) {
     logSupabaseError("Error fetching comment authors:", profilesError);

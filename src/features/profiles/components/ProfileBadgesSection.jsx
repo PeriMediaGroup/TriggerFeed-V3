@@ -1,3 +1,4 @@
+import { safeProfileUrl } from "@/features/profiles/lib/profileLinks";
 import FoundingMemberBadge from "@/features/profiles/components/FoundingMemberBadge";
 
 function isFoundingBadge(badge) {
@@ -46,9 +47,11 @@ function GenericBadge({ badge }) {
     .filter(Boolean)
     .join(" ");
 
-  if (badge.target_url) {
+  const targetUrl = typeof badge.target_url === "string" && /^\/(?![\/\\])/.test(badge.target_url)
+    ? badge.target_url : safeProfileUrl(badge.target_url);
+  if (targetUrl) {
     return (
-      <a href={badge.target_url} className={classes}>
+      <a href={targetUrl} className={classes}>
         {content}
       </a>
     );

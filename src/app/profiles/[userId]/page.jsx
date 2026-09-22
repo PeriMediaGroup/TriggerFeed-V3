@@ -1,3 +1,4 @@
+import ProfilePosts from "@/features/profiles/components/ProfilePosts";
 import { notFound } from "next/navigation";
 
 import { getProfileById } from "@/features/profiles/data/getProfileById";
@@ -41,6 +42,7 @@ export default async function PublicProfilePage({ params }) {
         stats={stats}
         isCurrentUser={false}
       />
+      <ProfilePosts profile={profile} />
 
       <ProfileFriendAction
         profileUserId={profile.id}

@@ -198,7 +198,7 @@ begin
     raise exception 'system account should not receive Founding Member number';
   exception
     when raise_exception then
-      if sqlerrm <> 'Only user accounts can receive Founding Member numbers' then
+      if sqlerrm <> 'Only member or creator user accounts can receive Founding Member numbers' then
         raise;
       end if;
   end;

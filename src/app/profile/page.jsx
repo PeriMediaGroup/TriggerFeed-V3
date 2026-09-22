@@ -1,3 +1,4 @@
+import ProfilePosts from "@/features/profiles/components/ProfilePosts";
 // src/app/profile/page.jsx
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -176,6 +177,7 @@ export default async function ProfilePage() {
         isCurrentUser
         unreadNotifications={unreadNotifications ?? 0}
       />
+      <ProfilePosts profile={profile} />
 
       <UserRankCard rank={rank} />
 
