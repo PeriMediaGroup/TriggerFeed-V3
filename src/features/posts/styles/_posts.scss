@@ -53,6 +53,7 @@
   &__header-name {
     display: grid;
     min-width: 0;
+    overflow-wrap: anywhere;
     gap: 0.1rem;
   }
 
@@ -76,7 +77,7 @@
   }
 
   &__author-username {
-    color: var(--color-accent);
+    color: var(--color-text-accent);
     font-size: var(--font-size-sm);
     line-height: 1.2;
     text-decoration: none;
@@ -159,7 +160,7 @@
 
   &__full-post-link {
     width: fit-content;
-    color: var(--color-accent);
+    color: var(--color-text-accent);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-bold);
     text-decoration: none;
@@ -260,7 +261,7 @@
   }
 
   &__detail-link {
-    color: var(--color-accent);
+    color: var(--color-text-accent);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-bold);
     text-decoration: none;
@@ -270,10 +271,17 @@
 }
 
 .rich-post-content {
+  min-width: 0;
   overflow-wrap: anywhere;
   word-break: break-word;
 
   @include mixins.rich-text-flow;
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
 
   strong {
     font-weight: 800;
@@ -284,7 +292,7 @@
   }
 
   a {
-    color: var(--color-accent);
+    color: var(--color-text-accent);
     overflow-wrap: anywhere;
     @include links.inline-decoration(0.14em);
 
@@ -393,6 +401,8 @@
     position: relative;
     z-index: 1;
     width: min(100%, 32rem);
+    max-width: calc(100% - (2 * var(--space-md)) - 2px);
+    min-width: 0;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     background: var(--color-surface);
@@ -435,6 +445,8 @@
   }
 
   &__input {
+    box-sizing: border-box;
+    min-width: 0;
     width: 100%;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -446,6 +458,7 @@
 
   &__actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: var(--space-compact);
     margin-top: var(--space-md);

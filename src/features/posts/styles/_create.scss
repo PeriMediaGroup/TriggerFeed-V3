@@ -49,14 +49,13 @@
 
   input::placeholder,
   textarea::placeholder {
-    color: color-mix(in srgb, var(--color-text-muted), transparent 50%);
+    color: var(--color-text-placeholder);
   }
 
   input:focus,
   textarea:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px
-      color-mix(in srgb, var(--color-accent), transparent 72%);
+    box-shadow: 0 0 0 3px var(--color-text-accent);
   }
 
   button {
@@ -524,7 +523,7 @@
       var(--color-accent),
       transparent 86%
     );
-    color: var(--color-accent);
+    color: var(--color-text-accent);
   }
 
   &__button:hover:not(:disabled),
@@ -559,7 +558,7 @@
     @include mixins.rich-text-flow;
 
     a {
-      color: var(--color-accent);
+      color: var(--color-text-accent);
       overflow-wrap: anywhere;
     }
   }
@@ -581,7 +580,7 @@
 .post-composer.edit-post .rich-text-editor__button--active,
 .post-composer.edit-post .rich-text-editor__button[aria-pressed="true"] {
   background: color-mix(in srgb, var(--color-accent), transparent 86%);
-  color: var(--color-accent);
+  color: var(--color-text-accent);
 }
 
 .create-post .rich-text-editor__button:hover:not(:disabled),

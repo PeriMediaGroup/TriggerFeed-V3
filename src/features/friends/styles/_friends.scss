@@ -109,7 +109,7 @@
     border-radius: var(--radius-pill);
     font-weight: var(--font-weight-bold);
     background: var(--color-accent-muted, rgba(178, 34, 34, 0.2));
-    color: var(--color-accent, #b22222);
+    color: var(--color-text-accent);
   }
 
   &__selected-name {
@@ -194,7 +194,7 @@
     }
 
     &:hover {
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
   }
 
@@ -290,7 +290,7 @@
     }
 
     &:hover {
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
   }
 
@@ -424,13 +424,12 @@
     outline: none;
 
     &::placeholder {
-      color: var(--color-text-muted, #9ca3af);
+      color: var(--color-text-placeholder);
     }
 
     &:focus {
       border-color: var(--color-accent, #b22222);
-      box-shadow: 0 0 0 3px
-        color-mix(in srgb, var(--color-accent, #b22222) 25%, transparent);
+      box-shadow: 0 0 0 3px var(--color-text-accent);
     }
   }
 
@@ -561,7 +560,7 @@
 
     &:hover,
     &:focus-visible {
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
   }
 
@@ -609,7 +608,7 @@
   }
 
   &__error {
-    color: var(--color-danger, #ef4444);
+    color: var(--color-text-accent);
   }
 }
 

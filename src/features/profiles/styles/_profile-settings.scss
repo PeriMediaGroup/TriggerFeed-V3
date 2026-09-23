@@ -197,7 +197,7 @@
       width: 18px;
       height: 18px;
       border-radius: var(--radius-pill);
-      background: var(--color-surface);
+      background: var(--color-text);
       transition: transform var(--transition-base) var(--ease-standard);
     }
   }
@@ -337,7 +337,7 @@
   }
 
   &__status--error {
-    color: var(--color-accent);
+    color: var(--color-text-accent);
   }
 
   &__status--success {

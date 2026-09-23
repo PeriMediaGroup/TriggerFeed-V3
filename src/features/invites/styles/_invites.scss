@@ -61,6 +61,7 @@
     }
 
     input {
+      box-sizing: border-box;
       width: 100%;
       min-width: 0;
       border: 1px solid var(--color-border);
@@ -135,7 +136,7 @@
     }
 
     &__action {
-      width: 100%;
+      width: auto;
     }
   }
 }

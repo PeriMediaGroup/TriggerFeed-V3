@@ -95,7 +95,7 @@
 
     &:hover {
       border-color: var(--color-accent);
-      color: var(--color-accent);
+      color: var(--color-text-accent);
       background: rgba(255, 255, 255, 0.08);
       transform: translateY(-1px);
     }
@@ -159,14 +159,13 @@
         background var(--transition-base) var(--ease-standard);
 
       &::placeholder {
-        color: var(--color-text-muted);
+        color: var(--color-text-placeholder);
       }
 
       &:focus {
         border-color: var(--color-accent);
         background: rgba(0, 0, 0, 0.32);
-        box-shadow: 0 0 0 3px
-          color-mix(in srgb, var(--color-accent) 24%, transparent);
+        box-shadow: 0 0 0 3px var(--color-text-accent);
       }
     }
 
@@ -190,7 +189,7 @@
 
   &__error {
     margin: var(--space-xs) 0 0;
-    color: var(--color-danger, #ef4444);
+    color: var(--color-text-accent);
     font-size: 0.9rem;
     font-weight: var(--font-weight-bold);
   }

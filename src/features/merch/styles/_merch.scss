@@ -5,6 +5,7 @@
 }
 
 .merch-section {
+  box-sizing: border-box;
   width: min(100%, 1120px);
   margin-inline: auto;
 
@@ -15,7 +16,7 @@
 
   &__eyebrow {
     margin: 0 0 var(--space-sm);
-    color: var(--color-accent);
+    color: var(--color-text-accent);
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -219,15 +220,18 @@
     background: var(--color-surface-soft, rgba(255, 255, 255, 0.05));
     font-size: 0.84rem;
     font-weight: 850;
-    &:hover {
+    &--available:hover,
+    &--available:focus-visible {
       background: var(--color-accent);
+      color: var(--color-on-accent);
     }
 
     &--sold-out {
       position: relative;
       color: var(--color-text-muted);
       background: transparent;
-      opacity: 0.52;
+      // The strike-through identifies unavailable sizes without fading the label.
+      opacity: 1;
 
       &::after {
         content: "";
@@ -269,8 +273,7 @@
     }
 
     &:focus-visible {
-      outline: 3px solid
-        color-mix(in srgb, var(--color-accent), transparent 55%);
+      outline: 3px solid var(--color-text-accent);
       outline-offset: 3px;
     }
 
@@ -314,7 +317,8 @@
     }
 
     &__button {
-      width: 100%;
+      // Stretch within the content column, including padding and border.
+      width: auto;
     }
   }
 }

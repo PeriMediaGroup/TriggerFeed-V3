@@ -61,8 +61,7 @@ describe("external acquisition tracker", () => {
     "/friends?source=triggerfeed&campaign=plain-name",
     "/profile?source=psa&campaign=business-card&utm_medium=in-feed-ad",
     "/merch?source=TriggerFeed&campaign=anything",
-    "/merch?source=psa&utm_medium=in-feed-advertisement&campaign=business-card",
-  ].slice(0, 4))("does not record or store internal ad URL %s", async (url) => {
+  ])("does not record or store internal ad URL %s", async (url) => {
     await visit(url);
     expect(mocks.rpc).not.toHaveBeenCalled();
     expect(readStoredAttribution()).toBeNull();

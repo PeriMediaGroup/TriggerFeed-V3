@@ -11,7 +11,7 @@
     font-weight: 650;
     text-decoration: none;
     svg {
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
       background: transparent;
     }
   }
@@ -156,7 +156,7 @@
 
     svg {
       flex: 0 0 auto;
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
   }
 
@@ -180,7 +180,7 @@
 
     svg {
       flex: 0 0 auto;
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
 
     &:hover {
@@ -202,7 +202,7 @@
 
     svg {
       flex: 0 0 auto;
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
 
     &--empty {
@@ -267,7 +267,7 @@
 
     svg {
       flex: 0 0 auto;
-      color: var(--color-accent, #b22222);
+      color: var(--color-text-accent);
     }
   }
 

@@ -360,12 +360,12 @@
 }
 
 .app-right-rail__search-input::placeholder {
-  color: color-mix(in srgb, var(--color-text-muted), transparent 45%);
+  color: var(--color-text-placeholder);
 }
 
 .app-right-rail__search-input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent), transparent 75%);
+  box-shadow: 0 0 0 3px var(--color-text-accent);
 }
 
 .app-right-rail__promo {
@@ -436,7 +436,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  color: var(--color-accent);
+  color: var(--color-text-accent);
   font-size: var(--font-size-sm);
   line-height: 1.2;
   text-decoration: none;

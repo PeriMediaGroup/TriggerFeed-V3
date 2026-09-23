@@ -5,7 +5,7 @@
 
 .about__section-kicker {
   margin: 0;
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
   font-size: var(--font-size-xs);
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -20,7 +20,7 @@
 
 .about__intro svg {
   flex: 0 0 auto;
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
 }
 
 .about__story,
@@ -117,7 +117,7 @@
     var(--color-accent, #b22222) 16%,
     transparent
   );
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
 }
 
 .about__belief-card h3 {
@@ -194,7 +194,7 @@
 }
 
 .about__identity-card--is li svg {
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
 }
 
 .about__identity-card--not li svg {
@@ -217,7 +217,7 @@
 .about__closing > svg {
   flex: 0 0 auto;
   margin-top: 0.15rem;
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
 }
 
 .about__closing h2 {

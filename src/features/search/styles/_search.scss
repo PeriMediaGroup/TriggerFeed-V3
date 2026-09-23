@@ -44,5 +44,5 @@
 .app-header__search-input:focus {
   border-color: var(--color-accent);
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent), transparent 75%);
+  box-shadow: 0 0 0 3px var(--color-text-accent);
 }

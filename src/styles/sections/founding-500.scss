@@ -34,7 +34,7 @@
     var(--color-accent, #b22222) 12%,
     transparent
   );
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
 }
 
 .founding-500__intro-copy {
@@ -45,7 +45,7 @@
 
 .founding-500__eyebrow {
   margin: 0;
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
   font-size: var(--font-size-xs);
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -132,7 +132,7 @@
     var(--color-accent, #b22222) 9%,
     transparent
   );
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
   font-size: 0.92rem;
   font-weight: 900;
   line-height: 1;
@@ -177,7 +177,7 @@
 
 a.founding-500__name:hover,
 a.founding-500__name:focus-visible {
-  color: var(--color-accent, #b22222);
+  color: var(--color-text-accent);
 }
 
 .founding-500__username {

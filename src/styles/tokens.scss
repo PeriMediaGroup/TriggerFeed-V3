@@ -5,11 +5,15 @@
   --color-surface-soft: #344047;
   --color-text: #f5f5f5;
   --color-text-muted: #a9a9a9;
+  --color-text-placeholder: #b8b8b8;
   --color-accent: #b22222;
+  // Accessible foreground on dark surfaces; brand fills retain --color-accent.
+  --color-text-accent: #ff8585;
+  --color-on-accent: var(--color-white);
   --color-border: rgba(255, 255, 255, 0.12);
   --color-white: #fff;
 
-  --color-surface-hover: var(--color-text-muted);
+  --color-surface-hover: #303b41;
   --color-danger-soft: rgba(178, 34, 34, 0.14);
 
   --font-brand: "Black Ops One", system-ui, sans-serif;

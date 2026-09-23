@@ -121,12 +121,12 @@
 }
 
 .app-nav__search-input::placeholder {
-  color: color-mix(in srgb, var(--color-text-muted, #9ca3af), transparent 20%);
+  color: var(--color-text-placeholder);
 }
 
 .app-nav__search-input:focus {
   border-color: var(--color-accent, #b22222);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #b22222) 25%, transparent);
+  box-shadow: 0 0 0 3px var(--color-text-accent);
 }
 
 .app-nav__search-submit {
@@ -233,7 +233,7 @@
 }
 
 .bottom-nav__link--active {
-  color: var(--color-accent, #ff2a2a);
+  color: var(--color-text-accent);
 }
 
 .bottom-nav__link--primary {

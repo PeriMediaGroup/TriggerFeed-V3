@@ -1,4 +1,5 @@
 @use "../../../styles/components/links";
+@use "../../../styles/breakpoints";
 
 // =========================================================
 // TriggerFeed Auth Flow Styles
@@ -89,7 +90,7 @@
 
 .welcome-gate__eyebrow {
   margin: 0;
-  color: var(--auth-accent);
+  color: var(--color-text-accent);
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -188,7 +189,7 @@
 .auth-check-email__eyebrow,
 .auth-onboarding__eyebrow {
   margin: 0;
-  color: var(--auth-accent);
+  color: var(--color-text-accent);
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -265,7 +266,7 @@
     background-color var(--transition-base) var(--ease-standard);
 
   &::placeholder {
-    color: color-mix(in srgb, var(--auth-text-muted) 70%, transparent);
+    color: var(--color-text-placeholder);
   }
 
   &:hover {
@@ -279,7 +280,7 @@
   &:focus,
   &:focus-visible {
     border-color: var(--auth-accent);
-    outline: 2px solid color-mix(in srgb, var(--auth-accent) 35%, transparent);
+    outline: 2px solid var(--color-text-accent);
     outline-offset: 2px;
   }
 }
@@ -316,7 +317,7 @@
 .auth-reset-password__footer a,
 .auth-check-email__link,
 .auth-onboarding__secondary-link {
-  color: var(--color-link, var(--auth-accent));
+  color: var(--color-link, var(--color-text-accent));
   font-weight: 800;
   text-decoration: none;
   text-underline-offset: 0.2em;
@@ -384,8 +385,37 @@
   font-size: 0.9rem;
 
   a {
+    color: var(--color-text-accent);
     font-weight: 600;
     text-decoration: underline;
+  }
+}
+
+.signup-form__alternate a {
+  color: var(--color-text-accent);
+  @include links.inline-decoration;
+}
+
+// Include padding in constrained cards without changing desktop card dimensions.
+@media (max-width: breakpoints.$tablet) {
+  .signup-form,
+  .auth-login__card,
+  .auth-forgot-password__card,
+  .auth-reset-password__card,
+  .auth-check-email__card,
+  .auth-onboarding__card,
+  .onboarding-complete,
+  .welcome-gate__card {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .signup-form__input,
+  .auth-login__input,
+  .auth-forgot-password__input,
+  .auth-reset-password__input,
+  .auth-onboarding__input {
+    min-width: 0;
   }
 }
 
