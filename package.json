@@ -42,6 +42,7 @@
     "@types/react": "19.3.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "jsdom": "27.4.0",
     "supabase": "^2.98.2",
     "vitest": "^4.1.5"
   }

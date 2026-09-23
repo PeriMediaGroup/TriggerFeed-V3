@@ -12,7 +12,7 @@ export const merchProducts = [
         },
         description:
             "Set of 3, classic TriggerFeed stickers for your safe, range bag, toolbox, cooler, laptop, or wherever.",
-        inventoryNote: "Small batch available.",
+        inventoryNote: "No longer available.",
         options: [],
         ctaLabel: "Buy Now",
         ctaHref: "https://buy.stripe.com/5kQ14o2x84T97GW4Cq4sE07",
