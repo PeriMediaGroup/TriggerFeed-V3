@@ -4,21 +4,28 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getDeviceCategory, getOrCreateVisitorId } from "@/features/marketing/attribution";
-import { adDestination, planAdSlots } from "./adHelpers";
+import { adDestination } from "./adHelpers";
+import { createAdSession } from "./adSession";
 
 const AdContext = createContext([]);
 export function FeedAdsProvider({ postCount, children }) {
+  const [session] = useState(() => createAdSession());
   const [ads, setAds] = useState([]);
   useEffect(() => {
-    if (postCount < 6) return;
     let active = true;
     const platform = (["mobile", "tablet"].includes(getDeviceCategory(navigator.userAgent)) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) ? "web_mobile" : "web_desktop";
-    createClient().rpc("get_feed_ads", {
-      p_platform: platform, p_placement: "feed", p_limit: Math.min(8, Math.floor(postCount / 6)), p_visitor_id: getOrCreateVisitorId(),
-    }).then(({ data, error }) => { if (active && !error) setAds(data || []); }).catch(() => {});
+    const client = createClient();
+    session.fill(postCount, async (count, previousCampaignId) => {
+      const { data, error } = await client.rpc("get_feed_ads", {
+        p_platform: platform, p_placement: "feed", p_limit: count,
+        p_visitor_id: getOrCreateVisitorId(), p_previous_campaign_id: previousCampaignId,
+      });
+      // An unavailable delivery RPC must never prevent the organic feed loading.
+      return error ? [] : (data || []);
+    }, () => active).then((slots) => { if (active) setAds(slots); }).catch(() => {});
     return () => { active = false; };
-  }, [postCount]);
-  const slots = useMemo(() => planAdSlots(postCount, ads), [postCount, ads]);
+  }, [postCount, session]);
+  const slots = useMemo(() => ads.filter((slot) => slot.after <= postCount), [postCount, ads]);
   return <AdContext.Provider value={slots}>{children}</AdContext.Provider>;
 }
 

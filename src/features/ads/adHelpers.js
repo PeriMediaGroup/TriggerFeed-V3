@@ -13,10 +13,3 @@ export function adDestination(ad) {
     return url.href;
   } catch { return null; }
 }
-export function planAdSlots(postCount, ads) {
-  let after = 0;
-  return ads.flatMap((ad) => {
-    after += Math.min(8, Math.max(6, Number(ad.frequency) || 7));
-    return after <= postCount ? [{ after, ad }] : [];
-  });
-}

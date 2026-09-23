@@ -18,6 +18,12 @@ import {
   updateUserRole,
 } from "@/features/admin/actions/moderationActions";
 
+import {
+  canChangeProfileType,
+  EDITABLE_PROFILE_TYPES,
+  foundingReleaseWarning,
+} from "../profileTypeTransitions";
+
 const DEFAULT_AVATAR_URL =
   "https://res.cloudinary.com/triggerfeed/image/upload/v1759969320/profile-pics/1fc0aaa0-6994-426f-8bbc-8fc2cb5d94f7.png";
 
@@ -118,6 +124,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
   const canBan = permissions?.canBan === true;
   const canMute = permissions?.canMute === true;
   const canManageRoles = permissions?.canManageRoles === true;
+  const canManageProfileTypes = permissions?.canManageProfileTypes === true;
   const isSelf = user.id === currentUserId;
   const statusLabels = getStatusLabels(user);
   const historyCount = user.moderation_history?.length || 0;
@@ -267,6 +274,8 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
   }
 
   function handleProfileTypeChange(newProfileType) {
+    if (!canManageProfileTypes || !canChangeProfileType(user)
+      || !EDITABLE_PROFILE_TYPES.includes(newProfileType)) return;
     const existing = user.profile_metadata || {};
     const metadata = {};
 
@@ -338,7 +347,10 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
 
     if (
       !window.confirm(
-        `Change ${displayName}'s profile type to ${getProfileTypeLabel(newProfileType)}?`,
+        [
+          `Change ${displayName}'s profile type to ${getProfileTypeLabel(newProfileType)}?`,
+          foundingReleaseWarning(user, newProfileType),
+        ].filter(Boolean).join("\n\n"),
       )
     ) {
       return;
@@ -528,12 +540,12 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
               </div>
             ) : null}
 
-            {canManageRoles && !isSelf ? (
+            {canManageProfileTypes && !isSelf && canChangeProfileType(user) ? (
               <div
                 className="admin-user-card__profile-actions"
                 aria-label="Profile type actions"
               >
-                {Object.keys(PROFILE_TYPE_LABELS).map((type) => (
+                {EDITABLE_PROFILE_TYPES.map((type) => (
                   <button
                     type="button"
                     className="admin-user-card__action"
@@ -544,17 +556,19 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
                     {getProfileTypeLabel(type)}
                   </button>
                 ))}
-                <button
-                  type="button"
-                  className="admin-user-card__action"
-                  onClick={handleVerifiedToggle}
-                  disabled={
-                    isPending ||
-                    (!verified && !["creator", "organization"].includes(profileType))
-                  }
-                >
-                  {verified ? "Revoke Verification" : `Verify ${profileType === "organization" ? "Organization" : "Creator"}`}
-                </button>
+                {canManageRoles ? (
+                  <button
+                    type="button"
+                    className="admin-user-card__action"
+                    onClick={handleVerifiedToggle}
+                    disabled={
+                      isPending ||
+                      (!["creator", "organization"].includes(profileType) && !verified)
+                    }
+                  >
+                    {verified ? "Revoke Verification" : `Verify ${profileType === "organization" ? "Organization" : "Creator"}`}
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>

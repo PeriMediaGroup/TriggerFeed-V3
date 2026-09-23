@@ -11,7 +11,6 @@ const PROFILE_TYPE_VALUES = new Set([
   "member",
   "creator",
   "organization",
-  "system",
 ]);
 
 function cleanString(value) {

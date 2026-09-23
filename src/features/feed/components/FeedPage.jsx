@@ -89,7 +89,7 @@ export default async function FeedPage({ feedType = "main" }) {
         </div>
       ) : null}
 
-      <FeedAdsProvider key={activeFeed} postCount={posts.length}>
+      <FeedAdsProvider key={`${activeFeed}:${currentUserId || "anonymous"}`} postCount={posts.length}>
       <PostFeed
         showAds
         posts={posts}

@@ -50,6 +50,8 @@ export async function getAdminUsers({ query = "" } = {}) {
     users: safeUsers.map((user) => ({
       ...user,
       ...(metadataByProfileId.get(user.id) || {}),
+      // The admin RPC is authoritative, including protected/deleted profiles.
+      profile_type: user.profile_type,
       badges: badgesByProfileId.get(user.id) || [],
       profile_metadata: metadataByProfileId.get(user.id) || null,
       moderation_history: historyByUserId.get(user.id) || [],

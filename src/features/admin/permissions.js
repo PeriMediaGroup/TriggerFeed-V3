@@ -13,6 +13,7 @@ export function getModerationPermissions(role) {
     canMute: ["admin", "ceo"].includes(cleanRole),
     canBan: cleanRole === "ceo",
     canManageRoles: cleanRole === "ceo",
+    canManageProfileTypes: ["admin", "ceo"].includes(cleanRole),
     canCreateStickyPost: cleanRole === "ceo",
   };
 }
