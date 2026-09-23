@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getDeviceCategory, getOrCreateVisitorId } from "@/features/marketing/attribution";
@@ -8,10 +8,17 @@ import { adDestination } from "./adHelpers";
 import { createAdSession } from "./adSession";
 
 const AdContext = createContext([]);
+const subscribeToHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
 export function FeedAdsProvider({ postCount, children }) {
-  const [session] = useState(() => createAdSession());
+  const sessionRef = useRef(null);
   const [ads, setAds] = useState([]);
   useEffect(() => {
+    // Never create a randomized session while rendering (including SSR).
+    // Retain it across appends and Strict Mode's effect setup/cleanup replay.
+    const session = sessionRef.current ??= createAdSession();
     let active = true;
     const platform = (["mobile", "tablet"].includes(getDeviceCategory(navigator.userAgent)) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) ? "web_mobile" : "web_desktop";
     const client = createClient();
@@ -24,13 +31,17 @@ export function FeedAdsProvider({ postCount, children }) {
       return error ? [] : (data || []);
     }, () => active).then((slots) => { if (active) setAds(slots); }).catch(() => {});
     return () => { active = false; };
-  }, [postCount, session]);
+  }, [postCount]);
   const slots = useMemo(() => ads.filter((slot) => slot.after <= postCount), [postCount, ads]);
   return <AdContext.Provider value={slots}>{children}</AdContext.Provider>;
 }
 
 export function FeedAdSlot({ after }) {
   const slots = useContext(AdContext);
+  // Each slot hydrates as empty even if its provider has already loaded ads
+  // before a streamed/Suspense child hydrates. Organic SSR is never gated.
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
+  if (!hydrated) return null;
   const slot = slots.find((entry) => entry.after === after);
   return slot ? <FeedAdCard key={slot.ad.delivery_id} ad={slot.ad} /> : null;
 }

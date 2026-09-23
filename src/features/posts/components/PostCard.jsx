@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Edit3, MessageSquare, Medal } from "lucide-react";
 
 import SmartText from "@/components/ui/SmartText";
-import { formatRelativeTime } from "@/lib/formatDate";
+import PostTimestamp from "./PostTimestamp";
 import MediaGallery from "@/features/media/components/MediaGallery";
 import PollDisplay from "@/features/polls/components/PollDisplay";
 import ReportPostButton from "@/features/reports/components/ReportPostButton";
@@ -136,10 +136,7 @@ export default function PostCard({
         <div className="post-card__author">
           {authorId ? (
             <>
-              <Link
-                href={`/profiles/${authorId}`}
-                className="post-card__author-display-name"
-              >
+              <div className="post-card__author-name">
                 {post.author?.founding_member_number ? (
                   <Link
                     href="/founding-500"
@@ -156,8 +153,13 @@ export default function PostCard({
                   </Link>
                 ) : null}
 
-                {displayName}
-              </Link>
+                <Link
+                  href={`/profiles/${authorId}`}
+                  className="post-card__author-display-name"
+                >
+                  {displayName}
+                </Link>
+              </div>
 
               <Link
                 href={`/profiles/${authorId}`}
@@ -187,9 +189,7 @@ export default function PostCard({
             </>
           )}
 
-          <p className="post-card__date" suppressHydrationWarning>
-            {formatRelativeTime(post.created_at)}
-          </p>
+          <PostTimestamp value={post.created_at} />
 
           {post.is_sticky ? (
             <span className="post-card__official-badge">Official</span>

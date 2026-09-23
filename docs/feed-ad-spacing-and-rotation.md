@@ -13,7 +13,7 @@ Implemented in the separate `/web` and `/app` repositories. No commit, push, rem
 
 ## Web
 
-`FeedAdsProvider` owns one session in lazy React state. Rendering does not draw new gaps or replace existing tickets. Appending posts fills only additional slots; a smaller count hides slots outside the current dataset. The provider key includes feed type and viewer identity to prevent reusing another viewer's delivery tickets. Unmount/effect cleanup discards stale responses. A full reload creates a new session; an ordinary server refresh may retain the existing sequence.
+`FeedAdsProvider` owns one session in a ref initialized only by its post-hydration effect. Rendering does not create sessions, draw gaps, read visitor identity, or request deliveries. Each `FeedAdSlot` uses an empty server/initial-hydration snapshot, including when a Suspense child hydrates after the provider has delivered ads. Appending posts fills only additional slots; a smaller count hides slots outside the current dataset. The provider key includes feed type and viewer identity to prevent reusing another viewer's delivery tickets. Unmount/effect cleanup discards stale responses. A full reload creates a new session; an ordinary server refresh may retain the existing sequence.
 
 `PostFeed` still maps the original posts and retains their IDs, keys, references, and organic indexes. `FeedAdSlot` remains a presentation addition after each organic position.
 
@@ -96,3 +96,15 @@ Fresh validation:
 - Organic feed queries remain capped snapshots. Presentation append/refresh behavior is tested; this does not claim a cursor-pagination or installed-device test where none exists.
 
 The existing rotation migration still requires the normal approved production rollout before the new clients are released. This follow-up did not inspect or change remote migration state, apply any remote migration, commit, or push. Existing mobile working-tree changes were preserved.
+
+## Web hydration follow-up — September 23, 2026
+
+The production report identifies React error 418 (server/client markup mismatch), but its precise production trigger was not reproduced locally. The inspected implementation constructed an empty session in a render-time state initializer; actual random draws already occurred only in the delivery effect. It would be inaccurate to claim that initializer itself generated different server/client ad positions.
+
+The lifecycle is now explicitly hydration-safe: session construction moves into the effect and retains its ref through Strict Mode effect replay and later appends. Slots use `useSyncExternalStore` with a false server snapshot and true client snapshot to guarantee empty SSR/initial hydration markup independently of provider readiness. Organic posts remain server rendered. The 6–9 gap algorithm, delivery tickets, previous-campaign rotation, and impression/click handlers are unchanged. No hydration-warning suppression was added.
+
+The in-feed SSR path reads no random values, time values, visitor identity, or browser storage for placement. The legacy sidebar selector is separate: its random selection runs in a Server Component and is not rerun by client hydration; it was left unchanged. This is not a claim that the entire application has no render-time dates or randomness.
+
+`FeedAds.hydration.test.jsx` exercises real `renderToString`/`hydrateRoot` with the actual provider, slots, session helper, and PostFeed mapping. PostCard/comment content and delivery services are mocked. It verifies invariant organic SSR under different clocks/random sources, zero server session initialization or delivery calls, preserved organic DOM nodes, Strict Mode session reuse, all four gap sizes across append, stable existing ads, and delayed Suspense hydration after delivery. No recoverable hydration errors or console errors occur. JSDOM is a development-only dependency; its Vitest project resolves Web aliases separately from the existing cross-repository unit harness.
+
+Validation: Web lint, TypeScript, production build, and **121 tests across 11 files** passed. These tests establish the ad insertion hydration contract; they do not reproduce the authenticated production incident or exercise a deployed browser session. Only `/web` was edited, with no database changes or deployment. The unrelated merch product edit was preserved.
