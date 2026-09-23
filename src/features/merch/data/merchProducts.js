@@ -5,7 +5,7 @@ export const merchProducts = [
         type: "stickers",
         price: "$2.49",
         shippingNote: "$1 shipping at checkout.",
-        status: "in_stock",
+        status: "sold-out",
         image: {
             src: "/images/merch/classic-tf-stickers.jpg",
             alt: "Classic TriggerFeed stickers 3 pack",
@@ -34,8 +34,8 @@ export const merchProducts = [
         options: [
             { label: "S", quantity: 0, ctaHref: null },
             { label: "M", quantity: 0, ctaHref: null },
-            { label: "L", quantity: 4, ctaHref: "https://buy.stripe.com/aFa14o1t4dpF5yOgl84sE0b" },
-            { label: "XL", quantity: 4, ctaHref: "https://buy.stripe.com/fZubJ21t41GX8L08SG4sE0a" },
+            { label: "L", quantity: 1, ctaHref: "https://buy.stripe.com/aFa14o1t4dpF5yOgl84sE0b" },
+            { label: "XL", quantity: 2, ctaHref: "https://buy.stripe.com/fZubJ21t41GX8L08SG4sE0a" },
             { label: "2XL", quantity: 1, ctaHref: "https://buy.stripe.com/dRm3cw8VwetJ1iy6Ky4sE09" },
             { label: "3XL", quantity: 2, ctaHref: "https://buy.stripe.com/14AeVe0p00CTaT85Gu4sE08" },
         ],
