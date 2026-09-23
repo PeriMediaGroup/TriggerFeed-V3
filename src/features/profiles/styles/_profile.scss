@@ -22,7 +22,7 @@
   justify-content: flex-end;
   width: 100%;
   height: 100%;
-  padding-right: 2rem;
+  padding-right: var(--space-xl);
   font-size: 6rem;
   font-weight: 900;
   line-height: 1;
@@ -37,7 +37,7 @@
   height: 144px;
   overflow: hidden;
   border: 4px solid #1c1c1c;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #777;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .profile-dashboard-tabs {
-  margin-top: 1rem;
+  margin-top: var(--space-md);
   height: 100%;
 }
 
@@ -84,12 +84,12 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.75rem 0;
+  padding: var(--space-compact) 0;
   border: 0;
   background: transparent;
   color: var(--color-text-muted, rgba(255, 255, 255, 0.72));
   font: inherit;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -115,15 +115,15 @@
 
 .profile-dashboard-tabs__section {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .profile-dashboard-tabs__badge {
   min-width: 1.15rem;
   padding: 0.1rem 0.35rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-danger, #b22222);
-  color: #fff;
+  color: var(--color-white);
   font-size: 0.7rem;
   line-height: 1.15;
   text-align: center;
@@ -131,21 +131,21 @@
 
 .profile-dashboard-tabs__grid {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-compact);
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
 .profile-dashboard-tabs__card {
-  padding: 0.75rem;
+  padding: var(--space-compact);
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 
 .profile-dashboard-tabs__notifications {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-compact);
   padding: 0;
   margin: 0;
   list-style: none;
@@ -154,10 +154,10 @@
 .profile-dashboard-tabs__notification {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem;
+  gap: var(--space-md);
+  padding: var(--space-compact);
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 
 .profile-dashboard-tabs__notification--unread {
@@ -166,7 +166,7 @@
 
 .profile-privacy-settings {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .profile-privacy-settings__header {
@@ -181,7 +181,7 @@
 
 .profile-privacy-settings__form {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-compact);
 }
 
 .profile-privacy-settings__option {
@@ -200,5 +200,5 @@
 }
 
 .profile-privacy-settings__actions {
-  margin-top: 0.5rem;
+  margin-top: var(--space-sm);
 }

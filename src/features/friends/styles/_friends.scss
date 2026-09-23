@@ -1,10 +1,10 @@
 .friends-panel {
   display: grid;
-  gap: var(--space-5, 1.25rem);
+  gap: var(--space-comfortable);
   margin-bottom: var(--space-xl);
 
   &__header {
-    margin-bottom: var(--space-4, 1rem);
+    margin-bottom: var(--space-md);
 
     p {
       color: var(--color-text-muted, #9ca3af);
@@ -14,7 +14,7 @@
 
   &__grid {
     display: grid;
-    gap: var(--space-5, 1.25rem);
+    gap: var(--space-comfortable);
 
     @media (min-width: 800px) {
       grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
@@ -43,7 +43,7 @@
 
   h2 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   p {
@@ -55,9 +55,9 @@
   &__header {
     display: flex;
     justify-content: space-between;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
     align-items: flex-start;
-    margin-bottom: var(--space-4, 1rem);
+    margin-bottom: var(--space-md);
 
     p {
       margin: 0.35rem 0 0;
@@ -65,8 +65,8 @@
   }
 
   &__status {
-    border-radius: 999px;
-    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-pill);
+    padding: var(--space-xs) 0.65rem;
     font-size: 0.8rem;
     white-space: nowrap;
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
@@ -84,7 +84,7 @@
 
   &__selected-list {
     display: grid;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
     padding: 0;
     margin: 0;
     list-style: none;
@@ -94,8 +94,8 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-3, 0.75rem);
-    padding: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
+    padding: var(--space-compact);
     border-radius: var(--radius-md, 0.75rem);
     background: var(--color-surface-raised, rgba(255, 255, 255, 0.06));
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
@@ -106,15 +106,15 @@
     place-items: center;
     width: 2rem;
     height: 2rem;
-    border-radius: 999px;
-    font-weight: 700;
+    border-radius: var(--radius-pill);
+    font-weight: var(--font-weight-bold);
     background: var(--color-accent-muted, rgba(178, 34, 34, 0.2));
     color: var(--color-accent, #b22222);
   }
 
   &__selected-name {
     min-width: 0;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
 
     small {
       display: block;
@@ -131,7 +131,7 @@
     button {
       width: 2rem;
       height: 2rem;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
       background: var(--color-button-bg, rgba(255, 255, 255, 0.06));
       color: var(--color-text, #fff);
@@ -156,18 +156,18 @@
 .friends-list {
   &__items {
     display: grid;
-    gap: var(--space-2, 0.5rem);
+    gap: var(--space-sm);
     list-style: none;
     padding: 0;
-    margin: var(--space-4, 1rem) 0 0;
+    margin: var(--space-md) 0 0;
   }
 
   &__item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--space-3, 0.75rem);
-    padding: 0.65rem 0.75rem;
+    gap: var(--space-compact);
+    padding: 0.65rem var(--space-compact);
     border-radius: var(--radius-md, 0.75rem);
     background: var(--color-surface-raised, rgba(255, 255, 255, 0.05));
     border: 1px solid transparent;
@@ -185,7 +185,7 @@
     gap: 0.1rem;
     color: var(--color-text, #fff);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
 
     small {
       color: var(--color-text-muted, #9ca3af);
@@ -202,10 +202,10 @@
     border: 1px solid var(--color-accent, #b22222);
     background: var(--color-accent-muted, rgba(178, 34, 34, 0.18));
     color: var(--color-accent-contrast, #fff);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.35rem 0.7rem;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
     white-space: nowrap;
 
@@ -233,16 +233,16 @@
 
 .friend-requests,
 .friends-search {
-  // padding: var(--space-4, 1rem);
+
   box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
 
   h2 {
-    margin: 0 0 var(--space-4, 1rem);
-    font-size: 1.25rem;
+    margin: 0 0 var(--space-md);
+    font-size: var(--font-size-lg);
   }
 
   h3 {
-    margin: 0 0 var(--space-3, 0.75rem);
+    margin: 0 0 var(--space-compact);
     font-size: 0.95rem;
     color: var(--color-text-muted, #9ca3af);
     text-transform: uppercase;
@@ -256,7 +256,7 @@
 
   ul {
     display: grid;
-    gap: var(--space-2, 0.5rem);
+    gap: var(--space-sm);
     list-style: none;
     padding: 0;
     margin: 0;
@@ -266,8 +266,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-3, 0.75rem);
-    padding: 0.65rem 0.75rem;
+    gap: var(--space-compact);
+    padding: 0.65rem var(--space-compact);
     border-radius: var(--radius-md, 0.75rem);
     background: var(--color-surface-raised, rgba(255, 255, 255, 0.05));
     border: 1px solid transparent;
@@ -280,11 +280,11 @@
   a {
     min-width: 0;
     color: var(--color-text, #fff);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     text-decoration: none;
 
     span {
-      margin-left: 0.25rem;
+      margin-left: var(--space-xs);
       color: var(--color-text-muted, #9ca3af);
       font-weight: 500;
     }
@@ -298,10 +298,10 @@
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
     background: var(--color-button-bg, rgba(255, 255, 255, 0.06));
     color: var(--color-text, #fff);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.35rem 0.7rem;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
     white-space: nowrap;
 
@@ -332,14 +332,14 @@
 
 .friend-requests {
   display: grid;
-  gap: var(--space-4, 1rem);
+  gap: var(--space-md);
 
   &__group {
     display: grid;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
 
     + .friend-requests__group {
-      padding-top: var(--space-4, 1rem);
+      padding-top: var(--space-md);
       border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
     }
   }
@@ -385,10 +385,10 @@
   &__pending {
     display: inline-flex;
     align-items: center;
-    border-radius: 999px;
-    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-pill);
+    padding: var(--space-xs) 0.6rem;
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--color-warning, #fbbf24);
     background: color-mix(
       in srgb,
@@ -405,12 +405,12 @@
 
 .friends-search {
   display: grid;
-  gap: var(--space-3, 0.75rem);
+  gap: var(--space-compact);
 
   label {
     color: var(--color-text-muted, #9ca3af);
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 
   input {
@@ -419,7 +419,7 @@
     border-radius: var(--radius-md, 0.75rem);
     background: var(--color-input-bg, rgba(0, 0, 0, 0.25));
     color: var(--color-text, #fff);
-    padding: 0.75rem 0.85rem;
+    padding: var(--space-compact) 0.85rem;
     font: inherit;
     outline: none;
 
@@ -435,7 +435,7 @@
   }
 
   &__results {
-    margin-top: var(--space-2, 0.5rem);
+    margin-top: var(--space-sm);
   }
 
   &__result {
@@ -453,14 +453,14 @@
     display: grid;
     grid-template-columns: 2.5rem minmax(0, 1fr);
     align-items: center;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
 
     img {
       display: block;
       width: 2.5rem;
       height: 2.5rem;
       object-fit: cover;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
     }
   }
@@ -515,7 +515,7 @@
   &__item {
     display: grid;
     grid-template-columns: 2.25rem minmax(0, 1fr) auto;
-    gap: 0.5rem;
+    gap: var(--space-sm);
     align-items: center;
     padding-block: 0.15rem;
   }
@@ -526,7 +526,7 @@
     height: 2.25rem;
     overflow: hidden;
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--color-surface-elevated, rgba(255, 255, 255, 0.08));
 
     img {
@@ -555,7 +555,7 @@
   &__name {
     color: var(--color-text, #fff);
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     line-height: 1.2;
     text-decoration: none;
 
@@ -580,13 +580,13 @@
     align-self: center;
     min-height: 1.6rem;
     border: 1px solid var(--color-accent, #b22222);
-    border-radius: 999px;
-    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-pill);
+    padding: 0.2rem var(--space-sm);
     background: var(--color-accent-muted, rgba(178, 34, 34, 0.18));
     color: var(--color-accent-contrast, #fff);
     font: inherit;
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;

@@ -16,7 +16,7 @@ export default function AppFooter() {
               <li key={href} className="app-footer__item">
                 <Link href={href} className="app-footer__link">
                   <Icon size={15} strokeWidth={2} aria-hidden="true" />
-                  <span>{label}</span>
+                  <span className="app-footer__label">{label}</span>
                 </Link>
               </li>
             ))}

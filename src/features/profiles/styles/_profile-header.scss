@@ -82,7 +82,7 @@
     width: 9.25rem;
     height: 9.25rem;
     overflow: hidden;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 4px solid var(--color-surface, #111);
     background: var(--color-surface-raised, rgba(255, 255, 255, 0.08));
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
@@ -104,13 +104,13 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 1rem 0.35rem;
+    gap: var(--space-md) 0.35rem;
   }
 
   &__row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.35rem 1rem;
+    gap: 0.35rem var(--space-md);
     min-width: 0;
 
     &--identity {
@@ -138,7 +138,7 @@
   &__username {
     color: var(--color-text-muted, #9ca3af);
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 
   &__verified {
@@ -146,7 +146,7 @@
     align-items: center;
     gap: 0.3rem;
     border: 1px solid color-mix(in srgb, var(--color-accent, #b22222) 70%, var(--color-border));
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.2rem 0.48rem;
     background: color-mix(in srgb, var(--color-accent, #b22222) 16%, transparent);
     color: var(--color-text, #fff);
@@ -168,7 +168,7 @@
     gap: 0.4rem;
     width: fit-content;
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.42rem 0.72rem;
     background: var(--color-button-bg, rgba(255, 255, 255, 0.06));
     color: var(--color-text, #fff);
@@ -238,13 +238,13 @@
   &__type-category {
     color: var(--color-text-muted, #9ca3af);
     font-size: 0.86rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 
   &__type-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.45rem 0.75rem;
+    gap: 0.45rem var(--space-compact);
 
     a,
     span {
@@ -253,7 +253,7 @@
       gap: 0.35rem;
       color: var(--color-text-muted, #9ca3af);
       font-size: 0.84rem;
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
       line-height: 1.25;
       overflow-wrap: anywhere;
       text-decoration: none;
@@ -368,14 +368,12 @@
       align-items: center;
     }
 
-    &__meta-item {
-      &--right {
-        justify-self: end;
-      }
+    &__meta-item--right {
+      justify-self: end;
+    }
 
-      &--empty {
-        display: block;
-      }
+    &__meta-item--empty {
+      display: block;
     }
 
     &__email {
@@ -383,7 +381,7 @@
     }
 
     &__notes {
-      margin-top: 0.25rem;
+      margin-top: var(--space-xs);
     }
 
     &__stats {
@@ -397,14 +395,22 @@
   }
 }
 
-.profile-header--organization .profile-header__avatar { border-radius: 1rem; }
+.profile-header--organization .profile-header__avatar { border-radius: var(--radius-lg); }
 .profile-header--creator .profile-header__type-summary,
-.profile-header--organization .profile-header__type-summary { border-left: 3px solid var(--color-accent); padding-left: 1rem; }
+.profile-header--organization .profile-header__type-summary { border-left: 3px solid var(--color-accent); padding-left: var(--space-md); }
 .profile-follows {
-  margin: 1rem 0;
-  &__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
-  button, a { padding: .65rem 1rem; border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-surface); color: var(--color-text); cursor: pointer; }
+  margin: var(--space-md) 0;
+  &__actions { display: flex; flex-wrap: wrap; gap: var(--space-compact); }
+  button, a { padding: .65rem var(--space-md); border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-surface); color: var(--color-text); cursor: pointer; }
   button:disabled { opacity: .6; cursor: wait; }
   button[aria-pressed="true"] { border-color: var(--color-accent); }
-  &__list { margin-top: 1rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: .5rem; }
+  &__list { margin-top: var(--space-md); padding: var(--space-md); border: 1px solid var(--color-border); border-radius: .5rem; }
+}
+
+// Preserve the former global override, including its order after modifiers.
+.profile-header__edit,
+.profile-header__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }

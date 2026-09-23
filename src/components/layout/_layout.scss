@@ -1,24 +1,6 @@
-// =========================================================
-// Layout Variables
-// =========================================================
-
-:root {
-  --app-footer-height: 45px;
-  --app-header-height: 64px;
-  --app-sidebar-width: 248px;
-  --app-right-rail-width: 245px;
-  --app-right-rail-module-width: 200px;
-  --app-content-max-width: 48rem;
-  --mobile-bottom-nav-height: 88px;
-  --app-mobile-bottom-nav: var(--mobile-bottom-nav-height);
-  --app-mobile-page-padding-inline: var(--space-md, 1rem);
-  --app-mobile-page-padding-bottom: calc(
-    var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-lg, 1.5rem)
-  );
-  --app-mobile-top-bottom-height: calc(
-    var(--app-header-height) + var(--app-mobile-bottom-nav)
-  );
-}
+@use "../../styles/breakpoints";
+@use "../../styles/mixins";
+@use "../../styles/components/links";
 
 // =========================================================
 // Mobile Header
@@ -57,7 +39,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-elevated);
   color: var(--color-text);
 }
@@ -147,10 +129,10 @@
   align-items: center;
   gap: var(--space-sm);
   border-radius: var(--radius-md);
-  padding: 0.5rem 0.7rem;
+  padding: var(--space-sm) 0.7rem;
   color: var(--color-text-muted);
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
 
   &:hover,
@@ -176,7 +158,7 @@
   background: var(--color-bg);
 }
 
-@media (max-width: 68.749rem) {
+@media (max-width: breakpoints.$below-desktop) {
   .public-shell {
     .app-footer__inner {
       justify-content: center;
@@ -249,6 +231,14 @@
 
   to {
     background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading__brand,
+  .app-loading__line,
+  .app-loading__card {
+    animation: none;
   }
 }
 
@@ -337,12 +327,7 @@
 }
 
 .post-search__label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  @include mixins.visually-hidden;
 }
 
 .app-right-rail__search-icon {
@@ -369,9 +354,9 @@
   font-size: 0.8125rem;
   outline: none;
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
+    border-color var(--transition-base) var(--ease-standard),
+    box-shadow var(--transition-base) var(--ease-standard),
+    background-color var(--transition-base) var(--ease-standard);
 }
 
 .app-right-rail__search-input::placeholder {
@@ -428,7 +413,7 @@
 .app-footer__copyright {
   margin: 0;
   color: var(--color-text);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   line-height: 1.35;
 }
 
@@ -452,14 +437,11 @@
   align-items: center;
   gap: var(--space-xs);
   color: var(--color-accent);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   line-height: 1.2;
   text-decoration: none;
 
-  &:hover,
-  &:focus-visible {
-    text-decoration: underline;
-  }
+  @include links.underline-on-interaction;
 }
 
 // =========================================================
@@ -467,7 +449,7 @@
 // Still one column.
 // =========================================================
 
-@media (min-width: 48rem) {
+@media (min-width: breakpoints.$tablet) {
   .public-layout__content {
     padding-inline: var(--space-lg);
     padding-block: var(--space-xl);
@@ -490,7 +472,7 @@
 // fixed footer spans viewport bottom
 // =========================================================
 
-@media (min-width: 68.75rem) {
+@media (min-width: breakpoints.$desktop) {
   .app-header {
     display: none;
   }
@@ -504,7 +486,7 @@
 
   .public-layout {
     min-height: 100dvh;
-    // padding-bottom: var(--app-footer-height);
+
     grid-template-columns:
       var(--app-sidebar-width)
       minmax(0, 1fr)
@@ -586,7 +568,7 @@
 // footer remains fixed across bottom
 // =========================================================
 
-@media (min-width: 78.125rem) {
+@media (min-width: breakpoints.$desktop-wide) {
   .app-shell {
     grid-template-columns:
       var(--app-sidebar-width)
@@ -611,9 +593,31 @@
     height: auto;
     max-height: none;
     overflow: visible;
-    // border-left: 1px solid var(--color-border);
+
     padding-block: var(--space-md);
     padding-inline: var(--space-md);
     padding-bottom: var(--app-footer-height);
+  }
+}
+
+@media (min-width: breakpoints.$desktop) {
+  .app-footer__list {
+    display: flex;
+    list-style-type: none;
+  }
+
+  .app-footer__item {
+    margin-left: var(--space-sm);
+    align-items: center;
+  }
+
+  .app-footer__link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .app-footer__label {
+    padding-left: var(--space-xs);
   }
 }

@@ -8,7 +8,7 @@ import Terms from "./components/Terms";
 export default function LegalPage() {
   return (
     <main className="tf-page__content public-page legal-page">
-      <section id="legal-top" className="public-page-hero" aria-labelledby="legal-title">
+      <section id="legal-top" className="public-page-hero legal-page__top-anchor" aria-labelledby="legal-title">
         <div className="public-page-hero__content">
           <p className="public-page-hero__eyebrow">
             The boring-but-important stuff

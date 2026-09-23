@@ -78,11 +78,11 @@
     justify-content: center;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    padding: 0.25rem 0.5rem;
+    padding: var(--space-xs) var(--space-sm);
     background: var(--color-surface-soft);
     color: var(--color-text);
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     line-height: 1.2;
     text-decoration: none;
 

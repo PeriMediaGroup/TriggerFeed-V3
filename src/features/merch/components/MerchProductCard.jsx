@@ -33,7 +33,7 @@ export function MerchProductCard({ product }) {
         <div className="merch-card__topline">
           <h3 className="merch-card__title">{product.name}</h3>
           <span
-            className={`merch-card__status merch-card__status--${product.status}`}
+            className={`merch-card__status merch-card__status--${String(product.status).replaceAll("_", "-")}`}
           >
             {statusLabels[product.status] ?? product.status}
           </span>

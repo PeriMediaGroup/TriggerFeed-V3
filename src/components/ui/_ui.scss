@@ -1,21 +1,24 @@
+@use "../../styles/components/links";
+
 .smart-text__mention {
   color: var(--color-accent);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
 }
 
-.smart-text__mention:hover {
+.smart-text__mention:hover,
+.smart-text__mention:focus-visible {
   text-decoration: underline;
 }
 
 .smart-text__link {
   color: var(--color-link);
-  text-decoration: underline;
+  @include links.inline-decoration;
   overflow-wrap: anywhere;
 }
 
 .smart-text__youtube {
-  margin: 0.75rem 0;
+  margin: var(--space-compact) 0;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -41,7 +44,7 @@
   width: fit-content;
   max-width: 100%;
   border: 1px solid var(--founding-badge-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--founding-badge-bg);
   color: var(--founding-badge-text);
   font-weight: 850;
@@ -54,7 +57,7 @@
   }
 
   &--compact {
-    gap: 0.25rem;
+    gap: var(--space-xs);
     padding: 0.18rem 0.45rem;
     font-size: 0.68rem;
     text-transform: uppercase;
@@ -62,7 +65,7 @@
 
   &--profile {
     display: grid;
-    gap: 0.25rem;
+    gap: var(--space-xs);
     border-radius: var(--radius-md, 0.75rem);
     padding: 0.55rem 0.7rem;
     line-height: 1.25;
@@ -83,7 +86,7 @@
   &__detail {
     color: var(--color-text-muted, #9ca3af);
     font-size: 0.78rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 }
 
@@ -125,7 +128,7 @@ a.founding-member-badge:focus-visible {
   &__detail {
     color: var(--color-text-muted, #9ca3af);
     font-size: 0.78rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 
   &--verified {

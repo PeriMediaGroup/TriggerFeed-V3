@@ -6,32 +6,32 @@
 @use "../components/navigation/navigation";
 @use "../components/ui/ui";
 
-@use "../features/auth/styles/_auth";
-@use "../features/admin/styles/__admin";
-@use "../features/polls/styles/_polls";
-@use "../features/feed/styles/_feed";
-@use "../features/media/styles/_media";
-@use "../features/votes/styles/_votes";
-@use "../features/guns/styles/__guns";
-@use "../features/comments/styles/_comments";
-@use "../features/mentions/styles/_mentions";
-@use "../features/profiles/styles/_profile-settings";
-@use "../features/profiles/styles/_profile";
-@use "../features/profiles/styles/_profile-header";
-@use "../features/profiles/styles/_profile-edit-form";
-@use "../features/profiles/styles/_profile-showcase";
-@use "../features/notifications/styles/_notifications";
-@use "../features/friends/styles/_friends";
-@use "../features/invites/styles/__invites";
-@use "../features/reports/styles/__reports";
-@use "../features/posts/styles/_posts";
-@use "../features/posts/styles/_create";
-@use "../features/posts/styles/_post-edit";
-@use "../features/search/styles/__search";
-@use "../features/milestones/styles/__milestones";
-@use "../features/ranks/styles/__ranks";
-@use "../features/ads/styles/_ads";
-@use "../features/merch/styles/_merch";
+@use "../features/auth/styles/auth";
+@use "../features/admin/styles/admin";
+@use "../features/polls/styles/polls";
+@use "../features/feed/styles/feed";
+@use "../features/media/styles/media";
+@use "../features/votes/styles/votes";
+@use "../features/guns/styles/guns";
+@use "../features/comments/styles/comments";
+@use "../features/mentions/styles/mentions";
+@use "../features/profiles/styles/profile-settings";
+@use "../features/profiles/styles/profile";
+@use "../features/profiles/styles/profile-header";
+@use "../features/profiles/styles/profile-edit-form";
+@use "../features/profiles/styles/profile-showcase";
+@use "../features/notifications/styles/notifications";
+@use "../features/friends/styles/friends";
+@use "../features/invites/styles/invites";
+@use "../features/reports/styles/reports";
+@use "../features/posts/styles/posts";
+@use "../features/posts/styles/create";
+@use "../features/posts/styles/post-edit";
+@use "../features/search/styles/search";
+@use "../features/milestones/styles/milestones";
+@use "../features/ranks/styles/ranks";
+@use "../features/ads/styles/ads";
+@use "../features/merch/styles/merch";
 @use "./sections/public-pages";
 @use "./sections/install";
 @use "./sections/contact";
@@ -40,57 +40,5 @@
 @use "./sections/about";
 @use "./sections/founding-500";
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-body), var(--font-fallback);
-  padding: 0;
-  margin: 0;
-}
-
-h1,
-.logo,
-.brand {
-  font-family: var(--font-brand), var(--font-fallback);
-}
-
-h1, h2, h3, h4, h5 {
-  margin: 0;
-}
-
-button {
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  color: #fff;
-}
-
-::placeholder {
-  opacity: 0.25;
-}
-
-textarea,
-input {
-  background: var(--color-surface-transparent);
-  color: #fff;
-}
-
-.comment__body {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.post-card__comments,
-.post-card__action,
-.comment-item__action,
-.profile-header__edit,
-.profile-header__meta-item,
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
+@use "./base";
+@use "./accessibility";

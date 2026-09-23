@@ -1,3 +1,4 @@
+@use "../breakpoints";
 .public-page {
   display: grid;
   box-sizing: border-box;
@@ -21,7 +22,7 @@
   min-height: 17.125rem;
   align-content: center;
   overflow: hidden;
-  padding: 1.5rem clamp(2rem, 4vw, 3.25rem);
+  padding: var(--space-lg) clamp(var(--space-xl), 4vw, 3.25rem);
   border: 1px solid color-mix(
     in srgb,
     var(--color-accent) 55%,
@@ -69,7 +70,7 @@
 .public-page-hero__eyebrow {
   margin: 0;
   color: var(--color-accent);
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -117,11 +118,12 @@
   );
   color: var(--color-text);
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
 }
 
-.public-page-hero__action:hover {
+.public-page-hero__action:hover,
+.public-page-hero__action:focus-visible {
   border-color: var(--color-accent);
   background: color-mix(
     in srgb,
@@ -140,7 +142,8 @@
   color: var(--color-text-muted);
 }
 
-.public-page-hero__action--secondary:hover {
+.public-page-hero__action--secondary:hover,
+.public-page-hero__action--secondary:focus-visible {
   color: var(--color-text);
 }
 
@@ -149,7 +152,7 @@
   pointer-events: none;
 }
 
-@media (max-width: 36rem) {
+@media (max-width: breakpoints.$compact) {
   .public-page {
     gap: var(--space-lg);
     padding-block: var(--space-lg);

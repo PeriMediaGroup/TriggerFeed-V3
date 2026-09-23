@@ -1,21 +1,20 @@
 .merch-page {
   display: flex;
   flex-direction: column;
-  gap: clamp(2rem, 4vw, 4rem);
+  gap: clamp(var(--space-xl), 4vw, 4rem);
 }
 
 .merch-section {
   width: min(100%, 1120px);
   margin-inline: auto;
-  // padding: 0 clamp(1rem, 3vw, 2rem) clamp(3rem, 6vw, 5rem);
 
   &__header {
     max-width: 760px;
-    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    margin-bottom: clamp(var(--space-lg), 3vw, 2.5rem);
   }
 
   &__eyebrow {
-    margin: 0 0 0.5rem;
+    margin: 0 0 var(--space-sm);
     color: var(--color-accent);
     font-size: 0.78rem;
     font-weight: 800;
@@ -41,7 +40,7 @@
 .merch-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1rem, 2vw, 1.5rem);
+  gap: clamp(var(--space-md), 2vw, var(--space-lg));
 }
 
 .merch-card {
@@ -60,7 +59,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    //padding: 1rem;
+
     object-fit: contain;
   }
   &__media { 
@@ -100,14 +99,14 @@
     display: flex;
     flex-direction: column;
     gap: 0.95rem;
-    padding: clamp(1rem, 2vw, 1.35rem);
+    padding: clamp(var(--space-md), 2vw, 1.35rem);
   }
 
   &__topline {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 1rem;
+    gap: var(--space-md);
   }
 
   &__title {
@@ -120,7 +119,7 @@
   &__status {
     flex: 0 0 auto;
     border: 1px solid var(--color-border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.3rem 0.55rem;
     color: var(--color-text-muted);
     background: var(--color-surface-soft, rgba(255, 255, 255, 0.05));
@@ -130,7 +129,7 @@
     text-transform: uppercase;
     white-space: nowrap;
 
-    &--in_stock {
+    &--in-stock {
       color: var(--color-success, #7bd88f);
       border-color: color-mix(
         in srgb,
@@ -158,7 +157,7 @@
       );
     }
 
-    &--sold_out {
+    &--sold-out {
       color: var(--color-danger, #ff7b7b);
       border-color: color-mix(
         in srgb,
@@ -172,7 +171,7 @@
       );
     }
 
-    &--coming_soon {
+    &--coming-soon {
       color: var(--color-text-muted);
     }
   }
@@ -203,7 +202,7 @@
   &__options {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-sm);
     padding-top: 0.15rem;
   }
 
@@ -237,7 +236,7 @@
         right: 0.42rem;
         top: 50%;
         height: 2px;
-        border-radius: 999px;
+        border-radius: var(--radius-pill);
         background: currentColor;
         transform: rotate(-18deg);
       }
@@ -251,17 +250,17 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--color-accent);
-    border-radius: 999px;
-    padding: 0.75rem 1.05rem;
+    border-radius: var(--radius-pill);
+    padding: var(--space-compact) 1.05rem;
     color: var(--color-on-accent, #0d0d0d);
     background: var(--color-accent);
     font-size: 0.92rem;
     font-weight: 900;
     text-decoration: none;
     transition:
-      transform 160ms ease,
-      box-shadow 160ms ease,
-      opacity 160ms ease;
+      transform var(--transition-base) var(--ease-standard),
+      box-shadow var(--transition-base) var(--ease-standard),
+      opacity var(--transition-base) var(--ease-standard);
 
     &:hover {
       transform: translateY(-1px);
@@ -276,6 +275,7 @@
     }
 
     &--disabled {
+      display: none;
       cursor: not-allowed;
       color: var(--color-text-muted);
       border-color: var(--color-border);
@@ -286,14 +286,13 @@
         transform: none;
         box-shadow: none;
       }
-      display: none;
     }
   }
 }
 
 @media (max-width: 760px) {
   .merch-section {
-    padding-inline: clamp(1rem, 4vw, 1.25rem);
+    padding-inline: clamp(var(--space-md), 4vw, var(--space-comfortable));
   }
 
   .merch-grid {

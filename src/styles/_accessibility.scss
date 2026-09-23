@@ -1,0 +1,16 @@
+// Low specificity lets intentional component focus treatments take precedence.
+:where(a[href]:focus-visible, button:focus-visible, summary:focus-visible, [role="button"]:focus-visible) {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -35,10 +35,7 @@
   margin: 0;
 }
 
-.admin-shell__summary,
-.admin-users__notice,
-.admin-users__empty,
-.admin-user-card__empty {
+.admin-shell__summary {
   margin: 0;
   color: var(--color-text-muted);
 }
@@ -68,7 +65,7 @@
   gap: 0.45rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.7rem;
+  padding: var(--space-sm) 0.7rem;
   color: var(--color-text);
   text-decoration: none;
 }
@@ -135,14 +132,14 @@
 
 .admin-overview__metric-label {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .admin-overview__metric-value {
   margin: 0.15rem 0;
   color: var(--color-text);
   font-size: clamp(1.65rem, 4vw, 2.35rem);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
@@ -179,7 +176,7 @@
 
 .admin-overview__nav-card-heading h2,
 .admin-overview__section-heading h2 {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
 }
 
 .admin-overview__button {
@@ -189,11 +186,11 @@
   justify-content: center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem var(--space-compact);
   background: var(--color-surface-soft);
   color: var(--color-text);
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
 }
 
@@ -265,10 +262,10 @@
   align-items: center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.7rem;
+  padding: var(--space-sm) 0.7rem;
   color: var(--color-text);
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
 }
 
@@ -375,7 +372,7 @@
 .admin-marketing__device-card dd {
   color: var(--color-text);
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .admin-overview__recent-time {
@@ -430,7 +427,7 @@
   min-width: min(100%, 24rem);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.65rem 0.75rem;
+  padding: 0.65rem var(--space-compact);
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
@@ -440,7 +437,7 @@
 .admin-user-card__action {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem var(--space-compact);
   background: var(--color-surface-soft);
   color: var(--color-text);
   font: inherit;

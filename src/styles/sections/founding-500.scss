@@ -7,7 +7,7 @@
   grid-template-columns: auto minmax(0, 1fr);
   gap: var(--space-md, 1rem);
   align-items: start;
-  padding: clamp(1rem, 3vw, 1.6rem);
+  padding: clamp(var(--space-md), 3vw, 1.6rem);
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
   border-radius: var(--radius-lg, 1rem);
   background: color-mix(
@@ -46,7 +46,7 @@
 .founding-500__eyebrow {
   margin: 0;
   color: var(--color-accent, #b22222);
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -76,7 +76,7 @@
 .founding-500__registry {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: var(--space-sm);
   padding: 0;
   margin: 0;
   list-style: none;
@@ -85,10 +85,10 @@
 .founding-500__member {
   display: grid;
   grid-template-columns: 3.5rem 3rem minmax(0, 1fr);
-  gap: 0.75rem;
+  gap: var(--space-compact);
   align-items: center;
   min-width: 0;
-  padding: 0.75rem;
+  padding: var(--space-compact);
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
   border-radius: var(--radius-md, 0.75rem);
   background: color-mix(
@@ -97,9 +97,9 @@
     transparent
   );
   transition:
-    border-color 140ms ease,
-    background-color 140ms ease,
-    transform 140ms ease;
+    border-color var(--transition-fast) var(--ease-standard),
+    background-color var(--transition-fast) var(--ease-standard),
+    transform var(--transition-fast) var(--ease-standard);
 }
 
 .founding-500__member:hover {
@@ -126,7 +126,7 @@
   height: 3.5rem;
   place-items: center;
   border: 2px solid var(--color-accent, #b22222);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(
     in srgb,
     var(--color-accent, #b22222) 9%,
@@ -152,7 +152,7 @@
   width: 3rem;
   height: 3rem;
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   object-fit: cover;
 }
 
@@ -192,8 +192,8 @@ a.founding-500__name:focus-visible {
   width: fit-content;
   margin-top: 0.3rem;
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  border-radius: 999px;
-  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-sm);
   color: var(--color-text-muted, #a9a9a9);
   font-size: 0.68rem;
   font-weight: 800;

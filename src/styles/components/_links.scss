@@ -1,0 +1,15 @@
+// Decoration only: components keep their existing category colors and typography.
+// Avoid @extend so selectors and specificity remain local to each component.
+@mixin underline-on-interaction {
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}
+
+@mixin inline-decoration($offset: null) {
+  text-decoration: underline;
+  @if $offset != null {
+    text-underline-offset: $offset;
+  }
+}

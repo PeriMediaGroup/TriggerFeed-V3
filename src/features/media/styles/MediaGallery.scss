@@ -1,11 +1,12 @@
+@use "../../../styles/breakpoints";
 .media-gallery {
   display: grid;
   width: min(100%, 44rem);
   margin-top: var(--space-md);
-  gap: 0.5rem;
+  gap: var(--space-sm);
   overflow: hidden;
   border-radius: var(--radius-lg);
-  padding: 0.3rem 0 0.5rem;
+  padding: 0.3rem 0 var(--space-sm);
 
   &--single {
     grid-template-columns: 1fr;
@@ -139,7 +140,7 @@
   &--single &__button {
     display: grid;
     place-items: center;
-    // min-height: clamp(220px, 48vh, 520px);
+
   }
 
   &--single &__image,
@@ -166,13 +167,13 @@
     position: absolute;
     right: 0.5rem;
     bottom: 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--color-surface), transparent 16%);
     color: var(--color-text);
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
     line-height: 1;
-    padding: 0.35rem 0.5rem;
+    padding: 0.35rem var(--space-sm);
   }
 
   &__overflow-count {
@@ -189,7 +190,7 @@
   }
 }
 
-@media (max-width: 36rem) {
+@media (max-width: breakpoints.$compact) {
   .media-gallery {
     &__video {
       width: auto;

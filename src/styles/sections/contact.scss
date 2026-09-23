@@ -19,7 +19,7 @@
   display: grid;
   gap: var(--space-sm);
   color: var(--color-text);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .contact-form__field input,
@@ -30,7 +30,7 @@
   box-sizing: border-box;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.75rem 0.85rem;
+  padding: var(--space-compact) 0.85rem;
   color: var(--color-text);
   font: inherit;
 }
@@ -53,10 +53,10 @@
 .abuse-form__submit {
   width: fit-content;
   border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem;
+  padding: var(--space-compact) var(--space-md);
   background: var(--color-accent);
   color: var(--color-text);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .contact-form__submit:disabled,

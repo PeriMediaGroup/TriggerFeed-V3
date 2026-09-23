@@ -1,18 +1,15 @@
 .comment-item {
   scroll-margin-top: 6rem;
-}
-
-.comment-item {
   list-style: none;
 
   &--reply {
     margin-left: 2.75rem;
-    margin-top: 0.75rem;
+    margin-top: var(--space-compact);
   }
 
   &__content {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-compact);
     align-items: flex-start;
   }
 
@@ -25,7 +22,7 @@
   &__avatar {
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     object-fit: cover;
     border: 1px solid var(--color-border-subtle);
     background: var(--color-surface-muted);
@@ -35,7 +32,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--color-text);
   }
 
@@ -49,14 +46,15 @@
     align-items: baseline;
     gap: 0.4rem;
     flex-wrap: wrap;
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--space-xs);
   }
 
   &__name {
     color: var(--color-text);
     text-decoration: none;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       text-decoration: underline;
     }
   }
@@ -71,7 +69,8 @@
   &__username {
     text-decoration: none;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       color: var(--color-accent);
     }
   }
@@ -86,7 +85,7 @@
   &__actions {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--space-compact);
     margin-top: 0.35rem;
   }
 
@@ -94,7 +93,7 @@
   &__icon-button {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--space-xs);
     border: 0;
     padding: 0;
     background: transparent;
@@ -119,18 +118,18 @@
 
   &__reply-form,
   &__edit-form {
-    margin-top: 0.75rem;
+    margin-top: var(--space-compact);
   }
 
   &__status,
   &__deleted {
-    margin-top: 0.5rem;
+    margin-top: var(--space-sm);
     color: var(--color-text-muted);
     font-size: 0.9rem;
   }
 
   &__replies {
-    margin-top: 0.75rem;
+    margin-top: var(--space-compact);
     padding-left: 0;
   }
 }

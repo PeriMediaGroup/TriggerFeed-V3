@@ -1,0 +1,30 @@
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+// Shared paragraph/list spacing for the editor and rendered rich content.
+@mixin rich-text-flow {
+  p {
+    margin: 0 0 var(--space-compact);
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  ul,
+  ol {
+    margin: var(--space-sm) 0 var(--space-compact);
+    padding-inline-start: 1.35rem;
+  }
+
+  li {
+    margin-block: 0.2rem;
+    padding-inline-start: 0.15rem;
+  }
+}

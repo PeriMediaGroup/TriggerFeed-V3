@@ -1,8 +1,9 @@
+@use "../../styles/breakpoints";
 .app-logo {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   text-decoration: none;
   &__mark {
     display: flex;
@@ -17,13 +18,13 @@
 
   &__text {
     font-family: var(--font-brand);
-    color: #fff;
-    font-size: 1.25rem;
+    color: var(--color-white);
+    font-size: var(--font-size-lg);
     text-decoration: none;
   }
 }
 
-@media (min-width: 68.75rem) {
+@media (min-width: breakpoints.$desktop) {
   .app-logo {
     flex-direction: column;
     align-items: center;

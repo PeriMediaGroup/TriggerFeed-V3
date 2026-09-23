@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints";
+@use "../../../styles/mixins";
 .create-post-page {
   padding: var(--space-md);
 }
@@ -29,9 +31,9 @@
     font: inherit;
     outline: none;
     transition:
-      border-color 160ms ease,
-      box-shadow 160ms ease,
-      background-color 160ms ease;
+      border-color var(--transition-base) var(--ease-standard),
+      box-shadow var(--transition-base) var(--ease-standard),
+      background-color var(--transition-base) var(--ease-standard);
   }
 
   input {
@@ -69,15 +71,15 @@
     background: var(--color-surface-elevated);
     color: var(--color-text);
     font: inherit;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     line-height: 1;
     cursor: pointer;
     transition:
-      border-color 160ms ease,
-      background-color 160ms ease,
-      color 160ms ease,
-      transform 140ms ease,
-      opacity 140ms ease;
+      border-color var(--transition-base) var(--ease-standard),
+      background-color var(--transition-base) var(--ease-standard),
+      color var(--transition-base) var(--ease-standard),
+      transform var(--transition-fast) var(--ease-standard),
+      opacity var(--transition-fast) var(--ease-standard);
   }
 
   button:hover:not(:disabled) {
@@ -123,7 +125,7 @@
   &__submit-step,
   &__gif-status {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     line-height: 1.45;
   }
 
@@ -153,8 +155,8 @@
       transparent 8%
     );
     color: var(--color-text);
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
   }
 
   &__sticky-option input {
@@ -204,7 +206,7 @@
     display: grid;
     gap: var(--space-sm);
     color: var(--color-text-muted);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
   }
 
@@ -226,15 +228,15 @@
     gap: var(--space-xs);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    padding: 0.65rem 0.75rem;
+    padding: 0.65rem var(--space-compact);
     background: color-mix(
       in srgb,
       var(--color-surface-elevated),
       transparent 8%
     );
     color: var(--color-text);
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
     line-height: 1.1;
     text-align: center;
     cursor: pointer;
@@ -280,7 +282,7 @@
   &__emoji-button {
     min-height: 2.5rem;
     padding: 0;
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   &__gif-picker {
@@ -375,7 +377,7 @@
   &__poll-header h2 {
     margin: 0;
     color: var(--color-text);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.2;
   }
 
@@ -445,7 +447,7 @@
   }
 }
 
-@media (min-width: 36rem) {
+@media (min-width: breakpoints.$compact) {
   .create-post {
     &__toolbar {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -470,9 +472,9 @@
   border-radius: var(--radius-md);
   background: var(--color-surface-transparent);
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
+    border-color var(--transition-base) var(--ease-standard),
+    box-shadow var(--transition-base) var(--ease-standard),
+    background-color var(--transition-base) var(--ease-standard);
 
   &:focus-within {
     border-color: color-mix(
@@ -490,7 +492,7 @@
     align-items: center;
     gap: 0.15rem;
     overflow-x: auto;
-    padding: 0.35rem 0.45rem 0.25rem;
+    padding: 0.35rem 0.45rem var(--space-xs);
     border-bottom: 1px solid
       color-mix(in srgb, var(--color-border), transparent 45%);
     scrollbar-width: none;
@@ -506,7 +508,7 @@
     min-height: 2rem;
     border: 0;
     border-radius: calc(var(--radius-md) - 0.2rem);
-    padding: 0.25rem 0.45rem;
+    padding: var(--space-xs) 0.45rem;
     background: transparent;
     color: var(--color-text-muted);
     font-size: 0.8125rem;
@@ -546,7 +548,7 @@
     border-radius: 0;
     background: transparent;
     color: var(--color-text);
-    padding: 0.75rem 0.85rem 0.85rem;
+    padding: var(--space-compact) 0.85rem 0.85rem;
     outline: none;
 
     &:focus,
@@ -554,24 +556,7 @@
       outline: none;
     }
 
-    p {
-      margin: 0 0 0.75rem;
-    }
-
-    p:last-child {
-      margin-bottom: 0;
-    }
-
-    ul,
-    ol {
-      margin: 0.5rem 0 0.75rem;
-      padding-inline-start: 1.35rem;
-    }
-
-    li {
-      margin-block: 0.2rem;
-      padding-inline-start: 0.15rem;
-    }
+    @include mixins.rich-text-flow;
 
     a {
       color: var(--color-accent);
@@ -585,7 +570,7 @@
   min-height: 2rem;
   min-width: 2rem;
   border: 0;
-  padding: 0.25rem 0.45rem;
+  padding: var(--space-xs) 0.45rem;
   background: transparent;
   color: var(--color-text-muted);
   transform: none;
@@ -612,7 +597,7 @@
   transform: none;
 }
 
-@media (min-width: 48rem) {
+@media (min-width: breakpoints.$tablet) {
   .create-post {
     &__media-label--desktop {
       display: grid;

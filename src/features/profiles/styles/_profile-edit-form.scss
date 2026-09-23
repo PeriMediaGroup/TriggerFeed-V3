@@ -29,8 +29,8 @@
     gap: var(--space-xs);
     width: fit-content;
     border: 1px solid var(--color-border);
-    border-radius: 999px;
-    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-pill);
+    padding: 0.35rem var(--space-compact);
     background: rgba(255, 255, 255, 0.06);
     color: var(--color-text-muted);
     font-size: 0.85rem;
@@ -82,16 +82,16 @@
     width: 2.35rem;
     height: 2.35rem;
     border: 1px solid var(--color-border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--color-surface);
     color: var(--color-text);
     cursor: pointer;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     transition:
-      border-color 160ms ease,
-      color 160ms ease,
-      background 160ms ease,
-      transform 160ms ease;
+      border-color var(--transition-base) var(--ease-standard),
+      color var(--transition-base) var(--ease-standard),
+      background var(--transition-base) var(--ease-standard),
+      transform var(--transition-base) var(--ease-standard);
 
     &:hover {
       border-color: var(--color-accent);
@@ -120,7 +120,7 @@
   &__section-title {
     margin: 0;
     color: var(--color-text);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 900;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -150,13 +150,13 @@
       border-radius: var(--radius-md);
       background: rgba(0, 0, 0, 0.22);
       color: var(--color-text);
-      padding: 0.75rem 0.85rem;
+      padding: var(--space-compact) 0.85rem;
       font: inherit;
       outline: none;
       transition:
-        border-color 160ms ease,
-        box-shadow 160ms ease,
-        background 160ms ease;
+        border-color var(--transition-base) var(--ease-standard),
+        box-shadow var(--transition-base) var(--ease-standard),
+        background var(--transition-base) var(--ease-standard);
 
       &::placeholder {
         color: var(--color-text-muted);
@@ -192,7 +192,7 @@
     margin: var(--space-xs) 0 0;
     color: var(--color-danger, #ef4444);
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 
   &__actions {
@@ -206,7 +206,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--color-accent);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.55rem 0.95rem;
     background: rgba(178, 34, 34, 0.18);
     color: var(--color-text);
@@ -214,9 +214,9 @@
     font-weight: 900;
     text-decoration: none;
     transition:
-      background 160ms ease,
-      border-color 160ms ease,
-      transform 160ms ease;
+      background var(--transition-base) var(--ease-standard),
+      border-color var(--transition-base) var(--ease-standard),
+      transform var(--transition-base) var(--ease-standard);
 
     &:hover {
       background: var(--color-accent);
@@ -228,6 +228,12 @@
 @keyframes profile-edit-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-edit-form__status.is-saving svg {
+    animation: none;
   }
 }
 

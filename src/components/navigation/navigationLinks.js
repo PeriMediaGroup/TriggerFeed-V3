@@ -21,7 +21,7 @@ export const APP_NAV_LINKS = [
     label: "Create",
     Icon: PlusCircle,
     auth: "loggedIn",
-    className: "app-nav__link-create",
+    className: "app-nav__link--create",
   },
   {
     href: "/",

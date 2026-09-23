@@ -14,11 +14,11 @@
     height: auto;
   }
   &__content {
-    color: #fff;
+    color: var(--color-white);
     text-decoration: none;
   }
   &__cta {
-    font-size: .75rem;
+    font-size: var(--font-size-xs);
   }
   &__link {
     text-decoration: none;

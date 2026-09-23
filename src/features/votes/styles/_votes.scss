@@ -4,7 +4,7 @@
   align-items: center;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   width: fit-content;
   margin: .5em .25em .25em 0;
 }

@@ -1,8 +1,8 @@
 .manage-guns-panel {
   display: grid;
-  gap: var(--space-4, 1rem);
+  gap: var(--space-md);
 
-  padding: var(--space-4, 1rem);
+  padding: var(--space-md);
   box-shadow: var(--shadow-card, 0 12px 32px rgba(0, 0, 0, 0.22));
 
   &__header {
@@ -11,7 +11,7 @@
 
     h2 {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: var(--font-size-lg);
     }
 
     p {
@@ -22,19 +22,19 @@
 
   &__editor {
     display: grid;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
   }
 }
 
 .edit-top-guns {
   display: grid;
-  gap: var(--space-4, 1rem);
+  gap: var(--space-md);
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
 
     h3,
     h2 {
@@ -50,10 +50,10 @@
   &__status,
   &__message {
     justify-self: start;
-    border-radius: 999px;
-    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-pill);
+    padding: var(--space-xs) 0.65rem;
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--color-text-muted, #9ca3af);
     background: var(--color-surface-muted, rgba(255, 255, 255, 0.06));
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
@@ -72,14 +72,14 @@
   &__form,
   &__list-wrap {
     display: grid;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-compact);
   }
 
   &__selected-list,
   &__available-list,
   &__list {
     display: grid;
-    gap: var(--space-2, 0.5rem);
+    gap: var(--space-sm);
     list-style: none;
     padding: 0;
     margin: 0;
@@ -91,15 +91,15 @@
     display: grid;
     grid-template-columns: auto auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-3, 0.75rem);
-    padding: 0.7rem 0.75rem;
+    gap: var(--space-compact);
+    padding: 0.7rem var(--space-compact);
     border-radius: var(--radius-md, 0.75rem);
     background: var(--color-surface-raised, rgba(255, 255, 255, 0.055));
     border: 1px solid transparent;
 
     &:hover {
       border-color: var(--color-border, rgba(255, 255, 255, 0.12));
-      // background: var(--color-surface-hover, rgba(255, 255, 255, 0.075));
+
     }
   }
 
@@ -108,7 +108,7 @@
     place-items: center;
     width: 2rem;
     height: 2rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-weight: 800;
     background: var(--color-accent-muted, rgba(178, 34, 34, 0.2));
     color: var(--color-accent, #b22222);
@@ -121,7 +121,7 @@
     height: 3.25rem;
     overflow: hidden;
     border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--color-surface-muted, rgba(255, 255, 255, 0.06));
     color: var(--color-accent, #b22222);
   }
@@ -135,7 +135,7 @@
   &__details {
     min-width: 0;
     display: grid;
-    gap: var(--space-2, 0.5rem);
+    gap: var(--space-sm);
   }
 
   &__image-actions {
@@ -149,13 +149,13 @@
       gap: 0.35rem;
       min-height: 2rem;
       border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       padding: 0.3rem 0.65rem;
       background: var(--color-button-bg, rgba(255, 255, 255, 0.06));
       color: var(--color-text, #fff);
       font: inherit;
       font-size: 0.78rem;
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
       cursor: pointer;
 
       &:hover:not(:disabled) {
@@ -195,7 +195,7 @@
     button {
       min-width: 2rem;
       height: 2rem;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
       background: var(--color-button-bg, rgba(255, 255, 255, 0.06));
       color: var(--color-text, #fff);
@@ -203,7 +203,7 @@
       font-weight: 800;
 
       &:hover:not(:disabled) {
-        // background: var(--color-button-hover, rgba(255, 255, 255, 0.12));
+
         border-color: var(--color-accent, #b22222);
       }
 
@@ -218,8 +218,8 @@
     border: 1px solid var(--color-accent, #b22222);
     background: var(--color-accent-muted, rgba(178, 34, 34, 0.18));
     color: var(--color-accent-contrast, #fff);
-    border-radius: 999px;
-    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-pill);
+    padding: 0.4rem var(--space-compact);
     font-size: 0.85rem;
     font-weight: 800;
     cursor: pointer;
@@ -245,7 +245,7 @@
     border-radius: var(--radius-md, 0.75rem);
     background: var(--color-input-bg, rgba(0, 0, 0, 0.25));
     color: var(--color-text, #fff);
-    padding: 0.75rem 0.85rem;
+    padding: var(--space-compact) 0.85rem;
     font: inherit;
     outline: none;
 
@@ -278,7 +278,7 @@
     &__selected-actions {
       grid-column: 1 / -1;
       justify-content: flex-start;
-      padding-left: calc(5.25rem + (var(--space-3, 0.75rem) * 2));
+      padding-left: calc(5.25rem + (var(--space-compact) * 2));
     }
   }
 }

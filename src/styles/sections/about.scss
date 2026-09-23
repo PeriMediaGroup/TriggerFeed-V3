@@ -1,3 +1,4 @@
+@use "../breakpoints";
 .about {
   --about-section-padding: clamp(1.1rem, 3vw, 1.75rem);
 }
@@ -5,7 +6,7 @@
 .about__section-kicker {
   margin: 0;
   color: var(--color-accent, #b22222);
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -128,7 +129,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm, 0.5rem);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .about__belief-note::before {
@@ -228,7 +229,7 @@
   margin-top: var(--space-xs, 0.25rem);
 }
 
-@media (max-width: 48rem) {
+@media (max-width: breakpoints.$tablet) {
   .about__story {
     grid-template-columns: 1fr;
   }
@@ -238,7 +239,7 @@
   }
 }
 
-@media (max-width: 36rem) {
+@media (max-width: breakpoints.$compact) {
   .about__identity-grid {
     grid-template-columns: 1fr;
   }

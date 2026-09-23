@@ -55,6 +55,10 @@ export function normalizeAttributionToken(value) {
 }
 
 export function parseAttributionParams(searchParams) {
+  if (isInternalAdAttribution(searchParams)) {
+    return null;
+  }
+
   const source = normalizeAttributionToken(searchParams?.get("source"));
   const campaign = normalizeAttributionToken(searchParams?.get("campaign"));
 
@@ -66,6 +70,29 @@ export function parseAttributionParams(searchParams) {
     source,
     campaign,
   };
+}
+
+// These are explicit markers emitted by ads/adHelpers.adDestination.
+// Campaign IDs are opaque: UUIDs are valid external campaign names too.
+export function isInternalAdAttribution(searchParams) {
+  return (
+    normalizeAttributionToken(searchParams?.get("source")) === "triggerfeed" ||
+    searchParams?.get("utm_medium")?.trim().toLowerCase() === "in-feed-ad"
+  );
+}
+
+function isStoredInternalAd(attribution) {
+  const params = new URLSearchParams();
+  params.set("source", attribution?.source || "");
+  if (isInternalAdAttribution(params)) return true;
+
+  try {
+    return isInternalAdAttribution(
+      new URL(attribution?.landingPath || "/", "https://triggerfeed.com").searchParams,
+    );
+  } catch {
+    return false;
+  }
 }
 
 export function getDeviceCategory(userAgent = "") {
@@ -114,6 +141,7 @@ export function readStoredAttribution() {
 
     if (
       !attribution?.visitorId ||
+      isStoredInternalAd(attribution) ||
       Date.now() - Number(attribution.firstSeenAt || 0) > ATTRIBUTION_MAX_AGE_MS
     ) {
       window.localStorage.removeItem(ATTRIBUTION_STORAGE_KEY);
@@ -127,7 +155,7 @@ export function readStoredAttribution() {
 }
 
 export function storeFirstTouchAttribution(attribution) {
-  if (!attribution?.visitorId || !attribution?.source) {
+  if (!attribution?.visitorId || !attribution?.source || isStoredInternalAd(attribution)) {
     return null;
   }
 
