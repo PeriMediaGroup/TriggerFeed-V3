@@ -79,3 +79,20 @@ New coverage includes every gap from 6 through 9, variable intervals in one feed
 ## Deferred
 
 Remote deployment and a live browser/installed-device walkthrough remain unperformed. UI tests use mocked native dependencies and SQL tests use a local database; they are not a production end-to-end test. No new frequency caps, configuration UI, billing, targeting, advertiser types, or separate house-ad system were added.
+
+## Follow-up verification of the repeated request — September 23, 2026
+
+The attached request was checked against the current implementation in both repositories. The spacing/session helpers, feed integrations, delivery migration, and original regression suites were already present and satisfy the requested behavior; no replacement implementation or additional migration was needed.
+
+This follow-up changes only this report and `src/features/ads/adHelpers.test.js`. The shared parameterized suite now additionally proves that a partial delivery followed by an empty eligible pool can resume without redrawing gaps, replacing existing tickets, or losing the immediately previous campaign at the retry boundary. That regression runs against both Web and Android helpers.
+
+Fresh validation:
+
+- Web: lint, TypeScript, production build, and **118 unit tests across 10 files** passed. The changed test file also passed its lint check after the addition.
+- Android: Expo lint, TypeScript, and Android export passed. Export artifact: `C:/Users/petes/AppData/Local/Temp/triggerfeed-ad-rotation-recheck-export`.
+- Both existing SQL suites, `custom_ads_v1.sql` and `feed_ad_rotation.sql`, passed against the isolated local `tf_creator_v1_validation` database. All test fixtures rolled back.
+- Database lint at warning level found no errors, but reported two existing warnings in `get_feed_ads`: the explicitly declared `slot` variable is unused and is shadowed by PL/pgSQL's implicit integer-loop variable. These do not affect selection; no extra migration was added solely for this cosmetic declaration issue. The earlier error-level validation above remains accurate.
+- Local security advisors reported no issues at warning/error level.
+- Organic feed queries remain capped snapshots. Presentation append/refresh behavior is tested; this does not claim a cursor-pagination or installed-device test where none exists.
+
+The existing rotation migration still requires the normal approved production rollout before the new clients are released. This follow-up did not inspect or change remote migration state, apply any remote migration, commit, or push. Existing mobile working-tree changes were preserved.

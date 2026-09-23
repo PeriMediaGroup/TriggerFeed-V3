@@ -93,6 +93,29 @@ describe.each([["web", webSession], ["android", androidSession]])("%s feed sessi
     expect(fetchAds.mock.calls.map(([count]) => count)).toEqual([2, 2]);
   });
 
+  it("resumes a partial batch after an empty pool without redrawing gaps or losing rotation context", async () => {
+    const random = vi.fn(() => 0.25);
+    const session = api.createAdSession(random);
+    const firstAd = { ...ad, ad_id: "campaign-a", delivery_id: "first" };
+    const fetchAds = vi.fn()
+      .mockResolvedValueOnce([firstAd])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { ...ad, ad_id: "campaign-b", delivery_id: "second" },
+        { ...ad, ad_id: "campaign-a", delivery_id: "third" },
+      ]);
+
+    const partial = await session.fill(21, fetchAds);
+    expect(partial).toEqual([{ after: 7, ad: firstAd }]);
+    const draws = random.mock.calls.length;
+    const resumed = await session.fill(21, fetchAds);
+    expect(random).toHaveBeenCalledTimes(draws);
+    expect(resumed.map((slot) => slot.after)).toEqual([7, 14, 21]);
+    expect(resumed[0]).toBe(partial[0]);
+    expect(resumed.map((slot) => slot.ad.delivery_id)).toEqual(["first", "second", "third"]);
+    expect(fetchAds.mock.calls).toEqual([[3, null], [2, "campaign-a"], [2, "campaign-a"]]);
+  });
+
   it("discards stale responses on refresh/unmount and recovers after request errors", async () => {
     const session = api.createAdSession(() => 0);
     let active = true;
