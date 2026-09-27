@@ -14,8 +14,7 @@
 .auth-reset-password,
 .auth-check-email,
 .auth-onboarding,
-.onboarding-complete,
-.welcome-gate {
+.onboarding-complete {
   --auth-card-max-width: 34rem;
   --auth-page-padding-inline: var(--space-md);
   --auth-page-padding-block: var(--space-xl);
@@ -41,122 +40,6 @@
   place-items: center;
   padding: var(--auth-page-padding-block) var(--auth-page-padding-inline);
   color: var(--auth-text);
-}
-
-.welcome-gate {
-  min-height: calc(100dvh - var(--app-header-height, 4rem));
-}
-
-.welcome-gate__card {
-  display: grid;
-  width: min(100%, 38rem);
-  gap: var(--space-comfortable);
-  padding: clamp(var(--space-comfortable), 5vw, 3rem);
-  border: 1px solid var(--auth-border);
-  border-radius: var(--auth-radius);
-  background:
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--auth-accent) 16%, transparent),
-      transparent 42%
-    ),
-    var(--auth-surface);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
-}
-
-.welcome-gate__brand {
-  justify-self: start;
-  font-size: 1.1rem;
-}
-
-.welcome-gate__age-notice {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 0.45rem var(--space-compact);
-  border: 1px solid color-mix(in srgb, var(--auth-accent) 45%, transparent);
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--auth-accent) 12%, transparent);
-  color: var(--auth-text);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.welcome-gate__copy {
-  display: grid;
-  gap: var(--space-compact);
-}
-
-.welcome-gate__eyebrow {
-  margin: 0;
-  color: var(--color-text-accent);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.welcome-gate__copy h1 {
-  margin: 0;
-  font-size: clamp(2rem, 7vw, 3.8rem);
-  line-height: 0.98;
-}
-
-.welcome-gate__copy p:not(.welcome-gate__eyebrow) {
-  max-width: 34rem;
-  margin: 0;
-  color: var(--auth-text-muted);
-  line-height: 1.65;
-}
-
-.welcome-gate__actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-compact);
-}
-
-.welcome-gate__primary,
-.welcome-gate__secondary {
-  display: inline-flex;
-  min-height: 3rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-pill);
-  padding: var(--space-compact) var(--space-md);
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.welcome-gate__primary {
-  background: var(--auth-accent);
-  color: var(--auth-accent-contrast);
-}
-
-.welcome-gate__secondary {
-  border: 1px solid var(--auth-border);
-  background: var(--auth-surface-raised);
-  color: var(--auth-text);
-}
-
-.welcome-gate__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-compact);
-
-  a {
-    color: var(--auth-text-muted);
-    font-size: 0.85rem;
-    font-weight: var(--font-weight-bold);
-    text-underline-offset: 0.2em;
-  }
-}
-
-.welcome-gate__disclaimer {
-  margin: 0;
-  color: var(--auth-text-muted);
-  font-size: 0.78rem;
-  line-height: 1.5;
 }
 
 .signup-form,
@@ -404,8 +287,7 @@
   .auth-reset-password__card,
   .auth-check-email__card,
   .auth-onboarding__card,
-  .onboarding-complete,
-  .welcome-gate__card {
+  .onboarding-complete {
     box-sizing: border-box;
     min-width: 0;
   }
@@ -579,7 +461,4 @@
 
   }
 
-  .welcome-gate__actions {
-    grid-template-columns: 1fr;
-  }
 }
