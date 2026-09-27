@@ -28,11 +28,17 @@ const triggerFeedIs = [
 ];
 
 const triggerFeedIsNot = [
-  "Facebook for guns",
-  "A bloated social media circus with a camo paint job",
+  "An attempt to replace every social network",
+  "An unfocused feed where these interests get lost",
   "A substitute for training, judgment, or personal responsibility",
   "A place for illegal, threatening, or reckless behavior",
 ];
+
+export const metadata = {
+  title: "About",
+  description: "Learn about TriggerFeed, a focused firearms community for Members, Creators, and Organizations built around responsible ownership, training, and preparedness.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
@@ -74,6 +80,13 @@ export default function AboutPage() {
             Here, members can share builds, range days, gear, lessons learned,
             questions, projects, emergency readiness ideas, and practical
             knowledge without fighting the usual social media noise.
+          </p>
+          <p>
+            Members connect through posts, photos, videos, and conversation.
+            Creators — including instructors, competitors, and industry voices —
+            share their expertise and build a following. Organizations, from
+            manufacturers and retailers to ranges, clubs, and training companies,
+            can establish a dedicated presence and connect directly with the community.
           </p>
         </div>
       </section>

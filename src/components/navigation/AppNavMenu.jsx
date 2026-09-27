@@ -11,6 +11,7 @@ import {
   MOBILE_UTILITY_LINKS,
 } from "./navigationLinks";
 import NavBadge from "./NavBadge";
+import { getWelcomeLinks } from "@/features/welcome/welcomeLinks";
 
 export default function AppNavMenu({
   isLoggedIn,
@@ -26,6 +27,7 @@ export default function AppNavMenu({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab");
+  const welcomeLinks = pathname === "/welcome" ? getWelcomeLinks(searchParams) : null;
 
   function closeMenu() {
     setIsOpen(false);
@@ -116,7 +118,8 @@ export default function AppNavMenu({
             </a>
           ) : (
             <Link
-              href={href}
+              href={welcomeLinks && href === "/signup" ? welcomeLinks.member
+                : welcomeLinks && href === "/login" ? welcomeLinks.login : href}
               className={getLinkClass(link, className)}
               onClick={onItemClick}
             >

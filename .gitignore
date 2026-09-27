@@ -26,6 +26,8 @@ triggerfeed-migration-remediation-review.zip
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
