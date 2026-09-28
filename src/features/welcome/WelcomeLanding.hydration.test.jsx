@@ -41,7 +41,12 @@ it("renders the public introduction and each signup/sign-in destination on the s
     matches.forEach((a) => expect(a.getAttribute("href")).toBe(path));
   }
   expect(doc.querySelectorAll(".welcome__audience")).toHaveLength(3);
-  expect(doc.querySelectorAll(".welcome__preview")).toHaveLength(3);
+  expect(doc.querySelectorAll(".welcome-showcase__open")).toHaveLength(4);
+  for (const image of doc.querySelectorAll(".welcome-showcase__image")) {
+    expect(image.getAttribute("loading")).toBe("lazy");
+    expect(image.getAttribute("alt").length).toBeGreaterThan(20);
+  }
+  expect(doc.querySelector('[role="dialog"]')).toBeNull();
   expect(doc.body.textContent).toContain(
     "does not automatically grant verification",
   );
