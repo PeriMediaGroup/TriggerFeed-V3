@@ -1,14 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
+import WelcomeShowcase from "./WelcomeShowcase";
 import {
   ArrowRight,
   Crosshair,
   Users,
   Video,
   Building2,
-  MessagesSquare,
-  UserRound,
-  Images,
   Check,
   ShieldCheck,
 } from "lucide-react";
@@ -58,35 +55,6 @@ const audiences = [
       "Publish news, products, events, and updates. Connect directly with members.",
     ],
     cta: "Create an Organization Account",
-  },
-];
-
-// Add approved product captures as { src, alt, width, height } when available.
-// These are feature-tour panels, never simulated screenshots.
-const previews = [
-  {
-    title: "Your feed",
-    Icon: MessagesSquare,
-    image: null,
-    label: "Follow the conversation",
-    description:
-      "Browse Main, Friends, Following, and Trending feeds. Find the posts and people you want to keep up with.",
-  },
-  {
-    title: "Your profile",
-    Icon: UserRound,
-    image: null,
-    label: "Make yourself known",
-    description:
-      "Give the community a place to find you. Members, Creators, and Organizations each have a home on TriggerFeed.",
-  },
-  {
-    title: "Your posts",
-    Icon: Images,
-    image: null,
-    label: "More than a status update",
-    description:
-      "Share photos, videos, questions, and polls. Trade ideas, add your experience, and keep the conversation going.",
   },
 ];
 
@@ -251,28 +219,7 @@ export default function WelcomeLanding({ links, isAuthenticated = false }) {
           </h2>
           <p>A closer look at what you can do when you join.</p>
         </div>
-        <div className="welcome__previews">
-          {previews.map(({ title, Icon, image, label, description }) => (
-            <article className="welcome__preview" key={title}>
-              {image ? (
-                <Image
-                  className="welcome__screenshot"
-                  src={image.src}
-                  alt={image.alt}
-                  width={image.width}
-                  height={image.height}
-                />
-              ) : (
-                <div className="welcome__preview-heading">
-                  <Icon size={30} aria-hidden="true" />
-                  <span>{title}</span>
-                </div>
-              )}
-              <h3>{label}</h3>
-              <p>{description}</p>
-            </article>
-          ))}
-        </div>
+        <WelcomeShowcase />
       </section>
 
       <section
