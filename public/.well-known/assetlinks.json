@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.perimediagroup.triggerfeed",
+      "sha256_cert_fingerprints": [
+        "45:DE:7E:A5:B0:AF:85:42:59:71:90:67:04:72:17:C8:CD:C8:E0:AE:32:A1:44:88:2A:65:EA:EB:59:16:3D:1B"
+      ]
+    }
+  }
+]
