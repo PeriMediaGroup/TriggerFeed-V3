@@ -11,5 +11,5 @@ export function foundingReleaseWarning(user, nextType) {
   if (nextType !== "organization"
     || !["member", "creator"].includes(user.profile_type)
     || !Number.isInteger(number) || number < 1 || number > 500) return "";
-  return `Changing this profile to Organization will release Founding Member #${number}. The number will become available to another eligible member or creator.`;
+  return `Changing this profile to Organization will release Founding Member #${number}. During open enrollment the number becomes available to another eligible member or creator. After finalization it is retired and remains reserved.`;
 }

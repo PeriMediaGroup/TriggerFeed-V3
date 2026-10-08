@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { unstable_doesMiddlewareMatch as doesProxyMatch } from "next/experimental/testing/server";
 
@@ -7,6 +7,11 @@ const source = readFileSync(new URL("./proxy.js", import.meta.url), "utf8");
 const matcher = JSON.parse(source.match(/matcher:\s*\[\s*(".*")/)[1]);
 const config = { matcher: [matcher] };
 describe("Android association", () => {
+  test("uses a single proxy alongside src/app", () => {
+    expect(existsSync(new URL("./app", import.meta.url))).toBe(true);
+    expect(existsSync(new URL("../proxy.js", import.meta.url))).toBe(false);
+    expect(existsSync(new URL("../middleware.js", import.meta.url))).toBe(false);
+  });
   test("publishes the supplied release signing certificate and package", () => {
     const association = JSON.parse(readFileSync(new URL("../public/.well-known/assetlinks.json", import.meta.url), "utf8"));
     expect(association).toEqual([{
@@ -17,7 +22,8 @@ describe("Android association", () => {
   });
   test("association bypasses auth proxy while private pages remain matched", () => {
     expect(doesProxyMatch({ config, url: "/.well-known/assetlinks.json" })).toBe(false);
-    for (const url of ["/admin", "/profile", "/signup", "/posts/range-day"]) {
+    for (const url of ["/admin", "/profile", "/signup", "/posts/range-day",
+      "/.well-known/private.json", "/.well-known/assetlinks.json/private", "/.well-known/assetlinks.json.bak"]) {
       expect(doesProxyMatch({ config, url })).toBe(true);
     }
   });

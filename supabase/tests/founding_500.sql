@@ -130,7 +130,7 @@ begin
     update public.profiles
     set founding_member_number = 3
     where id = riot_id;
-    raise exception 'existing Founding Member number should be immutable';
+    raise exception 'direct number edits must remain blocked outside authorized maintenance';
   exception
     when raise_exception then
       if sqlerrm <> 'Founding Member numbers cannot be changed once assigned' then
@@ -339,7 +339,7 @@ begin
     where p.id = replacement_id
       and p.founding_member_number = 6
   ) then
-    raise exception 'deleted Founding Member numbers should not be reused';
+    raise exception 'deleted slots stay reserved until explicit open-enrollment CEO repair';
   end if;
 
   insert into public.founding_member_numbers (number, profile_id)

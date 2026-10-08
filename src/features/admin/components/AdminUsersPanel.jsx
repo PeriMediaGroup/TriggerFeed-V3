@@ -5,6 +5,7 @@ import AdminUserCard from "./AdminUserCard";
 
 export default function AdminUsersPanel({
   users = [],
+  foundingState = null,
   query = "",
   currentUserId,
   permissions,
@@ -44,6 +45,7 @@ export default function AdminUsersPanel({
               <AdminUserCard
                 key={user.id}
                 user={user}
+                foundingState={foundingState}
                 currentUserId={currentUserId}
                 permissions={permissions}
               />

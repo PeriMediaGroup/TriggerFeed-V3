@@ -194,7 +194,8 @@ reset role;
 select pg_temp.assert_true((select profile_type='creator' and founding_member_number=26 from public.profiles where id=pg_temp.uid(16)),'mismatch cannot partially convert');
 update public.founding_member_numbers set profile_id=pg_temp.uid(16) where number=26;
 
--- Exhaustion does not block conversion or exceed 500; retired numbers stay claimed.
+-- Open enrollment: exhaustion does not block conversion or exceed 500.
+-- Retired slots remain claimed until explicit CEO repair; released slots can be reused.
 insert into public.founding_member_numbers(number,profile_id)
 select n,'e1000000-0000-0000-0000-999999999999'::uuid from generate_series(1,500) n
 where not exists(select 1 from public.founding_member_numbers f where f.number=n);

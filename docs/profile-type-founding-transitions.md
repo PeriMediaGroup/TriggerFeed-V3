@@ -1,3 +1,5 @@
+> Policy update: open-enrollment numbers are now provisional. See [Founding maintenance](founding-500-maintenance.md) for CEO compaction, removal, and explicit finalization. The historical implementation notes below describe the original conversion workflow; finalized conversions now retire rather than release numbers.
+
 # Admin profile type conversion and Founding 500
 
 Implemented in `/web` only. No remote migration, production account change, push, or commit was performed.

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import RemoveFoundingButton from "./RemoveFoundingButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -41,6 +42,7 @@ const ACTION_LABELS = {
   promote_user: "Promoted",
   demote_user: "Demoted",
   role_changed: "Role changed",
+  founding_removed: "Founding status removed",
 };
 
 const PROFILE_TYPE_LABELS = {
@@ -115,7 +117,7 @@ function hasVerifiedBadge(user) {
   return (user.badges || []).some((badge) => badge?.badge_slug === `verified-${user.profile_type}`);
 }
 
-export default function AdminUserCard({ user, currentUserId, permissions }) {
+export default function AdminUserCard({ user, currentUserId, permissions, foundingState = null }) {
   const router = useRouter();
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -401,6 +403,7 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
           <span className="admin-user-card__badge">
             {getProfileTypeLabel(profileType)}
           </span>
+          {user.founding_member_number ? <span className="admin-user-card__badge">Founding #{user.founding_member_number}</span> : null}
           {verified ? (
             <span className="admin-user-card__badge admin-user-card__badge--verified">
               Verified
@@ -436,6 +439,8 @@ export default function AdminUserCard({ user, currentUserId, permissions }) {
             >
               Add Note
             </button>
+
+            {canManageProfileTypes && foundingState && user.founding_member_number ? <RemoveFoundingButton userId={user.id} number={user.founding_member_number} name={displayName} finalized={Boolean(foundingState.finalized_at)} /> : null}
 
             {canMute && user.is_muted ? (
               <button

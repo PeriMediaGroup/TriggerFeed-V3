@@ -41,6 +41,9 @@ function normalizeExpiresAt(value) {
 function success(message, extra = {}) {
   revalidatePath("/admin/reports");
   revalidatePath("/admin/users");
+  revalidatePath("/admin/founding-500");
+  revalidatePath("/founding-500");
+  revalidatePath("/profiles/[userId]", "page");
   revalidatePath("/admin");
   revalidatePath("/profile");
   revalidatePath("/profile/notifications");

@@ -31,6 +31,7 @@ describe("admin profile type controls", () => {
     const warning = foundingReleaseWarning({ ...member, profile_type, founding_member_number: 137 }, "organization");
     expect(warning).toContain("Changing this profile to Organization will release Founding Member #137.");
     expect(warning).toContain("available to another eligible member or creator");
+    expect(warning).toContain("After finalization it is retired and remains reserved");
     expect(warning).not.toContain("#24");
   });
   it("does not warn for member/creator transitions or profiles without numbers", () => {
