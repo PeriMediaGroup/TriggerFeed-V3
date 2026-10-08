@@ -2,6 +2,8 @@
 -- Run after local reset:
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/user_activity_overview.sql
 
+begin;
+
 create extension if not exists pgcrypto;
 
 do $$
@@ -150,17 +152,23 @@ set role anon;
 
 do $$
 begin
-  if has_function_privilege('anon', 'public.touch_user_activity()', 'execute') then
-    raise exception 'anonymous role should not execute touch_user_activity';
-  end if;
-
-  if has_function_privilege(
-    'anon',
-    'public.get_admin_activity_overview(integer)',
-    'execute'
-  ) then
-    raise exception 'anonymous role should not execute get_admin_activity_overview';
-  end if;
+  -- Verify the auth boundary rather than installation-specific default ACLs.
+  begin
+    perform public.touch_user_activity();
+    raise exception 'anonymous caller must not touch activity';
+  exception
+    when insufficient_privilege then null;
+    when raise_exception then
+      if sqlerrm <> 'Authentication required' then raise; end if;
+  end;
+  begin
+    perform public.get_admin_activity_overview(10);
+    raise exception 'anonymous caller must not receive admin activity';
+  exception
+    when insufficient_privilege then null;
+    when raise_exception then
+      if sqlerrm <> 'Authentication required' then raise; end if;
+  end;
 end $$;
 
 reset role;
@@ -198,10 +206,13 @@ begin
   raise exception 'users should not directly touch another activity row';
 end $$;
 
+-- Exercise the write as the real caller, then inspect persistence as the test
+-- owner: user_activity intentionally has no client SELECT policy.
+select public.touch_user_activity();
+reset role;
+
 do $$
 begin
-  perform public.touch_user_activity();
-
   if not exists (
     select 1
     from public.user_activity
@@ -210,6 +221,8 @@ begin
     raise exception 'authenticated user activity row was not created';
   end if;
 end $$;
+
+set role authenticated;
 
 do $$
 begin
@@ -305,3 +318,5 @@ end $$;
 reset role;
 
 select 'user activity overview tests passed' as result;
+
+rollback;

@@ -7,7 +7,7 @@ import { getFounding500Registry } from "@/features/profiles/data/getFounding500R
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const PAGE_DESCRIPTION =
-  "The permanent TriggerFeed Founding 500 registry, ordered by the founding numbers assigned by TriggerFeed.";
+  "The TriggerFeed Founding 500 registry, ordered by current founding number. Positions are provisional until finalization.";
 
 export const metadata = {
   title: "Founding 500",
@@ -42,11 +42,11 @@ function getDisplayName(entry) {
   );
 }
 
-function RegistryMember({ entry }) {
+function RegistryMember({ entry, finalized }) {
   const isActive = entry.status === "active" && entry.profile_id;
   const displayName = isActive ? getDisplayName(entry) : "Retired member";
   const username =
-    isActive && entry.username ? `@${entry.username}` : "Number preserved";
+    isActive && entry.username ? `@${entry.username}` : finalized ? "Number permanently reserved" : "Position may be reclaimed";
   const avatarUrl =
     isActive && entry.avatar_cloudinary_url
       ? entry.avatar_cloudinary_url
@@ -110,7 +110,7 @@ function RegistryMember({ entry }) {
 }
 
 export default async function Founding500Page() {
-  const { entries, error } = await getFounding500Registry();
+  const { entries, error, state } = await getFounding500Registry();
 
   return (
     <main className="public-page founding-500">
@@ -126,9 +126,9 @@ export default async function Founding500Page() {
           <p className="founding-500__eyebrow">TriggerFeed registry</p>
           <h1 id="founding-500-title">Founding 500</h1>
           <p>
-            A permanent record of the first 500 human members assigned a
-            TriggerFeed founding number. Numbers are stored by the backend and
-            remain reserved once assigned.
+            {!state ? "Founding positions may be reclaimed during open enrollment. After finalization, numbers become permanent and retired numbers remain reserved." : state.finalized_at
+              ? "Finalized: Founding numbers are permanent historical identifiers. Retired numbers remain reserved."
+              : "Open enrollment: Founding positions are provisional and may be administratively reclaimed or resequenced. Numbers become permanent only when the program is finalized."}
           </p>
         </div>
       </section>
@@ -151,6 +151,7 @@ export default async function Founding500Page() {
             <RegistryMember
               key={entry.founding_member_number}
               entry={entry}
+              finalized={Boolean(state?.finalized_at)}
             />
           ))}
         </ol>

@@ -2,6 +2,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getModerationPermissions } from "../permissions";
 import AdminUserCard from "./AdminUserCard";
+import RemoveFoundingButton from "./RemoveFoundingButton";
 
 const mocks = vi.hoisted(() => ({ save: vi.fn(), confirm: vi.fn(), prompt: vi.fn() }));
 vi.mock("react", async (importOriginal) => ({
@@ -9,6 +10,7 @@ vi.mock("react", async (importOriginal) => ({
   useState: (initial) => [initial, vi.fn()],
   useTransition: () => [false, (action) => action()],
 }));
+vi.mock("../actions/foundingActions", () => ({ removeFoundingStatus: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next/image", () => ({ default: "img" }));
 vi.mock("next/link", () => ({ default: "a" }));
@@ -42,6 +44,23 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("admin profile conversion interaction", () => {
+  it("exposes Founding removal only to admins/CEO for founders with loaded policy state", () => {
+    function findRemoval(node) {
+      if (!React.isValidElement(node)) return false;
+      if (node.type === RemoveFoundingButton) return true;
+      return React.Children.toArray(node.props.children).some(findRemoval);
+    }
+    for (const role of ["admin", "ceo", "moderator", "user"]) {
+      const tree = AdminUserCard({ user: founder, currentUserId: "actor", permissions: getModerationPermissions(role), foundingState: { finalized_at: null } });
+      expect(findRemoval(tree)).toBe(["admin", "ceo"].includes(role));
+    }
+    for (const props of [
+      { user: { ...founder, founding_member_number: null }, foundingState: { finalized_at: null } },
+      { user: founder, foundingState: null },
+    ]) {
+      expect(findRemoval(AdminUserCard({ ...props, currentUserId: "actor", permissions: getModerationPermissions("admin") }))).toBe(false);
+    }
+  });
   it.each(["admin", "ceo"])("%s sees all three public choices", (role) => {
     const labels = render(founder, role).map((button) => button.props.children);
     expect(labels).toEqual(expect.arrayContaining(["Member", "Creator", "Organization"]));

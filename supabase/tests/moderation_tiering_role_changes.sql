@@ -2,6 +2,8 @@
 -- Run after local reset:
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/moderation_tiering_role_changes.sql
 
+begin;
+
 create extension if not exists pgcrypto;
 
 do $$
@@ -10,7 +12,7 @@ declare
   admin_id uuid := '23000000-0000-0000-0000-000000000002';
   moderator_id uuid := '23000000-0000-0000-0000-000000000003';
   user_id uuid := '23000000-0000-0000-0000-000000000004';
-  post_id uuid := '23000000-0000-0000-0000-000000000005';
+  fixture_post_id uuid := '23000000-0000-0000-0000-000000000005';
   report_id uuid;
 begin
   delete from auth.users
@@ -89,7 +91,7 @@ begin
   update public.profiles set role = 'user' where id = user_id;
 
   insert into public.posts (id, user_id, title, body)
-  values (post_id, user_id, 'Tiered moderation post', 'Reported body')
+  values (fixture_post_id, user_id, 'Tiered moderation post', 'Reported body')
   on conflict (id) do update
   set is_deleted = false,
       deleted_at = null,
@@ -98,7 +100,7 @@ begin
       removal_reason = null;
 
   insert into public.post_reports (post_id, reporter_id, reason, status)
-  values (post_id, moderator_id, 'spam', 'open')
+  values (fixture_post_id, moderator_id, 'spam', 'open')
   on conflict (post_id, reporter_id) do update
   set status = 'open'
   returning id into report_id;
@@ -234,7 +236,7 @@ begin
 
   if not exists (
     select 1
-    from public.profiles
+    from public.search_admin_users('tier_user')
     where id = '23000000-0000-0000-0000-000000000004'
       and is_muted = true
   ) then
@@ -307,10 +309,6 @@ do $$
 declare
   action_id uuid;
 begin
-  update public.profiles
-  set role = 'user'
-  where id = '23000000-0000-0000-0000-000000000004';
-
   action_id := public.change_user_role(
     '23000000-0000-0000-0000-000000000004',
     'moderator',
@@ -365,7 +363,7 @@ begin
 
   if exists (
     select 1
-    from public.profiles
+    from public.search_admin_users('tier_user')
     where id = '23000000-0000-0000-0000-000000000004'
       and is_banned = true
   ) then
@@ -376,3 +374,5 @@ end $$;
 reset role;
 
 select 'moderation tiering and role change tests passed' as result;
+
+rollback;

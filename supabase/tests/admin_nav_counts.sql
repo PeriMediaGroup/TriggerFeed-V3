@@ -2,6 +2,8 @@
 -- Run after local reset:
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/admin_nav_counts.sql
 
+begin;
+
 create extension if not exists pgcrypto;
 
 do $$
@@ -9,7 +11,7 @@ declare
   moderator_id uuid := '22000000-0000-0000-0000-000000000001';
   admin_id uuid := '22000000-0000-0000-0000-000000000002';
   user_id uuid := '22000000-0000-0000-0000-000000000003';
-  post_id uuid := '22000000-0000-0000-0000-000000000004';
+  fixture_post_id uuid := '22000000-0000-0000-0000-000000000004';
 begin
   delete from auth.users
   where id in (moderator_id, admin_id, user_id);
@@ -72,12 +74,12 @@ begin
   update public.profiles set role = 'admin' where id = admin_id;
 
   insert into public.posts (id, user_id, title, body)
-  values (post_id, user_id, 'Reported post', 'Body for admin nav counts test')
+  values (fixture_post_id, user_id, 'Reported post', 'Body for admin nav counts test')
   on conflict (id) do nothing;
 
   insert into public.post_reports (post_id, reporter_id, reason, status)
   values
-    (post_id, moderator_id, 'spam', 'open')
+    (fixture_post_id, moderator_id, 'spam', 'open')
   on conflict (post_id, reporter_id) do update
   set status = excluded.status;
 
@@ -96,13 +98,17 @@ set role anon;
 
 do $$
 begin
-  if has_function_privilege(
-    'anon',
-    'public.get_admin_nav_counts()',
-    'execute'
-  ) then
-    raise exception 'anonymous role should not be able to execute admin nav counts';
-  end if;
+  -- Some existing installations grant anon EXECUTE through default ACLs.
+  -- The security contract is denial of data, whether by ACL or the auth guard.
+  begin
+    perform public.get_admin_nav_counts();
+  exception
+    when insufficient_privilege then return;
+    when raise_exception then
+      if sqlerrm = 'Authentication required' then return; end if;
+      raise;
+  end;
+  raise exception 'anonymous caller must not receive admin navigation counts';
 end $$;
 
 reset role;
@@ -184,3 +190,5 @@ end $$;
 reset role;
 
 select 'admin nav counts tests passed' as result;
+
+rollback;

@@ -2,6 +2,7 @@
 -- Run after local reset:
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/search_friend_candidates.sql
 
+begin;
 create extension if not exists pgcrypto;
 
 do $$
@@ -204,6 +205,7 @@ begin
     'avatar_cloudinary_url',
     'city',
     'display_name',
+    'founding_member_number',
     'friendship_status',
     'id',
     'state',
@@ -216,3 +218,141 @@ end $$;
 reset role;
 
 select 'friend candidate search tests passed' as result;
+
+-- New permission and public-profile compatibility checks use the same fixtures.
+set local role anon;
+select set_config('request.jwt.claim.sub', '', true);
+do $$
+declare
+  statement text;
+  denied boolean;
+  card record;
+begin
+  foreach statement in array array[
+    'select * from public.search_friend_candidates(''alice'',25)',
+    'select * from public.get_friend_suggestions(20)',
+    'select public.are_users_accepted_friends(''21000000-0000-0000-0000-000000000001'',''21000000-0000-0000-0000-000000000004'')',
+    'select requester_id,addressee_id,status from public.friends',
+    'select email,privacy_settings from public.profiles'
+  ] loop
+    denied := false;
+    begin
+      execute statement;
+    exception when insufficient_privilege then denied := true;
+    end;
+    if not denied then raise exception 'Anonymous private discovery access allowed: %', statement; end if;
+  end loop;
+
+  select * into card from public.get_public_profile_cards(array['21000000-0000-0000-0000-000000000004'::uuid]);
+  if card.id is null or card.first_name is not null or card.last_name is not null
+    or card.city is not null or card.state is not null then
+    raise exception 'Public card unavailable or private fields exposed';
+  end if;
+  if exists(select 1 from public.get_public_profile_cards(array['21000000-0000-0000-0000-000000000005'::uuid])) then
+    raise exception 'Deleted profile card exposed';
+  end if;
+  if not exists(select 1 from public.get_public_profile('21000000-0000-0000-0000-000000000004')) then
+    raise exception 'Public profile access was broken';
+  end if;
+  perform * from public.get_public_profile_badges(array['21000000-0000-0000-0000-000000000004'::uuid]);
+  -- Some local databases predate this optional public metadata RPC.
+  if to_regprocedure('public.get_public_profile_metadata(uuid[])') is not null then
+    perform * from public.get_public_profile_metadata(array['21000000-0000-0000-0000-000000000004'::uuid]);
+  else
+    raise notice 'SKIPPED public metadata compatibility: RPC absent from this database';
+  end if;
+  if not public.is_profile_visible('21000000-0000-0000-0000-000000000004') then
+    raise exception 'Public visibility helper was broken';
+  end if;
+  if public.get_profile_friend_count('21000000-0000-0000-0000-000000000004') < 1 then
+    raise exception 'Public aggregate friend count was broken';
+  end if;
+end $$;
+reset role;
+
+-- Make the otherwise unrelated candidate eligible for a deterministic suggestion.
+update public.profiles set state = 'CC' where id = '21000000-0000-0000-0000-000000000001';
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '21000000-0000-0000-0000-000000000001', true);
+do $$
+begin
+  if not exists(select 1 from public.get_friend_suggestions(p_limit => 20) where id = '21000000-0000-0000-0000-000000000003') then
+    raise exception 'Authenticated suggestions stopped working';
+  end if;
+  if exists(select 1 from public.get_friend_suggestions(20) where id in (
+    '21000000-0000-0000-0000-000000000001','21000000-0000-0000-0000-000000000002',
+    '21000000-0000-0000-0000-000000000004','21000000-0000-0000-0000-000000000005','21000000-0000-0000-0000-000000000006')) then
+    raise exception 'Suggestion eligibility or existing relationship filtering changed';
+  end if;
+  perform * from public.search_friend_candidates(p_query => '@alice', p_limit => 50);
+  if not public.are_users_accepted_friends('21000000-0000-0000-0000-000000000001','21000000-0000-0000-0000-000000000004') then
+    raise exception 'Own accepted relationship check failed';
+  end if;
+  if public.are_users_accepted_friends('21000000-0000-0000-0000-000000000002','21000000-0000-0000-0000-000000000004') then
+    raise exception 'Unrelated relationship check leaked';
+  end if;
+end $$;
+reset role;
+
+update public.profiles set is_muted = true where id = '21000000-0000-0000-0000-000000000003';
+set local role authenticated;
+do $$ begin
+  if exists(select 1 from public.get_friend_suggestions(20) where id = '21000000-0000-0000-0000-000000000003') then
+    raise exception 'Muted candidate suggested';
+  end if;
+end $$;
+reset role;
+update public.profiles set is_muted = false where id = '21000000-0000-0000-0000-000000000003';
+
+update public.profiles set is_banned = true where id = '21000000-0000-0000-0000-000000000001';
+set local role authenticated;
+do $$ begin
+  if exists(select 1 from public.get_friend_suggestions(20)) then
+    raise exception 'Banned viewer received suggestions';
+  end if;
+end $$;
+reset role;
+update public.profiles set is_banned = false, is_deleted = true where id = '21000000-0000-0000-0000-000000000001';
+set local role authenticated;
+do $$ begin
+  if exists(select 1 from public.get_friend_suggestions(20)) then
+    raise exception 'Deleted viewer received suggestions';
+  end if;
+end $$;
+reset role;
+update public.profiles set is_deleted = false where id = '21000000-0000-0000-0000-000000000001';
+
+insert into public.friends(requester_id,addressee_id,status)
+values('21000000-0000-0000-0000-000000000001','21000000-0000-0000-0000-000000000003','blocked');
+set local role authenticated;
+do $$ begin
+  if exists(select 1 from public.get_friend_suggestions(20) where id = '21000000-0000-0000-0000-000000000003') then
+    raise exception 'Blocked relationship suggested';
+  end if;
+  if not exists(select 1 from public.search_friend_candidates('user_alice',25) where friendship_status = 'blocked') then
+    raise exception 'Existing blocked search state changed';
+  end if;
+end $$;
+reset role;
+
+do $$
+declare signature text;
+begin
+  foreach signature in array array['public.search_friend_candidates(text,integer)',
+    'public.get_friend_suggestions(integer)','public.are_users_accepted_friends(uuid,uuid)'] loop
+    if has_function_privilege('anon',signature,'EXECUTE')
+      or not has_function_privilege('authenticated',signature,'EXECUTE')
+      or not has_function_privilege('service_role',signature,'EXECUTE') then
+      raise exception 'Incorrect grants for %', signature;
+    end if;
+    if exists(select 1 from pg_proc p, lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl
+      where p.oid=signature::regprocedure and acl.grantee=0 and acl.privilege_type='EXECUTE') then
+      raise exception 'PUBLIC can execute %', signature;
+    end if;
+    if not exists(select 1 from pg_proc where oid=signature::regprocedure and prosecdef and 'search_path=""'=any(proconfig)) then
+      raise exception 'Unexpected security configuration for %', signature;
+    end if;
+  end loop;
+end $$;
+select 'friend discovery permissions and public profile compatibility passed' as result;
+rollback;

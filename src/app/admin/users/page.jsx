@@ -40,6 +40,7 @@ export default async function AdminUsersPage({ searchParams }) {
   }
 
   const { users, error } = await getAdminUsers({ query });
+  const { data: foundingState, error: foundingError } = await supabase.rpc("get_founding_500_state");
   const adminCounts = await getAdminNavCounts({
     supabase,
     role: permissions.role,
@@ -48,6 +49,7 @@ export default async function AdminUsersPage({ searchParams }) {
   return (
     <AdminUsersPanel
       users={users}
+      foundingState={foundingError ? null : foundingState}
       query={query}
       currentUserId={user.id}
       permissions={permissions}

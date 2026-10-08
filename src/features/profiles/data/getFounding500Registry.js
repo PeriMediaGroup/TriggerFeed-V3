@@ -3,7 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 export async function getFounding500Registry() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.rpc("get_founding_500_registry");
+  const [{ data, error }, { data: state, error: stateError }] = await Promise.all([
+    supabase.rpc("get_founding_500_registry"),
+    supabase.rpc("get_founding_500_state"),
+  ]);
 
   if (error) {
     console.error("GET FOUNDING 500 REGISTRY ERROR:", {
@@ -21,6 +24,7 @@ export async function getFounding500Registry() {
 
   return {
     entries: data || [],
-    error: null,
+    state: stateError ? null : state,
+    error: stateError || null,
   };
 }
