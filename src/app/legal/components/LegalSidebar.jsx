@@ -42,6 +42,17 @@ export default function LegalSidebar() {
     };
   }, []);
 
+  useEffect(() => {
+    // Reapply the initial fragment after hydration/layout. Native smooth
+    // scrolling can be interrupted while Next finishes loading the page.
+    const id = window.location.hash.slice(1);
+    if (!NAV_ITEMS.some((item) => item.id === id) && id !== "legal-top") return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "instant", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   return (
     <nav className="legal-sidebar">
       <ul className="legal-sidebar__list">
